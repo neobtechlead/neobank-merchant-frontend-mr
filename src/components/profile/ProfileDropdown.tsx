@@ -1,0 +1,66 @@
+import React, { useState, useEffect, useRef } from 'react';
+import ProfileIcon from '@/components/Profile/ProfileIcon';
+import ProfileList from "@/components/Profile/ProfileList";
+
+const ProfileDropdown: React.FC = () => {
+    const [isDropdownOpen, setDropdownOpen] = useState(false);
+    const dropdownRef = useRef(null);
+
+    const toggleDropdown = () => setDropdownOpen(!isDropdownOpen);
+
+    useEffect(() => {
+        function handleDocumentClick(event: MouseEvent) {
+            if (
+                dropdownRef.current &&
+                !dropdownRef.current.contains(event.target as Node)
+            ) {
+                setDropdownOpen(false);
+            }
+        }
+
+        if (isDropdownOpen) {
+            document.addEventListener('click', handleDocumentClick);
+        } else {
+            document.removeEventListener('click', handleDocumentClick);
+        }
+
+        return () => document.removeEventListener('click', handleDocumentClick);
+    }, [isDropdownOpen]);
+
+    const handleDropdownButtonClick = () => {
+        toggleDropdown();
+    };
+
+    return (
+        <>
+            <div className="flex justify-center items-center">
+                <div className="relative inline-block text-left" ref={dropdownRef}>
+                    <ProfileIcon label="CF" onClick={handleDropdownButtonClick} />
+                    <div
+                        id="dropdown-menu"
+                        className={`origin-top-right absolute right-0 mt-5 border rounded-md shadow-lg bg-white ${isDropdownOpen ? '' : 'hidden'}`}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                        }}
+                    >
+                        <div className="p-4 border-b flex items-center">
+                            <ProfileIcon label={"CF"} onClick={() => {}} />
+                            <span className="sr-only">Open user menu</span>
+
+                            <div className="inline-block items-center ml-2">
+                                <div className="whitespace-nowrap">Complete Farmer</div>
+                                <div className="text-gray-600 text-xs whitespace-nowrap">Merchant</div>
+                            </div>
+                        </div>
+
+                        <div className="py-2" role="menu" aria-orientation="vertical" aria-labelledby="dropdown-button">
+                            <ProfileList />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </>
+    );
+};
+
+export default ProfileDropdown;
