@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, { useRef, useState} from 'react';
 import Link from "next/link";
 import Button from "@/components/forms/Button";
 

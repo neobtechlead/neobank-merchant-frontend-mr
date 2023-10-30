@@ -32,8 +32,7 @@ const LineGraph = () => {
     };
 
     return (
-        <div className="flex flex-col border border-gray-100 rounded-lg p-3
-        ">
+        <div className="flex flex-col border border-gray-100 rounded-lg p-3">
             <div className="flex justify-between border border-gray-100 rounded-lg p-0 text-center">
                 <button
                     className={`w-full px-3 py-1 rounded-lg ${activeTab === 'collections' ? 'bg-purple-900 text-white' : ''}`}

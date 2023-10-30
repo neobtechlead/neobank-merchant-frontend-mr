@@ -7,6 +7,8 @@ import VerifyOtp from "@/components/VerifyOtp";
 import Alert from "@/components/Alert";
 import {verifyOtp, verifyEmailLink, changePassword} from "@/api/auth";
 import passwordChange from "@/components/PasswordChange";
+import {useSelector, useDispatch} from 'react-redux'
+import {RootState} from "@/redux/store";
 
 const Verification: React.FC = ({token}) => {
     const [title, setTitle] = useState<string | null>('Enter OTP');
@@ -21,7 +23,6 @@ const Verification: React.FC = ({token}) => {
     };
     const [verificationComplete, setVerificationComplete] = useState(false);
 
-
     useEffect(() => {
         if (!verificationComplete) handleEmailLinkVerification()
     }, [])
@@ -35,7 +36,6 @@ const Verification: React.FC = ({token}) => {
 
     const handleVerifyOtp = (otp) => {
         const otpResponse = verifyOtp(accessKey, otp)
-        console.log(otpResponse)
 
         if (otpResponse) {
             setError('')
@@ -51,13 +51,12 @@ const Verification: React.FC = ({token}) => {
 
     const handlePasswordChange = (password, confirmPassword) => {
         const passwordChangeResponse = changePassword(password, confirmPassword)
-        console.log(passwordChangeResponse)
         if (password.length > 5) return router.push('/overview');
     };
 
-    const handleError = (error) => {
-        setError(error)
-    };
+    const handleError = (error) => setError(error)
+
+    // const authUser = useSelector((state: RootState) => state.name)
 
     return (
         <div className="relative flex min-h-full flex-col justify-center overflow-hidden bg-transparent">

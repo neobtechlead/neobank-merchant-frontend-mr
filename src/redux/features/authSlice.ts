@@ -5,13 +5,15 @@ interface AuthState {
     password: string;
     firstTimeLogin: boolean | null;
     accessKey: string | null;
+    authToken: string | null;
 }
 
 const initialState: AuthState = {
     email: '',
     password: '',
     firstTimeLogin: null,
-    accessKey: null
+    accessKey: null,
+    authToken: null
 };
 
 const authSlice = createSlice({
@@ -28,11 +30,18 @@ const authSlice = createSlice({
                 password: action.payload.password,
                 firstTimeLogin: action.payload.firstTimeLogin,
                 accessKey: action.payload.accessKey,
+                authToken: action.payload.accessKey,
+            };
+        },
+        setAuthToken: (state, action: PayloadAction<AuthState>) => {
+            return {
+                ...state,
+                authToken: action.payload.accessKey,
             };
         },
     },
 });
 
-export const {setAuthUser, reset} = authSlice.actions;
+export const {setAuthUser, reset, setAuthToken} = authSlice.actions;
 
 export default authSlice.reducer;
