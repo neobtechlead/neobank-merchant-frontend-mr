@@ -68,6 +68,9 @@ const Dashboard: React.FC<DashboardProps> = ({merchant, transactionData}) => {
         },
     ];
 
+    const disbursementDescription = "Perform disbursements to view recent disbursement"
+    const transactionDescription = "Perform a transaction to see your total counts"
+
     return (
         <div className="m-5">
             <div className="flex flex-col lg:flex-row items-start justify-between md:gap-4">
@@ -107,23 +110,25 @@ const Dashboard: React.FC<DashboardProps> = ({merchant, transactionData}) => {
                                     customStyles={`lg:w-2/3 flex flex-col p-3 w-full border border-purple-900 rounded-l-2xl rounded-r-0 h-[197px] `}>
                                     <div className="flex flex-col h-full">
                                         <h5 className="text-sm md:font-medium leading-6">Recent Disbursements</h5>
-                                        {!hasTransaction && <EmptyTransactionCardContent contentType="disbursement">
-                                            <div className="">
-                                                <div
-                                                    className="flex flex-col justify-center items-center h-full w-full">
-                                                    <div className="flex justify-between my-4">
-                                                        <Image src="/assets/icons/user-circle-color-fill.svg"
-                                                               alt="user"
-                                                               className="" width={24} height={24}
-                                                        />
-                                                        <Image src="/assets/icons/line-arrow-right.svg" alt="arrow"
-                                                               className="mx-8" width={45} height={24}
-                                                        />
-                                                        <Image src="/assets/icons/users-color-fill.svg" alt="users"
-                                                               className="" width={24} height={24}
-                                                        />
-                                                    </div>
+                                        {!hasTransaction && <EmptyTransactionCardContent showContent={false}>
+                                            <div
+                                                className="flex flex-col justify-center items-center h-full w-full mt-4">
+                                                <div className="flex justify-between mt-4">
+                                                    <Image src="/assets/icons/user-circle-color-fill.svg"
+                                                           alt="user"
+                                                           className="" width={24} height={24}
+                                                    />
+                                                    <Image src="/assets/icons/line-arrow-right.svg" alt="arrow"
+                                                           className="mx-8" width={45} height={24}
+                                                    />
+                                                    <Image src="/assets/icons/users-color-fill.svg" alt="users"
+                                                           className="" width={24} height={24}
+                                                    />
                                                 </div>
+                                            </div>
+                                            <div className="flex flex-col justify-center items-center">
+                                                <h5 className="font-semibold">No data available</h5>
+                                                <p className="font-normal text-xs text-center mt-1 lg:w-2/3 md:w-2/3 sm:w-1/3 sm:mx-6">{disbursementDescription}</p>
                                             </div>
                                         </EmptyTransactionCardContent>}
 
@@ -153,17 +158,18 @@ const Dashboard: React.FC<DashboardProps> = ({merchant, transactionData}) => {
                                 <Card
                                     customStyles={`lg:w-1/3 flex flex-col border-t border-r border-b border-purple-900 w-full rounded-r-2xl h-[197px]`}>
                                     <h5 className="text-sm md:font-medium leading-6 p-3">Scheduled Payments</h5>
-                                    {!hasTransaction && <EmptyTransactionCardContent>
+                                    {!hasTransaction && <EmptyTransactionCardContent showContent={false}>
                                         <div className="">
                                             <div
                                                 className="flex flex-col justify-center items-center h-full w-full">
                                                 <div className="flex justify-between my-4">
-                                                    <Image src="/assets/icons/clock-color.svg" alt="file"
-                                                           className="flex text-white" width={24} height={24}
+                                                    <Image src="/assets/images/clock-paragraph.svg" alt="file"
+                                                           className="flex text-white" width={90} height={28}
                                                     />
-                                                    <Image src="/assets/icons/paragraph-color.svg" alt="file"
-                                                           className="flex text-white" width={24} height={24}
-                                                    />
+                                                </div>
+                                                <div className="flex flex-col justify-center items-center w-full">
+                                                    <h5 className="font-semibold">No data available</h5>
+                                                    <p className="font-normal text-xs text-center mt-1 lg:w-2/3 md:w-2/3 sm:w-1/3 sm:mx-6">{disbursementDescription}</p>
                                                 </div>
                                             </div>
                                         </div>
@@ -238,8 +244,7 @@ const Dashboard: React.FC<DashboardProps> = ({merchant, transactionData}) => {
                                 </Card>
 
                                 <Card
-                                    customStyles={`flex flex-col border border-purple-900 w-full rounded-xl h-[197px]
-                                    `}>
+                                    customStyles={`flex flex-col border border-purple-900 w-full rounded-xl h-[197px]`}>
                                     <h5 className="text-sm md:font-medium leading-6 p-3">Scheduled Payments</h5>
 
                                     <div className="flex flex-col h-full">
@@ -301,13 +306,17 @@ const Dashboard: React.FC<DashboardProps> = ({merchant, transactionData}) => {
                         </div>}
                     </div>
 
-                    {!hasTransaction && <EmptyTransactionCardContent>
+                    {!hasTransaction && <EmptyTransactionCardContent showContent={false} >
                         <div
                             className="flex flex-col justify-center items-center h-full w-full">
-                            <div className="flex justify-between">
+                            <div className="flex justify-between my-4">
                                 <Image src="/assets/icons/graph.svg" alt="graph"
-                                       className="flex text-white" width={125} height={24}
+                                       className="flex text-white" width={155} height={155}
                                 />
+                            </div>
+                            <div className="flex flex-col justify-center items-center w-full">
+                                <h5 className="font-semibold">No data available</h5>
+                                <p className="font-normal text-xs text-center mt-1 lg:w-2/3 md:w-2/3 sm:w-1/3 sm:mx-6">{transactionDescription}</p>
                             </div>
                         </div>
                     </EmptyTransactionCardContent>}
@@ -324,13 +333,15 @@ const Dashboard: React.FC<DashboardProps> = ({merchant, transactionData}) => {
                         </div>
 
                         {!hasTransaction && (
-                            <EmptyTransactionCardContent>
+                            <EmptyTransactionCardContent showContent={false}>
                                 <div className="flex flex-col justify-center items-center h-full w-full">
-
-
-                                    <div className="flex justify-between">
+                                    <div className="flex justify-between my-5">
                                         <Image src="/assets/icons/random-color-squares.svg" alt="squares"
                                                className="flex text-white" width={125} height={125}/>
+                                    </div>
+                                    <div className="flex flex-col justify-center items-center w-full">
+                                        <h5 className="font-semibold">No data available</h5>
+                                        <p className="font-normal text-xs text-center mt-1 lg:w-2/3 md:w-2/3 sm:w-1/3 sm:mx-6">{transactionDescription}</p>
                                     </div>
                                 </div>
                             </EmptyTransactionCardContent>

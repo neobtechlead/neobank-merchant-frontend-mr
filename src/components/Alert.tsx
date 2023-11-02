@@ -1,22 +1,58 @@
 import React from 'react';
-import Image from "next/image";
+import {CheckCircle} from '../../public/assets/icons/checkCircle';
+import {Clock} from '../../public/assets/icons/Clock';
+import {XCircle} from '../../public/assets/icons/XCircle';
+import Svg from "@/components/Svg";
 
 interface AlertProps {
-    children: React.ReactNode;
-    backgroundColor: string;
-    iconSrc: string;
+    alertType?: string;
+    description?: string;
+    customClasses?: string;
+    descriptionClasses?: string;
+    children?: React.ReactNode
 }
 
-const Alert: React.FC<AlertProps> = ({children, backgroundColor, customClasses, iconSrc}) => {
+const Alert: React.FC<AlertProps> = ({
+                                         alertType,
+                                         description,
+                                         customClasses,
+                                         children,
+                                         descriptionClasses
+                                     }) => {
+    const alertIcons = {
+        success: CheckCircle,
+        info: CheckCircle,
+        warning: Clock,
+        error: XCircle,
+        completed: CheckCircle
+    };
+
+    const alertIconColors = {
+        success: '#008000',
+        info: '#06b6d4',
+        warning: '#F29339',
+        error: '#EB2F2F',
+        completed: '#000000'
+    };
+
+    const alertBackgroundColors = {
+        success: '#0080001A',
+        info: '#ECFEFF',
+        warning: '#F293391A',
+        error: '#EB2F2F1A',
+        completed: '#0000001A'
+
+    };
+
     return (
-        <div className={`py-4 p-2 ${backgroundColor} ${customClasses}`}>
+        <div className={`rounded p-1 ${customClasses}`} style={{background: alertBackgroundColors[alertType]}}>
             <div className="flex items-center justify-between">
-                <div className="flex-shrink-0">
-                    <Image src={iconSrc} alt="icon" width={24} height={24}/>
+                <div className="flex-shrink-0 mx-1">
+                    {alertType && <Svg fill={alertIconColors[alertType]} path={alertIcons[alertType]}/>}
                 </div>
-                <div className="ml-3 flex-1 md:flex md:justify-between">
-                    {children}
-                </div>
+                {description && <p className={`flex items-center gap-1 ${descriptionClasses}`}
+                                   style={{color: alertIconColors[alertType]}}>{description}</p>}
+                <div className="flex-1 md:flex md:justify-between">{children}</div>
             </div>
         </div>
     );

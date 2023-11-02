@@ -1,7 +1,7 @@
 import React from 'react';
 
 interface ButtonProps {
-    children: React.ReactNode;
+    children?: React.ReactNode;
     customStyles?: string;
     buttonType: 'submit' | 'button' | 'reset';
     styleType: string;
@@ -25,11 +25,11 @@ const getHoverTextColor = (styleType: string) => styleType === 'secondary' ? 'te
 const Button: React.FC<ButtonProps> = ({children, buttonType, styleType, customStyles, disabled}) => {
     const defaultStyles: React.CSSProperties = {
         width: '100%',
-        height: '56px',
-        padding: '16px 20px',
+        maxHeight: '56px',
         borderRadius: '5px',
         display: 'flex',
         alignItems: 'center',
+        justifyContent: 'center',
         cursor: disabled ? 'not-allowed' : 'pointer',
         background: getBackgroundColor(styleType),
         color: getTextColor(styleType, disabled),
