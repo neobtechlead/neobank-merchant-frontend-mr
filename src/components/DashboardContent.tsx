@@ -8,17 +8,17 @@ import {EyeOpenedFilled, EyeClosedFilled} from '../../public/assets/icons/eye-fi
 import {Asterisk} from '../../public/assets/icons/asterisk';
 import ReBarGraph from "@/components/charts/ReBarGraph";
 import ReAreaGraph from "@/components/charts/ReAreaGraph";
+import TabsNav from "@/components/navigation/TabsNav";
 
 interface DashboardProps {
     transactionData: object[];
     merchant: object;
 }
 
-const Dashboard: React.FC<DashboardProps> = ({merchant, transactionData}) => {
+const DashboardContent: React.FC<DashboardProps> = ({merchant, transactionData}) => {
     const [hasTransaction, setHasTransaction] = useState<boolean | null>(true);
     const [showBalance, setShowBalance] = useState<boolean | null>(true);
     const [activeTab, setActiveTab] = useState('collections');
-
 
     const handleToggleBalance = () => {
         setShowBalance(!showBalance);
@@ -70,6 +70,10 @@ const Dashboard: React.FC<DashboardProps> = ({merchant, transactionData}) => {
 
     const disbursementDescription = "Perform disbursements to view recent disbursement"
     const transactionDescription = "Perform a transaction to see your total counts"
+
+    const handleNavClick = (nav: string) => {
+        console.log(nav)
+    }
 
     return (
         <div className="m-5">
@@ -349,25 +353,13 @@ const Dashboard: React.FC<DashboardProps> = ({merchant, transactionData}) => {
 
                         {hasTransaction && (
                             <div className="flex flex-col justify-between p-3">
-                                <div className="flex justify-between border border-gray-100 rounded-lg m-3 text-center">
-                                    <button
-                                        className={`w-full px-3 py-1 rounded-lg h-[36px] ${activeTab === 'collections' ? 'bg-purple-900 text-white' : ''}`}
-                                        onClick={() => setActiveTab('collections')}
-                                    >
-                                        Collections
-                                    </button>
-                                    <button
-                                        className={`w-full px-3 py-1 rounded-lg h-[36px] ${activeTab === 'disbursements' ? 'bg-purple-900 text-white' : ''}`}
-                                        onClick={() => setActiveTab('disbursements')}
-                                    >
-                                        Disbursements
-                                    </button>
+                                <div className="flex justify-between border border-gray-100 rounded-lg text-center">
+                                    <TabsNav tabs={['collections', 'disbursements']} handleClick={handleNavClick}/>
                                 </div>
                                 <div className="flex flex-grow flex-col">
                                     <ReAreaGraph/>
                                 </div>
                             </div>
-
                         )}
                     </div>
                 </Card>
@@ -376,5 +368,5 @@ const Dashboard: React.FC<DashboardProps> = ({merchant, transactionData}) => {
     );
 };
 
-export default Dashboard;
+export default DashboardContent;
 

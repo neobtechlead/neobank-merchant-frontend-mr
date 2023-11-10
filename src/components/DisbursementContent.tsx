@@ -3,25 +3,54 @@ import {Plus} from '../../public/assets/icons/plus'
 import EmptyTransactionCardContent from "@/components/EmptyTransactionCardContent";
 import Button from "@/components/forms/Button";
 import Svg from "@/components/Svg";
-import {IdentificationCard} from "../../public/assets/icons/IdentificationCard"
-import {UserCircle} from "../../public/assets/icons/UserCircle"
-import {Info} from "../../public/assets/icons/Info"
 import OverlayDetailContainer from "@/components/OverlayDetailContainer";
-import {Phone} from "../../public/assets/icons/Phone";
-import {Calendar} from "../../public/assets/icons/Calendar";
-import {ClipboardText} from "../../public/assets/icons/ClipboardText";
-import {Download} from "../../public/assets/icons/Download";
-import {CheckCircle} from "../../public/assets/icons/CheckCircle";
-import {XCircle} from "../../public/assets/icons/XCircle";
 import Table from "@/components/tables/Table";
 import {CaretRight} from "../../public/assets/icons/Caret";
 import Status from "@/components/Status";
 import Footer from "@/components/tables/Footer";
+import {useDashboardStore} from "@/store/DashboardStore";
+import DisbursementActionContent from "@/components/DisbursementActionContent";
+import TransactionDetail from "@/components/transactions/TransactionDetail";
+import {TransactionType} from "@/utils/types/TransactionType";
 
-const DisbursementContent: React.FC = () => {
-    const [hasActivity, setHasActivity] = useState<boolean | null>(true);
+const DisbursementContent: React.FC = ({
+                                           setDisbursementType,
+                                           showDisbursementActionContent,
+                                           setShowDisbursementActionContent,
+                                           hasActivity,
+                                           setHasActivity,
+                                           showEmptyState,
+                                           setShowEmptyState,
+                                           setDefaultScreens,
+                                           transactions
+                                       }) => {
+    const {
+        setShowLogo,
+        setShowNavigation,
+        setShowBackButton,
+        setShowProfileDropdown,
+        setHeaderTitle,
+        setHeaderDescription
+    } = useDashboardStore();
+
+
+    useEffect(() => {
+        setDashboardState()
+        setShowAlert(true)
+        setHeaderTitle('')
+        setHeaderDescription('')
+
+
+    }, [])
+
+    const [actionType, setActionType] = useState<string>('single');
+    const [contentType, setContentType] = useState<string>('initiate');
+    const [showAlert, setShowAlert] = useState<boolean>(true);
+
+    const [openTransactionDetail, setOpenTransactionDetail] = useState<boolean>(false);
     const [open, setOpen] = useState<boolean>(false);
-    const [transaction, setTransaction] = useState({
+    const [transaction, setTransaction] = useState<TransactionType>({
+        date: "",
         id: "",
         batchNumber: "",
         type: "",
@@ -30,8 +59,8 @@ const DisbursementContent: React.FC = () => {
         recipient: "",
         phone: "",
         reference: "",
+        time: ""
     });
-    const [showAlert, setShowAlert] = useState<boolean>(false);
 
     const tableHeading = [
         {label: 'date', classes: ''},
@@ -41,103 +70,7 @@ const DisbursementContent: React.FC = () => {
         {label: 'status', classes: ''},
         {label: ' ', classes: ''}
     ]
-
-    const transactions = [
-        {
-            id: '100000000',
-            date: '15/08/2017',
-            recipient: 'Kwaku Frimpong',
-            type: 'single',
-            amount: '6,908',
-            status: 'successful',
-            phone: '0200000000',
-            reference: 'Payment to a single individual'
-        },
-        {
-            id: '100000001',
-            date: '15/08/2017',
-            batchNumber: 'Batch No. 1',
-            type: 'bulk',
-            amount: '6,908',
-            status: 'completed'
-        },
-        {
-            id: '100000002',
-            date: '15/08/2017',
-            recipient: 'Kwaku Frimpong',
-            type: 'single',
-            amount: '6,908',
-            status: 'failed',
-            phone: '0200000000',
-            reference: 'Payment to a single individual'
-        },
-        {
-            id: '100000003',
-            date: '15/08/2017',
-            recipient: 'Kwaku Frimpong',
-            type: 'single',
-            amount: '6,908',
-            status: 'failed',
-            phone: '0200000000',
-            reference: 'Payment to a single individual'
-        },
-        {
-            id: '100000004',
-            date: '15/08/2017',
-            recipient: 'Kwaku Frimpong',
-            type: 'single',
-            amount: '6,908',
-            status: 'successful',
-            phone: '0200000000',
-            reference: 'Payment to a single individual'
-        },
-        {
-            id: '100000005',
-            date: '15/08/2017',
-            batchNumber: 'Batch no. 7',
-            type: 'bulk',
-            amount: '6,908',
-            status: 'in progress',
-        },
-        {
-            id: '100000006',
-            date: '15/08/2017',
-            recipient: 'Kwaku Frimpong',
-            type: 'single',
-            amount: '6,908',
-            status: 'in progress',
-            phone: '0200000000',
-            reference: 'Payment to a single individual'
-        },
-        {
-            id: '100000007',
-            date: '15/08/2017',
-            recipient: 'Kwaku Frimpong',
-            type: 'single',
-            amount: '6,908',
-            status: 'failed',
-            phone: '0200000000',
-            reference: 'Payment to a single individual'
-        },
-        {
-            id: '100000008',
-            date: '15/08/2017',
-            batchNumber: 'Batch No. 20',
-            type: 'bulk',
-            amount: '6,908',
-            status: 'failed'
-        },
-        {
-            id: '100000009',
-            date: '15/08/2017',
-            recipient: 'Kwaku Frimpong',
-            type: 'single',
-            amount: '6,908',
-            status: 'successful',
-            phone: '0200000000',
-            reference: 'Payment to a single individual'
-        }
-    ]
+    const noActivityDescription = "It seems like there's currently no data available regarding funds disbursement in your account. This section will display information about how funds are distributed and any related transactions."
     const title = "No recent activity"
     const description = "It seems like there's currently no data available regarding funds disbursement in your account. This section will display information about how funds are distributed and any related transactions."
     const singleDisbursementDescription = "Transfer funds or make a payment in a one-time transaction. It is a straightforward and efficient way to send money."
@@ -149,36 +82,74 @@ const DisbursementContent: React.FC = () => {
         classes: "text-sm"
     }
 
+    const disbursementActionDescription = "Transferring funds or making a payment in a one-time transaction. It is a straightforward and efficient way to send money, whether it's for a specific purchase, a salary payment, or any other singular financial transaction."
+
+    const setDashboardState = () => {
+        setShowDisbursementActionContent(false)
+        return !transactions.length ? setShowEmptyState(true) : setHasActivity(true)
+    }
+
     const handlePrevious = () => {
     }
     const handleNext = () => {
     }
 
+    const handleTransactionDetails = (transaction) => {
+        setTransaction(transaction)
+        setOpenTransactionDetail(true)
+    }
+
+    const handleDisbursementActionContent = (actionType = null) => {
+        let title = ''
+        let pageHeading = ''
+        let description = ''
+        setShowLogo(false)
+        setShowBackButton(true)
+
+        if (!transactions.length) {
+            setActionType('single')
+            setContentType('initiate')
+            setShowEmptyState(false)
+            title = 'Initiate Disbursement'
+            pageHeading = 'Disburse Funds'
+            description = 'A crucial step in ensuring the smooth, seamless and efficient transfer of funds or assets from one source to another.'
+        } else {
+            title = actionType.charAt(0).toUpperCase() + actionType.slice(1) + " Disbursement";
+            pageHeading = title
+            description = disbursementActionDescription
+            setActionType(actionType)
+            setContentType(actionType)
+        }
+
+        setDisbursementType(pageHeading)
+        setHeaderTitle(title)
+        setHeaderDescription(description)
+        setShowNavigation(false)
+        setShowProfileDropdown(false)
+        setHasActivity(false)
+
+        setShowDisbursementActionContent(true)
+    }
     useEffect(() => {
         setShowAlert(true)
     }, [])
 
-    const handleTransactionDetails = (transaction) => {
-        setTransaction(transaction)
-        setOpen(true)
-        console.log(transaction)
-    }
-
     return (
         <div className="h-full">
-            {!hasActivity && <EmptyTransactionCardContent
+            {showEmptyState && <EmptyTransactionCardContent
                 iconPath="/assets/images/disbursement.svg"
                 iconWidth={324}
                 iconHeight={65}
                 iconCustomStyle="mt-[83px] mb-[38px]"
-                customStyles="h-full border rounded-lg m-5"
+                customStyles="border rounded-lg m-5"
                 showContent
-                title={title}
-                description={description}
+                title="No recent activity"
+                description={noActivityDescription}
             >
                 <div className="text-center">
                     <div className="flex flex-col mt-10 mb-20">
-                        <Button styleType="primary" customStyles="justify-center p-4 md:p-5" buttonType="button">
+                        <Button styleType="primary" customStyles="justify-center p-4 md:p-5" buttonType="button"
+                                onClick={handleDisbursementActionContent}>
                             <span className="flex self-center">
                                 <Svg customClasses="mr-1" fill="white" path={Plus}/>
                                 Initiate Disbursement
@@ -188,8 +159,8 @@ const DisbursementContent: React.FC = () => {
                 </div>
             </EmptyTransactionCardContent>}
 
-            <div className="">
-                {hasActivity && <div className="">
+            <div className="h-full">
+                {hasActivity && <div>
                     <div className="grid grid-cols-1 mt-4 md:grid-cols-2 lg:grid-cols-2 xl:gap-x-2 gap-4">
                         <EmptyTransactionCardContent
                             iconPath="/assets/images/single-disbursement.svg"
@@ -202,7 +173,9 @@ const DisbursementContent: React.FC = () => {
                             description={singleDisbursementDescription}
                         >
                             <div className="text-center">
-                                <div className="flex flex-col mt-5">
+                                <div className="flex flex-col mt-5"
+                                     onClick={() => handleDisbursementActionContent('single')}>
+
                                     <Button styleType="secondary" customStyles="justify-center p-4 md:p-5"
                                             buttonType="button">
                                         <div className="flex items-center font-semibold">
@@ -224,7 +197,8 @@ const DisbursementContent: React.FC = () => {
                             description={bulkDisbursementDescription}
                         >
                             <div className="text-center">
-                                <div className="flex flex-col mt-5">
+                                <div className="flex flex-col mt-5"
+                                     onClick={() => handleDisbursementActionContent('bulk')}>
                                     <Button styleType="secondary" customStyles="justify-center p-4 md:p-5"
                                             buttonType="button">
                                         <div className="flex items-center font-semibold">
@@ -236,14 +210,13 @@ const DisbursementContent: React.FC = () => {
                             </div>
                         </EmptyTransactionCardContent>
                     </div>
-
                     <div className=" overflow-hidden rounded-lg border border-gray-100 m-5 px-5">
                         <Table title="Disbursement Transaction" headers={tableHeading}>
                             {transactions.map((transaction, key) => (
                                 <tr key={key} className={`text-center `}>
                                     <td className="relative py-2 pr-3 text-sm font-normal text-xs">
-                                        <div className={` ${key === 0 ?
-                                            'absolute top-0 left-0 right-0 h-px w-screen bg-gray-100' : ''}`}/>
+                                        <div
+                                            className={` ${key === 0 ? 'absolute top-0 left-0 right-0 h-px w-screen bg-gray-100' : ''}`}/>
                                         <div className={` ${key === 0 ?
                                             'absolute top-0 right-full h-px w-full bg-gray-100' : ''}`}/>
 
@@ -270,101 +243,34 @@ const DisbursementContent: React.FC = () => {
                             ))}
                         </Table>
                     </div>
-
                     <div className="mx-5 mb-[100px]">
-                        <Footer from={1} to={10} total={32} handlePrevious={handlePrevious} handleNext={handleNext}/>
+                        <Footer from={1} to={10} total={32} handlePrevious={handlePrevious}
+                                handleNext={handleNext}/>
                     </div>
-                </div>
-                }
+                </div>}
+
+                {showDisbursementActionContent &&
+                    <DisbursementActionContent
+                        actionType={actionType}
+                        contentType={contentType}
+                        openConfirmationDialog=""
+                        resetDashboard={setDashboardState}
+                    />}
             </div>
 
-            <OverlayDetailContainer open={open} handleOpen={setOpen} showAlert={showAlert}
+            <OverlayDetailContainer open={openTransactionDetail}
+                                    handleOpen={setOpenTransactionDetail}
+                                    showAlert={showAlert}
                                     title="Transaction Information"
                                     description={TransactionDetailDescription}
                                     alertType={alertProps.type}
                                     alertDescription={alertProps.description}
                                     alertClasses={alertProps.classes}>
                 <div className="group relative flex flex-col py-3">
-                    <h5 className="font-bold text-2xl">GHS 6,065</h5>
-
-                    <div className="relative flex flex-col min-w-0 flex-1 my-2 mx-4">
-                        <div className="grid grid-cols-2">
-                            <div className="flex flex-shrink-0 gap-3 my-5">
-                                <Svg fill="#008000" path={CheckCircle}/>
-                                <div className="truncate" style={{color: "#008000"}}>
-                                    <p className="truncate text-xs font-semibold">Successful</p>
-                                    <p className="truncate">250/270</p>
-                                </div>
-                            </div>
-                            <div className="flex flex-shrink-0 gap-3 my-5">
-                                <Svg fill="#EB2F2F" path={XCircle}/>
-                                <div className="truncate" style={{color: "#EB2F2F"}}>
-                                    <p className="truncate text-xs font-semibold">Failed</p>
-                                    <p className="truncate">20/270</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="flex flex-shrink-0 gap-3 my-5">
-                            <Svg fill="#4F4F4F" path={IdentificationCard}/>
-                            <div className="truncate">
-                                <p className="truncate text-xs font-semibold text-gray-600">Transaction ID</p>
-                                <p className="truncate text-gray-950">{transaction.id}</p>
-                            </div>
-                        </div>
-
-                        {transaction.batchNumber && <div className="flex flex-shrink-0 gap-3 my-5">
-                            <Svg fill="#4F4F4F" path={UserCircle}/>
-                            <div className="truncate">
-                                <p className="truncate text-xs font-semibold text-gray-600">Batch Name</p>
-                                <p className="truncate text-gray-950">{transaction.batchNumber}</p>
-                            </div>
-                        </div>}
-
-                        {transaction.recipient && <div className="flex flex-shrink-0 gap-3 my-5">
-                            <Svg fill="#4F4F4F" path={Info}/>
-                            <div className="truncate">
-                                <p className="truncate text-xs font-semibold text-gray-600">Recipient's Name</p>
-                                <p className="truncate text-gray-950">{transaction.recipient}</p>
-                            </div>
-                        </div>}
-
-                        <div className="flex flex-shrink-0 gap-3 my-5">
-                            <Svg fill="#4F4F4F" path={Phone}/>
-                            <div className="truncate">
-                                <p className="truncate text-xs font-semibold text-gray-600">Phone Number</p>
-                                <p className="truncate text-gray-950">{transaction.phone}</p>
-                            </div>
-                        </div>
-
-                        <div className="flex flex-shrink-0 gap-3 my-5">
-                            <Svg fill="#4F4F4F" path={Calendar}/>
-                            <div className="truncate">
-                                <p className="truncate text-xs font-semibold text-gray-600">Schedule Date</p>
-                                <p className="truncate text-gray-950">{transaction.date}</p>
-                            </div>
-                        </div>
-
-                        <div className="flex flex-shrink-0 gap-3 my-5">
-                            <Svg fill="#4F4F4F" path={ClipboardText}/>
-                            <div className="truncate">
-                                <p className="truncate text-xs font-semibold text-gray-600">Reference</p>
-                                <p className="truncate text-gray-950">{transaction.reference}</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <Button buttonType="primary" styleType="primary"
-                            customStyles="mt-10 justify-center p-4 md:p-5">
-                        <div className="flex items-center justify-center gap-2">
-                            <div className="flex"><Svg fill="white" path={Download}/></div>
-                            <span className="flex">Download Transaction</span>
-                        </div>
-                    </Button>
+                    <TransactionDetail transaction={transaction}/>
                 </div>
             </OverlayDetailContainer>
         </div>
     );
 };
-
 export default DisbursementContent;

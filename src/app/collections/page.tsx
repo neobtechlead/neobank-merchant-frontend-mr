@@ -11,7 +11,16 @@ const Disbursement: React.FC = () => {
     const description = "Funds Collection is a vital process that involves gathering and consolidating financial contributions or payments from various sources or contributors. Whether you are managing donations for a non-profit organization, collecting payments for goods or services, or coordinating group contributions, efficient funds collection is key to financial success."
 
     return (
-        <DashboardLayout headerTitle="Funds Collection" headerDescription={description}>
+        <DashboardLayout
+            headerTitle="Funds Collection"
+            headerDescription={description}
+            logo={<Image src="/assets/images/logo.png" alt="neobank" width={85} height={35}/>}
+            showHeader={true}
+            showNavigation={true}
+            navigationLinks={<NavigationLinks/>}
+            profileDropdown={<ProfileDropdown/>}
+            title={""}
+        >
             Collections works!
         </DashboardLayout>
     );

@@ -1,9 +1,13 @@
 'use client'
-import React from 'react';
+import React, {useEffect} from 'react';
 import DashboardLayout from "@/components/layouts/DashboardLayout";
-import Dashboard from "@/components/Dashboard";
+import DashboardContent from "@/components/DashboardContent";
+import {useDashboardStore} from "@/store/DashboardStore";
+import {usePathname} from "next/navigation";
 
 const Overview: React.FC = () => {
+    const path = usePathname();
+
     const merchant = {
         balance: '630,000.00',
         imageUrl: 'https://tailwindui.com/img/logos/48x48/tuple.svg',
@@ -26,11 +30,32 @@ const Overview: React.FC = () => {
             date: "12/05/2023",
         },
     ];
+    const {
+        setShowLogo,
+        setShowNavigation,
+        setShowProfileDropdown,
+        setHeaderTitle,
+        setHeaderDescription
+    } = useDashboardStore();
+
+    const setHeaderDetails = () => {
+        setShowLogo(true)
+        setShowNavigation(true)
+        setShowProfileDropdown(true)
+        setHeaderTitle('Hello Complete Farmer');
+        setHeaderDescription('Welcome to your dashboard');
+    }
+
+    useEffect(() => {
+        if (path === '/overview') setHeaderDetails()
+    }, [path])
 
 
     return (
-        <DashboardLayout headerTitle="Hello Complete Farmer" headerDescription="Welcome to your dashboard">
-            <Dashboard transactionData={transactionData} merchant={merchant}/>
+        <DashboardLayout>
+            {{
+                body: <DashboardContent transactionData={transactionData} merchant={merchant}/>
+            }}
         </DashboardLayout>
     );
 };

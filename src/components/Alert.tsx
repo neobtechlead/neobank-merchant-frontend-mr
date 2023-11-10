@@ -3,16 +3,9 @@ import {CheckCircle} from '../../public/assets/icons/checkCircle';
 import {Clock} from '../../public/assets/icons/Clock';
 import {XCircle} from '../../public/assets/icons/XCircle';
 import Svg from "@/components/Svg";
+import {IAlert} from "@/utils/interfaces/IAlert";
 
-interface AlertProps {
-    alertType?: string;
-    description?: string;
-    customClasses?: string;
-    descriptionClasses?: string;
-    children?: React.ReactNode
-}
-
-const Alert: React.FC<AlertProps> = ({
+const Alert: React.FC<IAlert> = ({
                                          alertType,
                                          description,
                                          customClasses,
@@ -21,25 +14,33 @@ const Alert: React.FC<AlertProps> = ({
                                      }) => {
     const alertIcons = {
         success: CheckCircle,
+        successful: CheckCircle,
         info: CheckCircle,
         warning: Clock,
+        'in progress': Clock,
         error: XCircle,
+        failed: XCircle,
         completed: CheckCircle
     };
 
     const alertIconColors = {
         success: '#008000',
+        successful: '#008000',
         info: '#06b6d4',
         warning: '#F29339',
+        'in progress': '#F29339',
         error: '#EB2F2F',
+        failed: '#EB2F2F',
         completed: '#000000'
     };
 
     const alertBackgroundColors = {
         success: '#0080001A',
+        successful: '#0080001A',
         info: '#ECFEFF',
         warning: '#F293391A',
         error: '#EB2F2F1A',
+        failed: '#EB2F2F1A',
         completed: '#0000001A'
 
     };
