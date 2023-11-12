@@ -5,8 +5,14 @@ import IconWithStackedTextLabels from "@/components/pages/payments/IconWithStack
 import UserCircle from "@/assets/svgs/UserCircle.svg";
 import Amount from "@/assets/svgs/Amount.svg";
 import ShortDescription from "@/assets/svgs/ShortDescription.svg";
+import {PaymentData} from "@/utils/types";
+import {formatAmountGHS} from "@/utils/lib";
 
-const PaymentConfirmationBody = () => {
+interface Props {
+    data: PaymentData
+}
+
+const PaymentConfirmationBody = ({data: {narration, amount, accountName}}: Props) => {
     return (
         <div className="px-6">
             <div className="flex gap-3 text-orange-920 bg-orange-910 p-1 rounded my-[30px]">
@@ -14,9 +20,9 @@ const PaymentConfirmationBody = () => {
                 <span>Only confirm payment if details are correct</span>
             </div>
             <div className="border border-gray-300 rounded-xl p-3">
-                <IconWithStackedTextLabels label="Individual Name" value="Kwaku Frimpong" icon={UserCircle}/>
-                <IconWithStackedTextLabels label="Amount" value="GHS 60,000" icon={Amount}/>
-                <IconWithStackedTextLabels label="Description" value="A short description about the customer"
+                <IconWithStackedTextLabels label="Individual Name" value={accountName} icon={UserCircle}/>
+                <IconWithStackedTextLabels label="Amount" value={`GHS ${formatAmountGHS(amount)}`} icon={Amount}/>
+                <IconWithStackedTextLabels label="Description" value={narration}
                                            icon={ShortDescription}/>
             </div>
         </div>

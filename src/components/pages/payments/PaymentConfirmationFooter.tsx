@@ -1,19 +1,30 @@
-'use client'
 import React from 'react';
 import {poppins} from "@/fonts";
+import {PaymentData} from "@/utils/types";
+import LinkButton from "@/components/pages/payments/LinkButton";
 import TextButton from "@/components/pages/payments/TextButton";
 
 interface Props {
-    onConfirmPayment: () => void
-    onRejectPayment: () => void
+    data: PaymentData,
+    onPaymentReject: () => void
 }
 
-const PaymentConfirmationFooter = ({onConfirmPayment, onRejectPayment}: Props) => {
+const PaymentConfirmationFooter = ({data, onPaymentReject}: Props) => {
 
     return (
         <div className={`flex flex-col px-6 py-[30px] text-[13px] ${poppins.className}`}>
-            <TextButton label="Confirm Payment" color="bg-[#652D90] text-white" onClick={onConfirmPayment}/>
-            <TextButton label="Reject Payment" color="text-[#EB2F2F]" className="mt-4" onClick={onRejectPayment}/>
+            <LinkButton
+                label="Confirm Payment"
+                path="/payments"
+                queryParams={{confirm: "true", clientReference: data.clientReference}}
+                className="text-white"
+                color="bg-[#652D90]"
+            />
+            <TextButton
+                onClick={onPaymentReject}
+                label="Reject Payment"
+                className="mt-7 text-[#EB2F2F]"
+            />
         </div>
     );
 };

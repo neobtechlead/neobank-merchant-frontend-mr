@@ -4,8 +4,13 @@ import Image from 'next/image';
 import SolidX from '@/assets/svgs/SolidX.png';
 import MSOutLookLogo from '@/assets/svgs/MSOutlookLogo.svg';
 import LinkSVG from '@/assets/svgs/Link.svg';
+import {PaymentData} from "@/utils/types";
 
-const PaymentConfirmationHeader = () => {
+interface Props {
+    data: PaymentData
+}
+
+const PaymentConfirmationHeader = ({data}: Props) => {
     return (
         <div>
             <div className="bg-[#652D90]">
@@ -28,7 +33,7 @@ const PaymentConfirmationHeader = () => {
                 <div className="flex justify-between items-center mb-3">
                     <div className="flex gap-2 items-center">
                         <Image src={SolidX} alt=""/>
-                        <span className={`font-bold text-lg ${roboto.className}`}>Creator</span>
+                        <span className={`font-bold text-lg ${roboto.className}`}>{data.merchantName}</span>
                     </div>
                     <div className="flex items-center gap-4 my-2 px-4">
                         <div>
@@ -36,7 +41,7 @@ const PaymentConfirmationHeader = () => {
                         </div>
                         <div className={`flex flex-col ${poppins.className}`}>
                             <span className="text-xs text-grey-900 font-semibold">To</span>
-                            <span className="text-sm">KFrimpong@gmail.com</span>
+                            <span className="text-sm">{data.email}</span>
                         </div>
                     </div>
                 </div>

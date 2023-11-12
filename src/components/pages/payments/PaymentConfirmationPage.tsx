@@ -1,91 +1,58 @@
 'use client'
 import React, {useState} from 'react';
-import {notFound} from "next/navigation";
-import PaymentConfirmationBody from "@/components/pages/payments/PaymentConfirmationBody";
-import PaymentConfirmationFooter from "@/components/pages/payments/PaymentConfirmationFooter";
-import PaymentConfirmationHeader from "@/components/pages/payments/PaymentConfirmationHeader";
-import ModalDialog from "@/components/pages/payments/ModalDialog";
-import PaymentModal from "@/components/pages/payments/PaymentModal";
-import {PaymentInfo} from "@/utils/types";
-import IDCard from "@/assets/svgs/IdCard.svg";
-import UserCircle from "@/assets/svgs/UserCircle.svg";
-import Amount from "@/assets/svgs/Amount.svg";
-import ShortDescription from "@/assets/svgs/ShortDescription.svg";
-import CheckCircle from "@/assets/svgs/CheckCircle.svg";
-import Error from "@/assets/svgs/Error.svg";
+import PaymentConfirmationHeader from '@/components/pages/payments/PaymentConfirmationHeader';
+import PaymentConfirmationBody from '@/components/pages/payments/PaymentConfirmationBody';
+import PaymentConfirmationFooter from '@/components/pages/payments/PaymentConfirmationFooter';
+import Loading from "@/app/payments/loading";
+import useGetPaymentData from "@/components/pages/payments/hooks/useGetPaymentData";
+import ErrorPage from "@/app/payments/error";
+import RejectPaymentModal from "@/components/pages/payments/RejectPaymentModal";
+import {useRouter} from "next/navigation";
 
 interface Props {
     id: string;
+
 }
 
-const PaymentConfirmationPage = ({id}: Props) => {
+const PaymentConfirmationPage: React.FC<Props> = ({id}) => {
 
-    if (!id) return notFound();
 
-    const [isModalOpen, setModalOpen] = useState(false);
-    const [modalType, setModalType] = useState(""); // 'success' or 'error'
+    const {data, isLoading, error} = useGetPaymentData(id);
+    const [isRejectModalOpen, setRejectModalOpen] = useState(false)
+    const router = useRouter();
 
-    //To be Fetched
-    const data: PaymentInfo = {
-        transactionId: "455122",
-        amount: "GHS 60,000.00",
-        name: "Kwaku Frimpong",
-        description: "A Short description of the customer",
-    };
 
-    const iconData = [
-        {label: "Transaction ID", value: data.transactionId, icon: IDCard},
-        {label: "Name", value: data.name, icon: UserCircle},
-        {label: "Amount", value: data.amount, icon: Amount},
-        {label: "Description", value: data.description, icon: ShortDescription},
-    ];
+    const handleReject = async () => {
+        router.replace(`/payments/cancelled?id=${id}`)
 
-    const handleConfirmPayment = () => {
-        setModalType("success");
-        setModalOpen(true);
-    };
+    }
 
-    const handleRejectPayment = () => {
-        setModalType("error");
-        setModalOpen(true);
-    };
+    const handleNoReject = () => {
+        setRejectModalOpen(false);
 
-    const handleReturn = () => {
-        setModalOpen(false);
-    };
+    }
 
-    //To be Fetched
-    const merchantName = "CompleteFarmer";
+    if (isLoading) return <Loading/>
+    if (error) return <ErrorPage errorMessage={error}/>
 
-    return (
-        <>
-            <ModalDialog isOpen={isModalOpen} onClose={handleReturn}>
-                <PaymentModal
-                    title={modalType === "success" ? "Payment Successful" : "Payment Failed"}
-                    description={
-                        modalType === "success"
-                            ? `Payment made to ${merchantName} has been made successfully`
-                            : "There was an issue trying to process your payment. Please try again."
-                    }
-                    icon={modalType === "success" ? CheckCircle : Error}
-                    iconData={iconData}
-                    returnButtonLabel={modalType === "success" ? "Return" : "Try again"}
-                    onReturn={handleReturn}
-                />
-            </ModalDialog>
+    return <>
+        <RejectPaymentModal
+            handleReject={handleReject}
+            handleNoReject={handleNoReject}
+            isOpen={isRejectModalOpen}
+            onClose={handleNoReject}/>
 
-            <div className="flex justify-center mt-4 mb-[185px]">
-                <div className="w-5/12 border rounded-[10px] overflow-hidden">
-                    <div className="border-b border-gray-300">
-                        <PaymentConfirmationHeader/>
-                    </div>
-                    <PaymentConfirmationBody/>
-                    <PaymentConfirmationFooter onConfirmPayment={handleConfirmPayment}
-                                               onRejectPayment={handleRejectPayment}/>
+        {data && <div className="flex justify-center mt-4 mb-[185px]">
+            <div className="w-5/12 border rounded-[10px] overflow-hidden">
+                <div className="border-b border-gray-300">
+                    <PaymentConfirmationHeader data={data}/>
                 </div>
+                <PaymentConfirmationBody data={data}/>
+                <PaymentConfirmationFooter data={data} onPaymentReject={() => setRejectModalOpen(true)}/>
             </div>
-        </>
-    );
+        </div>}
+    </>
+
 };
 
 export default PaymentConfirmationPage;
