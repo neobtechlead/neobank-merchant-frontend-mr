@@ -1,11 +1,11 @@
 import React, {useEffect, useState} from 'react';
-import {Plus} from '../../public/assets/icons/plus'
+import {Plus} from '@/assets/icons/plus'
 import EmptyTransactionCardContent from "@/components/EmptyTransactionCardContent";
 import Button from "@/components/forms/Button";
 import Svg from "@/components/Svg";
 import OverlayDetailContainer from "@/components/OverlayDetailContainer";
 import Table from "@/components/tables/Table";
-import {CaretRight} from "../../public/assets/icons/Caret";
+import {CaretRight} from "@/assets/icons/Caret";
 import Status from "@/components/Status";
 import Footer from "@/components/tables/Footer";
 import {useDashboardStore} from "@/store/DashboardStore";
@@ -39,8 +39,6 @@ const DisbursementContent: React.FC = ({
         setShowAlert(true)
         setHeaderTitle('')
         setHeaderDescription('')
-
-
     }, [])
 
     const [actionType, setActionType] = useState<string>('single');
@@ -48,7 +46,6 @@ const DisbursementContent: React.FC = ({
     const [showAlert, setShowAlert] = useState<boolean>(true);
 
     const [openTransactionDetail, setOpenTransactionDetail] = useState<boolean>(false);
-    const [open, setOpen] = useState<boolean>(false);
     const [transaction, setTransaction] = useState<TransactionType>({
         date: "",
         id: "",
@@ -76,15 +73,11 @@ const DisbursementContent: React.FC = ({
     const singleDisbursementDescription = "Transfer funds or make a payment in a one-time transaction. It is a straightforward and efficient way to send money."
     const bulkDisbursementDescription = "Efficiently distribute funds to multiple recipients in a single operation. This method ensures prompt and accurate disbursements."
     const TransactionDetailDescription = "You can see the details of this transaction. Lorem Ipsum lawal ........You can see the details of this transaction. Lorem Ipsum lawal ........You can see the details of this transaction. Lorem Ipsum lawal ........You can see the details of this transaction. Lorem Ipsum lawal ........"
-    const alertProps = {
-        type: "completed",
-        description: "Transaction Completed",
-        classes: "text-sm"
-    }
 
     const disbursementActionDescription = "Transferring funds or making a payment in a one-time transaction. It is a straightforward and efficient way to send money, whether it's for a specific purchase, a salary payment, or any other singular financial transaction."
 
     const setDashboardState = () => {
+        setDisbursementType('')
         setShowDisbursementActionContent(false)
         return !transactions.length ? setShowEmptyState(true) : setHasActivity(true)
     }
@@ -127,12 +120,8 @@ const DisbursementContent: React.FC = ({
         setShowNavigation(false)
         setShowProfileDropdown(false)
         setHasActivity(false)
-
         setShowDisbursementActionContent(true)
     }
-    useEffect(() => {
-        setShowAlert(true)
-    }, [])
 
     return (
         <div className="h-full">
@@ -253,7 +242,6 @@ const DisbursementContent: React.FC = ({
                     <DisbursementActionContent
                         actionType={actionType}
                         contentType={contentType}
-                        openConfirmationDialog=""
                         resetDashboard={setDashboardState}
                     />}
             </div>
@@ -262,10 +250,7 @@ const DisbursementContent: React.FC = ({
                                     handleOpen={setOpenTransactionDetail}
                                     showAlert={showAlert}
                                     title="Transaction Information"
-                                    description={TransactionDetailDescription}
-                                    alertType={alertProps.type}
-                                    alertDescription={alertProps.description}
-                                    alertClasses={alertProps.classes}>
+                                    description={TransactionDetailDescription}>
                 <div className="group relative flex flex-col py-3">
                     <TransactionDetail transaction={transaction}/>
                 </div>

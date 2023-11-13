@@ -4,7 +4,7 @@ import DashboardLayout from "@/components/layouts/DashboardLayout";
 import DisbursementContent from "@/components/DisbursementContent";
 import {useDashboardStore} from "@/store/DashboardStore";
 import Svg from "@/components/Svg";
-import {ArrowLeft} from "../../../public/assets/icons/ArrowLeft";
+import {ArrowLeft} from "@/assets/icons/ArrowLeft";
 
 const DisbursementPage: React.FC = () => {
     const description = "Disburse Funds is a powerful tool that allows you to efficiently transfer allocated funds to their intended recipients. Whether it's sending payments to vendors, distributing salaries to employees, or making withdrawals, this feature streamlines the process for you."
@@ -26,7 +26,6 @@ const DisbursementPage: React.FC = () => {
     const [showDisbursementActionContent, setShowDisbursementActionContent] = useState<boolean>(false);
     const [hasActivity, setHasActivity] = useState<boolean | null>(false);
     const [showEmptyState, setShowEmptyState] = useState<boolean | null>(false);
-
 
     const transactions = [
         {
@@ -62,83 +61,16 @@ const DisbursementPage: React.FC = () => {
             phone: '0200000000',
             reference: 'Payment to a single individual'
         },
-        // {
-        //     id: '100000003',
-        //     date: '15/08/2017',
-        //     recipient: 'Kwaku Frimpong',
-        //     batchNumber: 'Batch No. 1',
-        //     type: 'single',
-        //     amount: '6,908',
-        //     status: 'failed',
-        //     phone: '0200000000',
-        //     reference: 'Payment to a single individual'
-        // },
-        // {
-        //     id: '100000004',
-        //     date: '15/08/2017',
-        //     recipient: 'Kwaku Frimpong',
-        //     batchNumber: 'Batch No. 1',
-        //     type: 'single',
-        //     amount: '6,908',
-        //     status: 'successful',
-        //     phone: '0200000000',
-        //     reference: 'Payment to a single individual'
-        // },
-
-        // {
-        //     id: '100000005',
-        //     date: '15/08/2017',
-        //     batchNumber: 'Batch no. 7',
-        //     type: 'bulk',
-        //     amount: '6,908',
-        //     status: 'in progress',
-        //     phone: '0200000000',
-        //     reference: 'Payment to a bulk individuals'
-        // },
-
-        // {
-        //     id: '100000006',
-        //     date: '15/08/2017',
-        //     recipient: 'Kwaku Frimpong',
-        //     type: 'single',
-        //     amount: '6,908',
-        //     status: 'in progress',
-        //     phone: '0200000000',
-        //     reference: 'Payment to a single individual'
-        // },
-        // {
-        //     id: '100000007',
-        //     date: '15/08/2017',
-        //     recipient: 'Kwaku Frimpong',
-        //     batchNumber: '',
-        //     type: 'single',
-        //     amount: '6,908',
-        //     status: 'failed',
-        //     phone: '0200000000',
-        //     reference: 'Payment to a single individual'
-        // },
-        // {
-        //     id: '100000008',
-        //     date: '15/08/2017',
-        //     recipient: 'Kwaku Frimpong',
-        //     batchNumber: 'Batch No. 20',
-        //     type: 'bulk',
-        //     amount: '6,908',
-        //     status: 'failed',
-        //     phone: '0200000000',
-        //     reference: 'Payment to a bulk individuals'
-        // },
-        // {
-        //     id: '100000009',
-        //     date: '15/08/2017',
-        //     recipient: 'Kwaku Frimpong',
-        //     batchNumber: '',
-        //     type: 'single',
-        //     amount: '6,908',
-        //     status: 'successful',
-        //     phone: '0200000000',
-        //     reference: 'Payment to a single individual'
-        // }
+        {
+            id: '100000005',
+            date: '15/08/2017',
+            batchNumber: 'Batch no. 7',
+            type: 'bulk',
+            amount: '6,908',
+            status: 'in progress',
+            phone: '0200000000',
+            reference: 'Payment to a bulk individuals'
+        }
     ]
 
     const setHeaderDetails = () => {
@@ -149,7 +81,6 @@ const DisbursementPage: React.FC = () => {
         setHeaderDescription(description)
         setDisbursementType('')
         setShowDisbursementActionContent(false)
-
         !transactions.length ? setShowEmptyState(true) : setHasActivity(true)
     }
 
@@ -169,7 +100,7 @@ const DisbursementPage: React.FC = () => {
                                            setShowEmptyState={setShowEmptyState}
                                            transactions={transactions}
                                            setDisbursementType={setDisbursementType}
-                                           setDefaultScreens={setHeaderDetails}/>,
+                                           setDefaultScreens={setHeaderDetails}/>
             }}
         </DashboardLayout>
     );

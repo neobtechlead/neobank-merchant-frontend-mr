@@ -1,17 +1,18 @@
 import React from 'react';
 import Svg from "@/components/Svg";
-import {CheckCircle} from "../../../public/assets/icons/CheckCircle";
-import {XCircle} from "../../../public/assets/icons/XCircle";
-import {IdentificationCard} from "../../../public/assets/icons/IdentificationCard";
-import {UserCircle} from "../../../public/assets/icons/UserCircle";
-import {Info} from "../../../public/assets/icons/Info";
-import {Phone} from "../../../public/assets/icons/Phone";
-import {Calendar} from "../../../public/assets/icons/Calendar";
-import {ClipboardText} from "../../../public/assets/icons/ClipboardText";
+import {CheckCircle} from "@/assets/icons/CheckCircle";
+import {XCircle} from "@/assets/icons/XCircle";
+import {IdentificationCard} from "@/assets/icons/IdentificationCard";
+import {UserCircle} from "@/assets/icons/UserCircle";
+import {Info} from "@/assets/icons/Info";
+import {Phone} from "@/assets/icons/Phone";
+import {Calendar} from "@/assets/icons/Calendar";
+import {ClipboardText} from "@/assets/icons/ClipboardText";
 import Button from "@/components/forms/Button";
-import {Download} from "../../../public/assets/icons/Download";
+import {Download} from "@/assets/icons/Download";
 import {ITransactionDetailProps} from "@/utils/interfaces/ITransactionProps";
 import Alert from "@/components/Alert";
+import InfoCardItem from "@/components/InfoCardItem";
 
 const TransactionDetail: React.FC<ITransactionDetailProps> = ({transaction, customStyles}) => {
 
@@ -29,69 +30,67 @@ const TransactionDetail: React.FC<ITransactionDetailProps> = ({transaction, cust
                 <h5 className="font-bold text-2xl">GHS {transaction.amount}</h5>
                 <div className="relative flex flex-col min-w-0 flex-1 my-2 mx-4">
                     {transaction.type === 'bulk' && <div className="grid grid-cols-2">
-                        <div className="flex flex-shrink-0 gap-3 my-5">
-                            <Svg fill="#008000" path={CheckCircle}/>
-                            <div className="truncate" style={{color: "#008000"}}>
-                                <p className="truncate text-xs font-semibold">Successful</p>
-                                <p className="truncate">250/270</p>
-                            </div>
-                        </div>
-                        <div className="flex flex-shrink-0 gap-3 my-5">
-                            <Svg fill="#EB2F2F" path={XCircle}/>
-                            <div className="truncate" style={{color: "#EB2F2F"}}>
-                                <p className="truncate text-xs font-semibold">Failed</p>
-                                <p className="truncate">20/270</p>
-                            </div>
-                        </div>
+                        <InfoCardItem description={"250/270"}
+                                      title="Successful"
+                                      customStyles="my-2"
+                                      customTitleStyles="text-green-700"
+                                      customDescriptionStyles="text-green-700"
+                                      svgPath={CheckCircle}
+                                      svgFill="#008000"
+                        />
+                        <InfoCardItem description={"20/270"}
+                                      title="Failed"
+                                      customStyles="my-2"
+                                      customTitleStyles="text-red-500"
+                                      customDescriptionStyles="text-red-500"
+                                      svgPath={XCircle}
+                                      svgFill="#EB2F2F"
+                        />
                     </div>}
 
-                    <div className="flex flex-shrink-0 gap-3 my-5">
-                        <Svg fill="#4F4F4F" path={IdentificationCard}/>
-                        <div className="truncate">
-                            <p className="truncate text-xs font-semibold text-gray-600">Transaction ID</p>
-                            <p className="truncate text-gray-950">{transaction.id}</p>
-                        </div>
-                    </div>
+                    <InfoCardItem description={transaction.id}
+                                  title="Transaction ID"
+                                  customStyles="my-2"
+                                  customTitleStyles="mt-5"
+                                  svgPath={IdentificationCard}
+                    />
 
-                    {transaction.batchNumber && <div className="flex flex-shrink-0 gap-3 my-5">
-                        <Svg fill="#4F4F4F" path={UserCircle}/>
-                        <div className="truncate">
-                            <p className="truncate text-xs font-semibold text-gray-600">Batch Name</p>
-                            <p className="truncate text-gray-950">{transaction.batchNumber}</p>
-                        </div>
-                    </div>}
+                    {transaction.batchNumber &&
+                        <InfoCardItem description={transaction.batchNumber}
+                                      title="Batch Name"
+                                      customStyles="my-2"
+                                      customTitleStyles="mt-5"
+                                      svgPath={UserCircle}
+                        />}
 
-                    {transaction.recipient && <div className="flex flex-shrink-0 gap-3 my-5">
-                        <Svg fill="#4F4F4F" path={Info}/>
-                        <div className="truncate">
-                            <p className="truncate text-xs font-semibold text-gray-600">Recipient's Name</p>
-                            <p className="truncate text-gray-950">{transaction.recipient}</p>
-                        </div>
-                    </div>}
+                    {transaction.recipient &&
+                        <InfoCardItem description={transaction.recipient}
+                                      title="Recipient's Name"
+                                      customStyles="my-2"
+                                      customTitleStyles="mt-5"
+                                      svgPath={Info}
+                        />}
 
-                    <div className="flex flex-shrink-0 gap-3 my-5">
-                        <Svg fill="#4F4F4F" path={Phone}/>
-                        <div className="truncate">
-                            <p className="truncate text-xs font-semibold text-gray-600">Phone Number</p>
-                            <p className="truncate text-gray-950">{transaction.phone}</p>
-                        </div>
-                    </div>
+                    <InfoCardItem description={transaction.phone}
+                                  title="Phone Number"
+                                  customStyles="my-2"
+                                  customTitleStyles="mt-5"
+                                  svgPath={Phone}
+                    />
 
-                    <div className="flex flex-shrink-0 gap-3 my-5">
-                        <Svg fill="#4F4F4F" path={Calendar}/>
-                        <div className="truncate">
-                            <p className="truncate text-xs font-semibold text-gray-600">Schedule Date</p>
-                            <p className="truncate text-gray-950">{transaction.date}</p>
-                        </div>
-                    </div>
+                    <InfoCardItem description={transaction.date}
+                                  title="Schedule Date"
+                                  customStyles="my-2"
+                                  customTitleStyles="mt-5"
+                                  svgPath={Calendar}
+                    />
 
-                    <div className="flex flex-shrink-0 gap-3 my-5">
-                        <Svg fill="#4F4F4F" path={ClipboardText}/>
-                        <div className="truncate">
-                            <p className="truncate text-xs font-semibold text-gray-600">Reference</p>
-                            <p className="truncate text-gray-950">{transaction.reference}</p>
-                        </div>
-                    </div>
+                    <InfoCardItem description={transaction.reference}
+                                  title="Reference"
+                                  customStyles="my-2"
+                                  customTitleStyles="mt-5"
+                                  svgPath={ClipboardText}
+                    />
                 </div>
 
                 {transaction.type === 'bulk' && <Button buttonType="primary" styleType="primary"

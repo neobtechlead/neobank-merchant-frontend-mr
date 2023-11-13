@@ -1,7 +1,7 @@
 import React from 'react';
-import {CheckCircle} from '../../public/assets/icons/checkCircle';
-import {Clock} from '../../public/assets/icons/Clock';
-import {XCircle} from '../../public/assets/icons/XCircle';
+import {CheckCircle} from '@/assets/icons/CheckCircle';
+import {Clock} from '@/assets/icons/Clock';
+import {XCircle} from '@/assets/icons/XCircle';
 import Svg from "@/components/Svg";
 import {IAlert} from "@/utils/interfaces/IAlert";
 

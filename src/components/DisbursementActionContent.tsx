@@ -12,14 +12,17 @@ import {TType} from "ts-interface-checker";
 import TransactionConfirmation from "@/components/transactions/TransactionConfirmation";
 import Modal from "@/components/Modal";
 import {Dialog} from '@headlessui/react'
-import {ArrowCircleRight} from "../../public/assets/icons/ArrowCircle";
+import {ArrowCircleRight} from "@/assets/icons/ArrowCircle";
 import Svg from "@/components/Svg";
 import Image from 'next/image';
+import {Download} from "@/assets/icons/Download";
+import {File} from "@/assets/icons/File";
+import DragAndDrop from "@/components/forms/DragAndDrop";
+import InfoCardItem from "@/components/InfoCardItem";
 
 const DisbursementActionContent: React.FC<IDisbursementActionContent> = ({
                                                                              actionType,
                                                                              contentType,
-                                                                             openConfirmationDialog,
                                                                              resetDashboard
                                                                          }) => {
     const [hasError, setHasError] = useState<boolean | null>(null);
@@ -37,6 +40,7 @@ const DisbursementActionContent: React.FC<IDisbursementActionContent> = ({
     const [transactionSuccessful, setTransactionSuccessful] = useState<boolean>(false);
     const [confirmTransaction, setConfirmTransaction] = useState<boolean>(false);
     const [showTransactionDetail, setShowTransactionDetail] = useState<boolean>(false);
+    const [overlayDetailContainerDescription, setOverlayDetailContainerDescription] = useState<string>('');
 
     const [formData, setFormData] = useState({
         recipient: '',
@@ -55,9 +59,10 @@ const DisbursementActionContent: React.FC<IDisbursementActionContent> = ({
         setFormData({...formData, [name]: value});
     };
 
-    const handleDisbursementConfirmation = () => {
+    const handleDisbursementConfirmation = (event) => {
+        event.preventDefault();
+        setOverlayDetailContainerDescription('This generated link will be automatically sent to the customer’s email address provided in the form. Please alert customer to make payment within 5 days after link has been generated.')
         setOpenOverlay(true)
-        // setOpenOverlay(true)
     };
 
     const handleToggle = (toggle) => {
@@ -86,8 +91,6 @@ const DisbursementActionContent: React.FC<IDisbursementActionContent> = ({
     }
 
     const handleNavClick = (nav) => {
-        console.log(nav)
-        console.log(actionType)
     }
 
     const {
@@ -99,7 +102,7 @@ const DisbursementActionContent: React.FC<IDisbursementActionContent> = ({
         setHeaderDescription
     } = useDashboardStore();
 
-    const handleTransactionConfirmation = () => {
+    const handleTransactionConfirmation = (actionType) => {
         setModalOpen(true)
     }
 
@@ -120,7 +123,6 @@ const DisbursementActionContent: React.FC<IDisbursementActionContent> = ({
             return
         }
 
-        // setOpen(false)
         setModalOpen(false)
         resetDisbursementStore()
     }
@@ -129,9 +131,17 @@ const DisbursementActionContent: React.FC<IDisbursementActionContent> = ({
         setShowLogo(true)
         setShowBackButton(false)
         setShowNavigation(true)
+        setShowProfileDropdown(true)
+        setShowBackButton(false)
         setHeaderTitle('Disburse Funds')
         setHeaderDescription("Disburse Funds is a powerful tool that allows you to efficiently transfer allocated funds to their intended recipients. Whether it's sending payments to vendors, distributing salaries to employees, or making withdrawals, this feature streamlines the process for you.")
         resetDashboard()
+    }
+
+    const handleTemplateDownload = () => {
+    }
+
+    const handleFileUploaded = () => {
     }
 
     return (
@@ -205,7 +215,30 @@ const DisbursementActionContent: React.FC<IDisbursementActionContent> = ({
                             customClasses="col-span-full"
                         />
 
-                        <div className="flex flex-grow gap-4 mt-4 relative">
+                        {actionType === 'bulk' && <div className="col-span-full mb-5">
+                            <div className="flex flex-col rounded border mb-5">
+                                <div className="flex justify-between m-3">
+                                    <InfoCardItem
+                                        description="Download for our template content should be here"
+                                        title="Bulk Disbursement Template"
+                                        customStyles="my-2 gap-x-2"
+                                        customDescriptionStyles="text-sm"
+                                        svgFill="#652D90"
+                                        svgPath={File}
+                                    />
+                                    <div
+                                        className="shrink-0 flex sm:flex-col sm:items-end justify-center cursor-pointer"
+                                        onClick={handleTemplateDownload}>
+                                        <Svg fill="#4F4F4F" path={Download}/>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="flex flex-col">
+                                <DragAndDrop fileUploaded={handleFileUploaded}/>
+                            </div>
+                        </div>}
+
+                        <div className="flex gap-4 relative mt-3">
                             <div className="flex text-sm">Schedule disbursement</div>
                             <div className="absolute right-[-310px]">
                                 <Toggle enabled={toggleEnabled} handleToggle={handleToggle}/>
@@ -233,7 +266,7 @@ const DisbursementActionContent: React.FC<IDisbursementActionContent> = ({
                             </div>
                         )}
 
-                        <div className="col-span-full">
+                        <div className="col-span-full mt-5">
                             <div className="my-10 sm:grid-cols-10">
                                 <Button styleType="primary" customStyles="justify-center p-4 md:p-5"
                                         buttonType="submit"
@@ -248,15 +281,13 @@ const DisbursementActionContent: React.FC<IDisbursementActionContent> = ({
 
             <OverlayDetailContainer open={openOverlay}
                                     title="Transaction Information"
-                                    description={'TransactionDetailDescription'}
+                                    description={overlayDetailContainerDescription}
                                     handleOpen={setOpenOverlay}>
-                <div className="group relative flex flex-col py-3">
-                    <TransactionConfirmation transaction={formData}
-                                             handleConfirmation={handleTransactionConfirmation}
-                                             handleCancel={setOpenOverlay}/>
-                </div>
+                <TransactionConfirmation transactionType={actionType}
+                                         transaction={formData}
+                                         handleConfirmation={handleTransactionConfirmation}
+                                         handleCancel={setOpenOverlay}/>
             </OverlayDetailContainer>
-
 
             <Modal showCloseButton={true} setModalOpen={handleModalOpen} showModal={openModal} customClasses="relative">
                 {transactionSuccessful && <div>
@@ -269,7 +300,8 @@ const DisbursementActionContent: React.FC<IDisbursementActionContent> = ({
                                height={171}/>
                     </div>
                 </div>}
-                <div className="flex flex-col p-10 pt-5">
+
+                <div className="flex flex-col p-10 mt-10">
                     <div className="sm:flex sm:items-start justify-center">
                         <div className="text-center sm:ml-4 sm:mt-0 sm:text-left">
                             <Dialog.Title as="h3"
@@ -285,43 +317,27 @@ const DisbursementActionContent: React.FC<IDisbursementActionContent> = ({
                     </div>
 
                     {!transactionSuccessful && <div className="bg-gray-100 my-3 rounded border border-gray-10">
-                        <div className="flex flex-col justify-center p-5 divide-y divide-gray-300">
-                            <div className="truncate m-2">
-                                <p className="truncate text-xs font-semibold text-gray-600">Recipient's
-                                    Name</p>
-                                <p className="truncate text-sm text-gray-950">{formData?.recipient}</p>
-                            </div>
+                        <div className="flex flex-col justify-center p-5 py-0 divide-y divide-gray-300">
+                            <InfoCardItem description={formData.recipient ?? 'data'} title="Recipients Name"
+                                          customStyles="my-2" customTitleStyles="mt-5"/>
+                            <InfoCardItem description={formData.phone} title="Recipient's Phone Number"
+                                          customStyles="my-2" customTitleStyles="mt-5"/>
+                            <InfoCardItem description={formData.amount} title="Total Amount" customStyles="my-2"
+                                          customTitleStyles="mt-5"/>
+                            <InfoCardItem description={formData.description} title="Description" customStyles="my-2"
+                                          customTitleStyles="mt-5"/>
+                            {formData.date &&
+                                <InfoCardItem description={formData.date} title="Scheduled Date" customStyles="my-2"
+                                              customTitleStyles="mt-5"/>}
+                            {formData.time &&
+                                <InfoCardItem description={formData.time} title="Scheduled Time" customStyles="my-2"
+                                              customTitleStyles="mt-5"/>}
 
-                            <div className="truncate m-2">
-                                <p className="truncate text-xs font-semibold text-gray-600 mt-5">Recipient's
-                                    Phone Number</p>
-                                <p className="truncate text-sm text-gray-950">{formData?.phone}</p>
-                            </div>
-
-                            <div className="truncate m-2">
-                                <p className="truncate text-xs font-semibold text-gray-600 mt-5">Amount</p>
-                                <p className="truncate text-sm text-gray-950">GHS {formData?.amount}</p>
-                            </div>
-
-                            <div className="truncate m-2">
-                                <p className="truncate text-xs font-semibold text-gray-600 mt-5">Description</p>
-                                <p className="truncate text-sm text-gray-950">{formData.description}</p>
-                            </div>
-
-                            {formData.date && <div className="truncate m-2">
-                                <p className="truncate text-xs font-semibold text-gray-600 mt-5">Scheduled Date</p>
-                                <p className="truncate text-sm text-gray-950">{formData?.date}</p>
-                            </div>}
-
-                            {formData.date && <div className="truncate m-2">
-                                <p className="truncate text-xs font-semibold text-gray-600 mt-5">Scheduled Time</p>
-                                <p className="truncate text-sm text-gray-950">{formData?.time}</p>
-                            </div>}
                         </div>
                     </div>}
 
                     <div
-                        className={`sm:mt-4 sm:flex sm:flex-row-reverse ${transactionSuccessful ? 'pt-[50px]' : 'mt-6'}`}>
+                        className={`sm:mt-4 sm:flex sm:flex-row-reverse ${transactionSuccessful ? 'pt-[50px]' : 'mt6'}`}>
                         <Button buttonType="button" styleType="primary" customStyles="p-4 md:p-5"
                                 onClick={handleDisbursementTransaction}>
                             {modalButtonText} {transactionSuccessful &&
