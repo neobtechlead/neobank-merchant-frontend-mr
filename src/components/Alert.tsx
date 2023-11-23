@@ -6,12 +6,12 @@ import Svg from "@/components/Svg";
 import {IAlert} from "@/utils/interfaces/IAlert";
 
 const Alert: React.FC<IAlert> = ({
-                                         alertType,
-                                         description,
-                                         customClasses,
-                                         children,
-                                         descriptionClasses
-                                     }) => {
+                                     alertType,
+                                     description,
+                                     customClasses,
+                                     children,
+                                     descriptionClasses
+                                 }) => {
     const alertIcons = {
         success: CheckCircle,
         successful: CheckCircle,
@@ -39,6 +39,7 @@ const Alert: React.FC<IAlert> = ({
         successful: '#0080001A',
         info: '#ECFEFF',
         warning: '#F293391A',
+        'in progress': '#F293391A',
         error: '#EB2F2F1A',
         failed: '#EB2F2F1A',
         completed: '#0000001A'

@@ -4,6 +4,7 @@ import Logo from "../../../public/assets/images/logo.png";
 import {useDashboardStore} from "@/store/DashboardStore";
 import Image from "next/image";
 import ProfileDropdown from "@/components/profile/ProfileDropdown";
+import SupportButton from "@/components/SupportButton";
 
 const DashboardLayout: React.FC = ({
                                        children,
@@ -61,6 +62,8 @@ const DashboardLayout: React.FC = ({
                     {children.body}
                 </div>
             </div>
+
+            <SupportButton/>
         </div>
     );
 };

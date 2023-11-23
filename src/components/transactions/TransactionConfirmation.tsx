@@ -1,16 +1,16 @@
 import React from 'react';
 import Svg from "@/components/Svg";
-import {UserCircle} from "../../../public/assets/icons/UserCircle";
-import {Phone} from "../../../public/assets/icons/Phone";
-import {Calendar} from "../../../public/assets/icons/Calendar";
-import {ClipboardText} from "../../../public/assets/icons/ClipboardText";
+import {UserCircle} from "@/assets/icons/UserCircle";
+import {Phone} from "@/assets/icons/Phone";
+import {Calendar} from "@/assets/icons/Calendar";
+import {ClipboardText} from "@/assets/icons/ClipboardText";
 import Button from "@/components/forms/Button";
-import {Clock} from "../../../public/assets/icons/Clock";
-import {Tag} from "../../../public/assets/icons/Tag";
-import {Sigma} from "../../../public/assets/icons/Sigma";
-import {Copy} from "../../../public/assets/icons/Copy";
+import {Clock} from "@/assets/icons/Clock";
+import {Tag} from "@/assets/icons/Tag";
+import {Sigma} from "@/assets/icons/Sigma";
+import {Copy} from "@/assets/icons/Copy";
 import Alert from "@/components/Alert";
-import {WarningTriangle} from "../../../public/assets/icons/WarningTriangle";
+import {WarningTriangle} from "@/assets/icons/WarningTriangle";
 import InfoCardItem from "@/components/InfoCardItem";
 
 const TransactionConfirmation: React.FC = ({
@@ -101,14 +101,14 @@ const TransactionConfirmation: React.FC = ({
 
             <div className="">
                 <Button buttonType="button" styleType="primary"
-                        customStyles="mt-10 justify-center p-4 md:p-5"
+                        customStyles="mt-10 justify-center p-4 md:p-5 rounded-lg"
                         onClick={() => handleConfirmation(transactionType)}
                 >
                     <div className="flex items-center justify-center gap-2">Disburse Funds</div>
                 </Button>
 
                 <Button buttonType="button" styleType="tertiary"
-                        customStyles="mt-4 justify-center p-4 md:p-5 border border-red-500"
+                        customStyles="mt-4 justify-center p-4 md:p-5 border border-red-500 rounded-lg"
                         onClick={() => handleCancel(false)}
                 >
                     <div className="flex items-center justify-center gap-2 text-red-500">Cancel</div>

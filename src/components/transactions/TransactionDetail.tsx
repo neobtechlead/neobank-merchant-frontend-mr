@@ -94,7 +94,7 @@ const TransactionDetail: React.FC<ITransactionDetailProps> = ({transaction, cust
                 </div>
 
                 {transaction.type === 'bulk' && <Button buttonType="primary" styleType="primary"
-                                                        customStyles="mt-10 justify-center p-4 md:p-5 focus:outline-none">
+                                                        customStyles="mt-10 justify-center p-4 md:p-5 focus:outline-none rounded-lg">
                     <div className="flex items-center justify-center gap-2">
                         <div className="flex"><Svg fill="white" path={Download}/></div>
                         <span className="flex">Download Transaction</span>

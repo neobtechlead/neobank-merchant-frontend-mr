@@ -12,6 +12,7 @@ import {useDashboardStore} from "@/store/DashboardStore";
 import DisbursementActionContent from "@/components/DisbursementActionContent";
 import TransactionDetail from "@/components/transactions/TransactionDetail";
 import {TransactionType} from "@/utils/types/TransactionType";
+import {useDisbursementStore} from "@/store/DisbursementStore";
 
 const DisbursementContent: React.FC = ({
                                            setDisbursementType,
@@ -33,6 +34,11 @@ const DisbursementContent: React.FC = ({
         setHeaderDescription
     } = useDashboardStore();
 
+    const {
+        actionType,
+        setActionType
+    } = useDisbursementStore();
+
 
     useEffect(() => {
         setDashboardState()
@@ -41,7 +47,6 @@ const DisbursementContent: React.FC = ({
         setHeaderDescription('')
     }, [])
 
-    const [actionType, setActionType] = useState<string>('single');
     const [contentType, setContentType] = useState<string>('initiate');
     const [showAlert, setShowAlert] = useState<boolean>(true);
 
@@ -137,7 +142,7 @@ const DisbursementContent: React.FC = ({
             >
                 <div className="text-center">
                     <div className="flex flex-col mt-10 mb-20">
-                        <Button styleType="primary" customStyles="justify-center p-4 md:p-5" buttonType="button"
+                        <Button styleType="primary" customStyles="justify-center p-4 md:p-5 rounded-lg" buttonType="button"
                                 onClick={handleDisbursementActionContent}>
                             <span className="flex self-center">
                                 <Svg customClasses="mr-1" fill="white" path={Plus}/>
@@ -162,14 +167,14 @@ const DisbursementContent: React.FC = ({
                             description={singleDisbursementDescription}
                         >
                             <div className="text-center">
-                                <div className="flex flex-col mt-5"
+                                <div className="flex flex-col mt-5 mx-2"
                                      onClick={() => handleDisbursementActionContent('single')}>
 
-                                    <Button styleType="secondary" customStyles="justify-center p-4 md:p-5"
+                                    <Button styleType="secondary" customStyles="justify-center p-4 md:p-5 rounded"
                                             buttonType="button">
                                         <div className="flex items-center font-semibold">
                                             <Svg customClasses="mr-1 flex items-center" fill="#652D90" path={Plus}/>
-                                            <span className="uppercase flex">initiate single disbursement</span>
+                                            <span className="uppercase flex text-sm">initiate single disbursement</span>
                                         </div>
                                     </Button>
                                 </div>
@@ -188,11 +193,11 @@ const DisbursementContent: React.FC = ({
                             <div className="text-center">
                                 <div className="flex flex-col mt-5"
                                      onClick={() => handleDisbursementActionContent('bulk')}>
-                                    <Button styleType="secondary" customStyles="justify-center p-4 md:p-5"
+                                    <Button styleType="secondary" customStyles="justify-center p-4 md:p-5 rounded"
                                             buttonType="button">
                                         <div className="flex items-center font-semibold">
                                             <Svg customClasses="mr-1 flex items-center" fill="#652D90" path={Plus}/>
-                                            <span className="uppercase flex">initiate bulk disbursement</span>
+                                            <span className="uppercase flex text-sm">initiate bulk disbursement</span>
                                         </div>
                                     </Button>
                                 </div>

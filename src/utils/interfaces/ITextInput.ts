@@ -8,7 +8,7 @@ export interface ITextInput {
     autoComplete: string;
     required: boolean;
     placeholder?: string;
-    onInputChange: (event: object) => void;
+    onInputChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
     hasError: (value: boolean) => void;
     passwordIcon?: boolean;
     disabled?: boolean;

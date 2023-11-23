@@ -19,9 +19,9 @@ import {Download} from "@/assets/icons/Download";
 import {File} from "@/assets/icons/File";
 import DragAndDrop from "@/components/forms/DragAndDrop";
 import InfoCardItem from "@/components/InfoCardItem";
+import {useDisbursementStore} from "@/store/DisbursementStore";
 
 const DisbursementActionContent: React.FC<IDisbursementActionContent> = ({
-                                                                             actionType,
                                                                              contentType,
                                                                              resetDashboard
                                                                          }) => {
@@ -90,9 +90,6 @@ const DisbursementActionContent: React.FC<IDisbursementActionContent> = ({
         });
     }
 
-    const handleNavClick = (nav) => {
-    }
-
     const {
         setShowLogo,
         setShowNavigation,
@@ -101,6 +98,17 @@ const DisbursementActionContent: React.FC<IDisbursementActionContent> = ({
         setHeaderTitle,
         setHeaderDescription
     } = useDashboardStore();
+
+    const {
+        actionType,
+        setActionType
+    } = useDisbursementStore();
+
+    const handleNavClick = (nav) => {
+        setActionType(() => ({
+            actionType: nav
+        }));
+    }
 
     const handleTransactionConfirmation = (actionType) => {
         setModalOpen(true)
@@ -150,7 +158,7 @@ const DisbursementActionContent: React.FC<IDisbursementActionContent> = ({
                 {contentType === 'initiate' &&
                     <div
                         className="flex justify-center border border-gray-100 rounded-lg text-center mb-10 max-w-xs mx-auto">
-                        <TabsNav tabs={['single disbursement', 'bulk disbursement']} handleClick={handleNavClick}
+                        <TabsNav tabs={[{item: 'single', label: 'single disbursement'}, {item: 'bulk', label:'bulk disbursement'}]} handleClick={handleNavClick}
                                  customClasses="text-xs"/>
                     </div>}
 
@@ -268,7 +276,7 @@ const DisbursementActionContent: React.FC<IDisbursementActionContent> = ({
 
                         <div className="col-span-full mt-5">
                             <div className="my-10 sm:grid-cols-10">
-                                <Button styleType="primary" customStyles="justify-center p-4 md:p-5"
+                                <Button styleType="primary" customStyles="justify-center p-4 md:p-5 rounded-lg"
                                         buttonType="submit"
                                         disabled={hasError}>
                                     <span className="flex self-center">Continue</span>
@@ -338,7 +346,7 @@ const DisbursementActionContent: React.FC<IDisbursementActionContent> = ({
 
                     <div
                         className={`sm:mt-4 sm:flex sm:flex-row-reverse ${transactionSuccessful ? 'pt-[50px]' : 'mt6'}`}>
-                        <Button buttonType="button" styleType="primary" customStyles="p-4 md:p-5"
+                        <Button buttonType="button" styleType="primary" customStyles="p-4 md:p-5 rounded-lg"
                                 onClick={handleDisbursementTransaction}>
                             {modalButtonText} {transactionSuccessful &&
                             <Svg fill="#FFFFFF" path={ArrowCircleRight} customClasses="px-2"/>}

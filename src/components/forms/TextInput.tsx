@@ -80,7 +80,6 @@ const TextInput: React.FC<ITextInput> = ({
                                     sm:text-sm sm:leading-6 h-[${height}px] ${disabled ? 'cursor-not-allowed' : ''} 
                                     ${customInputClasses}`}
                             disabled={disabled}
-                            style={type === 'number' ? {WebkitAppearance: 'none'} : {}}
                         />
 
                         {type === 'password' && passwordIcon && (

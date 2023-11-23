@@ -26,7 +26,6 @@ const Button: React.FC<ButtonType> = ({
     const defaultStyles: React.CSSProperties = {
         width: '100%',
         maxHeight: '56px',
-        borderRadius: '5px',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',

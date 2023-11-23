@@ -90,7 +90,7 @@ export default function Login() {
                                 </div>
 
                                 <div className="flex flex-col gap-y-2">
-                                    <Button styleType="primary" customStyles="justify-center p-4 md:p-5" buttonType="submit"
+                                    <Button styleType="primary" customStyles="justify-center p-4 md:p-5 rounded-lg" buttonType="submit"
                                             disabled={hasError}>
                                         <span className="flex self-center">Sign in</span>
                                     </Button>
