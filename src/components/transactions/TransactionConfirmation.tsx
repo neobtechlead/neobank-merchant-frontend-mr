@@ -12,15 +12,16 @@ import {Copy} from "@/assets/icons/Copy";
 import Alert from "@/components/Alert";
 import {WarningTriangle} from "@/assets/icons/WarningTriangle";
 import InfoCardItem from "@/components/InfoCardItem";
+import {ITransactionConfirmation} from "@/utils/interfaces/ITransactionConfirmation";
 
-const TransactionConfirmation: React.FC = ({
-                                               transactionType,
-                                               transaction,
-                                               summary,
-                                               customStyles,
-                                               handleConfirmation,
-                                               handleCancel
-                                           }) => {
+const TransactionConfirmation: React.FC<ITransactionConfirmation> = ({
+                                                                         transactionType,
+                                                                         transaction,
+                                                                         summary,
+                                                                         customStyles,
+                                                                         handleConfirmation,
+                                                                         handleCancel
+                                                                     }) => {
     return (
         <div className="m-6 flex flex-col h-full">
             {transactionType === 'single' && <div className={`flex flex-2 ${customStyles}`}>
@@ -57,7 +58,7 @@ const TransactionConfirmation: React.FC = ({
                         <Svg fill="#F29339" path={Copy}/>
                         <div className="truncate text-orange-400">
                             <p className="truncate text-xs font-semibold">Duplicates</p>
-                            <p className="truncate font-sans">{summary?.duplicates } 0</p>
+                            <p className="truncate font-sans">{summary?.duplicates} 0</p>
                         </div>
                     </div>
                 </div>
@@ -72,7 +73,8 @@ const TransactionConfirmation: React.FC = ({
                                 <h3 className="text-sm font-medium">ALERT!</h3>
                                 <div className="mt-2 text-xs">
                                     <p>
-                                        If you continue with this transaction, you will transfer a sum of GHS 59,000.00 including 20 duplicates
+                                        If you continue with this transaction, you will transfer a sum of GHS 59,000.00
+                                        including 20 duplicates
                                     </p>
                                 </div>
                             </div>

@@ -3,7 +3,7 @@ import React from 'react';
 interface StatusBadgeProps {
     color: string;
     background: string;
-    status: string;
+    status: string | undefined;
     customStyles?: string;
 }
 
@@ -45,7 +45,7 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({color, background, status, cus
         <div className="">
             <dt className="sr-only">Status</dt>
             <dd className={`inline-flex items-center rounded-md text-xs capitalize ${customStyles}`}
-                style={{color: statusColors[formattedStatuses[status]] ?? 'info'}}>
+                style={{color: statusColors[formattedStatuses[status]]}}>
                 {status}
             </dd>
         </div>

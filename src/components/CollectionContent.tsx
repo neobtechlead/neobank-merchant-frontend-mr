@@ -12,18 +12,20 @@ import {useDashboardStore} from "@/store/DashboardStore";
 import TransactionDetail from "@/components/transactions/TransactionDetail";
 import {TransactionType} from "@/utils/types/TransactionType";
 import Image from "next/image";
-import CollectionForm from "@/components/CollectionActionContent";
+import CollectionActionContent from "@/components/CollectionActionContent";
+import {ICollectionContentProps} from "@/utils/interfaces/ICollectionContentProps";
 
-const CollectionContent: React.FC = ({
-                                         setCollectionNavTitle,
-                                         showPaymentLinkForm,
-                                         setShowPaymentLinkForm,
-                                         hasActivity,
-                                         setHasActivity,
-                                         showEmptyState,
-                                         setShowEmptyState,
-                                         transactions
-                                     }) => {
+const CollectionContent: React.FC<ICollectionContentProps> = ({
+                                                                  showPaymentLinkForm,
+                                                                  setCollectionNavTitle,
+                                                                  setShowPaymentLinkForm,
+                                                                  hasActivity,
+                                                                  setHasActivity,
+                                                                  showEmptyState,
+                                                                  setShowEmptyState,
+                                                                  transactions,
+                                                                  setDefaultScreens
+                                                              }) => {
     const {
         setShowLogo,
         setShowNavigation,
@@ -46,7 +48,7 @@ const CollectionContent: React.FC = ({
         id: "",
         batchNumber: "",
         type: "",
-        amount: 0,
+        amount: "0",
         status: "",
         recipient: "",
         phone: "",
@@ -77,7 +79,7 @@ const CollectionContent: React.FC = ({
     const handleNext = () => {
     }
 
-    const handleTransactionDetails = (transaction) => {
+    const handleTransactionDetails = (transaction: TransactionType) => {
         setTransaction(transaction)
         setOpenTransactionDetail(true)
     }
@@ -177,9 +179,9 @@ const CollectionContent: React.FC = ({
 
                     <div className=" overflow-hidden rounded-lg border border-gray-100 m-5 px-5">
                         <Table title="Payment Links" headers={tableHeading}>
-                            {transactions.map((transaction, key) => (
+                            {transactions.map((transaction: TransactionType, key: number) => (
                                 <tr key={key} className={`text-center `}>
-                                    <td className="relative py-2 pr-3 text-sm font-normal text-xs">
+                                    <td className="relative py-2 pr-3 font-normal text-xs">
                                         <div
                                             className={` ${key === 0 ? 'absolute top-0 left-0 right-0 h-px w-screen bg-gray-100' : ''}`}/>
                                         <div className={` ${key === 0 ?
@@ -191,9 +193,9 @@ const CollectionContent: React.FC = ({
                                         <div className={` ${key !== transactions.length - 1 ?
                                             'absolute bottom-0 right-full h-px w-full bg-gray-100' : ''}`}/>
                                     </td>
-                                    <td className="hidden px-3 py-2 text-sm sm:table-cell text-xs">{transaction.client}</td>
-                                    <td className="px-3 py-2 text-sm text-xs">GHS {transaction.amount}</td>
-                                    <td className="px-3 py-2 text-sm text-xs">
+                                    <td className="hidden px-3 py-2 sm:table-cell text-xs">{transaction.client}</td>
+                                    <td className="px-3 py-2 text-xs">GHS {transaction.amount}</td>
+                                    <td className="px-3 py-2 text-xs">
                                         <Status color={""} background={""} customStyles="text-red-500"
                                                 status={transaction.status}/>
                                     </td>
@@ -213,10 +215,7 @@ const CollectionContent: React.FC = ({
                     </div>
                 </div>}
 
-                {showPaymentLinkForm &&
-                    <CollectionForm
-                        resetDashboard={setDashboardState}
-                    />}
+                {showPaymentLinkForm && <CollectionActionContent resetDashboard={setDashboardState}/>}
             </div>
 
             <OverlayDetailContainer open={openTransactionDetail}

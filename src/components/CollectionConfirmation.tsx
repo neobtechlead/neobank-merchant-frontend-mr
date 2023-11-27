@@ -7,8 +7,9 @@ import {Tag} from "@/assets/icons/Tag";
 import Alert from "@/components/Alert";
 import InfoCardItem from "@/components/InfoCardItem";
 import {Email} from "@/assets/icons/Email";
+import {ICollectionConfirmationProps} from "@/utils/interfaces/ICollectionConfirmationProps";
 
-const TransactionConfirmation: React.FC = ({
+const CollectionConfirmation: React.FC<ICollectionConfirmationProps> = ({
                                                transaction,
                                                customStyles,
                                                handleConfirmation,
@@ -52,4 +53,4 @@ const TransactionConfirmation: React.FC = ({
     )
 }
 
-export default TransactionConfirmation;
+export default CollectionConfirmation;

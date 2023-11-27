@@ -5,13 +5,15 @@ export interface ITextInput {
     id: string;
     name: string;
     type: string;
-    autoComplete: string;
-    required: boolean;
+    autoComplete?: string;
+    required?: boolean;
     placeholder?: string;
-    onInputChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
-    hasError: (value: boolean) => void;
+    onInputChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
+    hasError?: (value: boolean) => void;
     passwordIcon?: boolean;
     disabled?: boolean;
     children?: ReactNode;
     customClasses?: string;
+    customInputClasses?: string;
+    height?: number;
 }

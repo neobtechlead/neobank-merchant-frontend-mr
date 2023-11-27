@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {FormEventHandler, useEffect, useState} from 'react';
 import TextInput from "@/components/forms/TextInput";
 import Button from "@/components/forms/Button";
 
@@ -8,7 +8,7 @@ interface AlertProps {
     buttonText?: string;
 }
 
-const PasswordChange: React.FC<AlertProps> = ({handleSubmit, handleError, buttonText= 'Update Password'}) => {
+const CreatePassword: React.FC<AlertProps> = ({handleSubmit, handleError, buttonText= 'Create Password'}) => {
     const [formData, setFormData] = useState({password: "", confirmPassword: ""});
     const [hasError, setHasError] = useState<boolean>(false);
 
@@ -23,9 +23,8 @@ const PasswordChange: React.FC<AlertProps> = ({handleSubmit, handleError, button
         if (name === 'confirmPassword' && value.length > 0) setHasError(false)
     };
 
-    const formSubmitted = (event) => {
+    const formSubmitted: React.FormEventHandler<HTMLFormElement> = (event) => {
         event.preventDefault()
-        console.log('formData: ', formData)
         if (formData.password !== formData.confirmPassword) {
             setHasError(true)
             return handleError('Passwords are not identical')
@@ -44,7 +43,7 @@ const PasswordChange: React.FC<AlertProps> = ({handleSubmit, handleError, button
                         name="password"
                         type="password"
                         autoComplete="false"
-                        placeholder="new password"
+                        placeholder="New password"
                         required={true}
                         onInputChange={handleInputChange}
                         hasError={setHasError}
@@ -56,7 +55,7 @@ const PasswordChange: React.FC<AlertProps> = ({handleSubmit, handleError, button
                         name="confirmPassword"
                         type="password"
                         autoComplete="false"
-                        placeholder="confirm password"
+                        placeholder="Confirm password"
                         required={true}
                         onInputChange={handleInputChange}
                         hasError={setHasError}
@@ -65,12 +64,12 @@ const PasswordChange: React.FC<AlertProps> = ({handleSubmit, handleError, button
                 </div>
 
                 <Button buttonType="submit" styleType="primary" disabled={hasError}
-                        customStyles={`shadow-sm justify-center mt-[50px] ${hasError ? 'bg-purple-900 cursor-pointer' : 'bg-purple-200 cursor-not-allowed'}`}>
-                    Update Password
+                        customStyles={`shadow-sm justify-center mt-[50px] p-4 md:p-5 rounded-lg ${hasError ? 'bg-purple-900 cursor-pointer' : 'bg-purple-200 cursor-not-allowed'}`}>
+                    {buttonText}
                 </Button>
             </form>
         </>
     );
 }
 
-export default PasswordChange;
+export default CreatePassword;

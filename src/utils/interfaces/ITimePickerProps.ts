@@ -3,6 +3,6 @@ import {TType} from "ts-interface-checker";
 export interface ITimePickerProps {
     showTimePicker: boolean;
     selectedTime: any;
-    onTimeSelected: (event: boolean) => void;
+    onTimeSelected: (time: string) => void;
     handleButtonClick?: (event: boolean) => boolean;
 }

@@ -24,10 +24,10 @@ const CollectionPage: React.FC = () => {
 
     const [collectionNavTitle, setCollectionNavTitle] = useState<string>('');
     const [showPaymentLinkForm, setShowPaymentLinkForm] = useState<boolean>(false);
-    const [hasActivity, setHasActivity] = useState<boolean | null>(false);
-    const [showEmptyState, setShowEmptyState] = useState<boolean | null>(false);
+    const [hasActivity, setHasActivity] = useState<boolean>(false);
+    const [showEmptyState, setShowEmptyState] = useState<boolean>(false);
 
-    const transactions = [
+    const transactions: string | any[] = [
         // {
         //     id: '100000000',
         //     date: '15/08/2017',
@@ -73,15 +73,17 @@ const CollectionPage: React.FC = () => {
                         <Svg fill="#4F4F4F" path={ArrowLeft}/> Back
                     </div>),
                 navigationLinks: <span className="font-semibold">{collectionNavTitle}</span>,
-                body: <CollectionContent showPaymentLinkForm={showPaymentLinkForm}
-                                         setShowPaymentLinkForm={setShowPaymentLinkForm}
-                                         hasActivity={hasActivity}
-                                         setHasActivity={setHasActivity}
-                                         showEmptyState={showEmptyState}
-                                         setShowEmptyState={setShowEmptyState}
-                                         transactions={transactions}
-                                         setCollectionNavTitle={setCollectionNavTitle}
-                                         setDefaultScreens={setHeaderDetails}/>
+                body: <CollectionContent
+                    showPaymentLinkForm={showPaymentLinkForm}
+                    setShowPaymentLinkForm={setShowPaymentLinkForm}
+                    hasActivity={hasActivity}
+                    setHasActivity={setHasActivity}
+                    showEmptyState={showEmptyState}
+                    setShowEmptyState={setShowEmptyState}
+                    transactions={transactions}
+                    setCollectionNavTitle={setCollectionNavTitle}
+                    setDefaultScreens={setHeaderDetails}
+                />
             }}
         </DashboardLayout>
     );

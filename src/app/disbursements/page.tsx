@@ -5,6 +5,7 @@ import DisbursementContent from "@/components/DisbursementContent";
 import {useDashboardStore} from "@/store/DashboardStore";
 import Svg from "@/components/Svg";
 import {ArrowLeft} from "@/assets/icons/ArrowLeft";
+import {TransactionType} from "@/utils/types/TransactionType";
 
 const DisbursementPage: React.FC = () => {
     const description = "Disburse Funds is a powerful tool that allows you to efficiently transfer allocated funds to their intended recipients. Whether it's sending payments to vendors, distributing salaries to employees, or making withdrawals, this feature streamlines the process for you."
@@ -24,17 +25,17 @@ const DisbursementPage: React.FC = () => {
 
     const [disbursementType, setDisbursementType] = useState<string>('');
     const [showDisbursementActionContent, setShowDisbursementActionContent] = useState<boolean>(false);
-    const [hasActivity, setHasActivity] = useState<boolean | null>(false);
-    const [showEmptyState, setShowEmptyState] = useState<boolean | null>(false);
+    const [hasActivity, setHasActivity] = useState<boolean | undefined>(false);
+    const [showEmptyState, setShowEmptyState] = useState<boolean | undefined>(false);
 
-    const transactions = [
+    const transactions: TransactionType[] = [
         {
             id: '100000000',
             date: '15/08/2017',
             recipient: 'Kwaku Frimpong',
             batchNumber: 'Batch No. 1',
             type: 'single',
-            amount: '6,908',
+            amount: '6908',
             status: 'successful',
             phone: '0200000000',
             reference: 'Payment to a single individual'
@@ -45,7 +46,7 @@ const DisbursementPage: React.FC = () => {
             recipient: 'Kwaku Frimpong',
             batchNumber: 'Batch No. 1',
             type: 'bulk',
-            amount: '6,908',
+            amount: '690',
             status: 'completed',
             phone: '0200000000',
             reference: 'Payment to a single individual'
@@ -56,7 +57,7 @@ const DisbursementPage: React.FC = () => {
             recipient: 'Kwaku Frimpong',
             batchNumber: 'Batch No. 1',
             type: 'single',
-            amount: '6,908',
+            amount: '6908',
             status: 'failed',
             phone: '0200000000',
             reference: 'Payment to a single individual'
@@ -66,7 +67,7 @@ const DisbursementPage: React.FC = () => {
             date: '15/08/2017',
             batchNumber: 'Batch no. 7',
             type: 'bulk',
-            amount: '6,908',
+            amount: '6908',
             status: 'in progress',
             phone: '0200000000',
             reference: 'Payment to a bulk individuals'

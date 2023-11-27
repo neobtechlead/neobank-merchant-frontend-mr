@@ -14,8 +14,9 @@ import {ShareNetwork} from "@/assets/icons/ShareNetwork";
 import {Copy} from "@/assets/icons/Copy";
 import CollectionForm from "@/components/CollectionForm";
 import {CollectionFormDataType} from "@/utils/types/CollectionFormDataType";
+import {TransactionType} from "@/utils/types/TransactionType";
 
-const CollectionActionContent: React.FC = ({resetDashboard}) => {
+const CollectionActionContent: React.FC<ICollectionActionContentProps> = ({resetDashboard}) => {
     const [hasError, setHasError] = useState<boolean | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [openOverlay, setOpenOverlay] = useState<boolean>(false);
@@ -25,18 +26,11 @@ const CollectionActionContent: React.FC = ({resetDashboard}) => {
     const [modalButtonText, setModalButtonText] = useState<string>('Confirm');
     const [transactionSuccessful, setTransactionSuccessful] = useState<boolean>(false);
     const [overlayDetailContainerDescription, setOverlayDetailContainerDescription] = useState<string>('');
-
-    const [formData, setFormData] = useState<CollectionFormDataType>({
-        recipient: '',
-        phone: '',
-        email: '',
-        amount: '',
-        reference: '',
-        type: '',
-    });
+    const [formData, setFormData] = useState<TransactionType>();
 
     const handleCollectionConfirmation = (formData: CollectionFormDataType) => {
-        setFormData(formData)
+        const data = {...formData}
+        setFormData(data)
         setOverlayDetailContainerDescription('This generated link will be automatically sent to the customer’s email address provided in the form. Please alert customer to make payment within 5 days after link has been generated.')
         setOpenOverlay(true)
     };
@@ -145,15 +139,15 @@ const CollectionActionContent: React.FC = ({resetDashboard}) => {
 
                     {!transactionSuccessful && <div className="bg-gray-100 my-3 rounded border border-gray-10">
                         <div className="flex flex-col justify-center p-5 py-0 divide-y divide-gray-300">
-                            <InfoCardItem description={formData.recipient ?? 'data'} title="Recipients Name"
+                            <InfoCardItem description={formData?.recipient ?? 'data'} title="Recipients Name"
                                           customStyles="my-2" customTitleStyles="mt-5"/>
-                            <InfoCardItem description={formData.email} title="Email Address"
+                            <InfoCardItem description={formData?.email} title="Email Address"
                                           customStyles="my-2" customTitleStyles="mt-5"/>
-                            <InfoCardItem description={formData.reference} title="Reference"
+                            <InfoCardItem description={formData?.reference} title="Reference"
                                           customStyles="my-2" customTitleStyles="mt-5"/>
-                            <InfoCardItem description={formData.phone} title="Recipient's Contact Number"
+                            <InfoCardItem description={formData?.phone} title="Recipient's Contact Number"
                                           customStyles="my-2" customTitleStyles="mt-5"/>
-                            <InfoCardItem description={formData.amount} title="Total Amount" customStyles="my-2"
+                            <InfoCardItem description={formData?.amount} title="Total Amount" customStyles="my-2"
                                           customTitleStyles="mt-5"/>
                         </div>
                     </div>}

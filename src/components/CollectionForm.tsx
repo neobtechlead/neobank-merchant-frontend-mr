@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {FormEventHandler, useState} from 'react';
 import TextInput from "@/components/forms/TextInput";
 import Button from "@/components/forms/Button";
 import Svg from "@/components/Svg";
@@ -44,7 +44,7 @@ const CollectionForm: React.FC<ICollectionForm> = ({onSubmit}) => {
                         hasError={setHasError}
                         autoComplete=""
                         customClasses="w-full md:w-2/3 lg:w-1/3"
-                    />
+                     />
                 </div>
                 <div className="flex flex-col items-center">
                     <TextInput

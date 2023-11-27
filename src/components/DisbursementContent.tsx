@@ -13,8 +13,9 @@ import DisbursementActionContent from "@/components/DisbursementActionContent";
 import TransactionDetail from "@/components/transactions/TransactionDetail";
 import {TransactionType} from "@/utils/types/TransactionType";
 import {useDisbursementStore} from "@/store/DisbursementStore";
+import {IDisbursementContent} from "@/utils/interfaces/IDisbursementContent";
 
-const DisbursementContent: React.FC = ({
+const DisbursementContent: React.FC<IDisbursementContent> = ({
                                            setDisbursementType,
                                            showDisbursementActionContent,
                                            setShowDisbursementActionContent,
@@ -56,7 +57,7 @@ const DisbursementContent: React.FC = ({
         id: "",
         batchNumber: "",
         type: "",
-        amount: 0,
+        amount: '0',
         status: "",
         recipient: "",
         phone: "",
@@ -82,9 +83,9 @@ const DisbursementContent: React.FC = ({
     const disbursementActionDescription = "Transferring funds or making a payment in a one-time transaction. It is a straightforward and efficient way to send money, whether it's for a specific purchase, a salary payment, or any other singular financial transaction."
 
     const setDashboardState = () => {
-        setDisbursementType('')
-        setShowDisbursementActionContent(false)
-        return !transactions.length ? setShowEmptyState(true) : setHasActivity(true)
+        setActionType('')
+        if (setShowDisbursementActionContent) setShowDisbursementActionContent(false)
+        return !transactions.length ? setShowEmptyState ? setShowEmptyState(true) : setHasActivity ? setHasActivity(true) : null : null
     }
 
     const handlePrevious = () => {
@@ -92,12 +93,12 @@ const DisbursementContent: React.FC = ({
     const handleNext = () => {
     }
 
-    const handleTransactionDetails = (transaction) => {
+    const handleTransactionDetails = (transaction: TransactionType) => {
         setTransaction(transaction)
         setOpenTransactionDetail(true)
     }
 
-    const handleDisbursementActionContent = (actionType = null) => {
+    const handleDisbursementActionContent = (actionType = '') => {
         let title = ''
         let pageHeading = ''
         let description = ''
@@ -107,7 +108,7 @@ const DisbursementContent: React.FC = ({
         if (!transactions.length) {
             setActionType('single')
             setContentType('initiate')
-            setShowEmptyState(false)
+            if (setShowEmptyState) setShowEmptyState(false)
             title = 'Initiate Disbursement'
             pageHeading = 'Disburse Funds'
             description = 'A crucial step in ensuring the smooth, seamless and efficient transfer of funds or assets from one source to another.'
@@ -119,13 +120,14 @@ const DisbursementContent: React.FC = ({
             setContentType(actionType)
         }
 
-        setDisbursementType(pageHeading)
+        if (setDisbursementType) setDisbursementType(pageHeading)
+        if (setHasActivity) setHasActivity(false)
+        if (setShowDisbursementActionContent) setShowDisbursementActionContent(true)
+
         setHeaderTitle(title)
         setHeaderDescription(description)
         setShowNavigation(false)
         setShowProfileDropdown(false)
-        setHasActivity(false)
-        setShowDisbursementActionContent(true)
     }
 
     return (
@@ -208,7 +210,7 @@ const DisbursementContent: React.FC = ({
                         <Table title="Disbursement Transaction" headers={tableHeading}>
                             {transactions.map((transaction, key) => (
                                 <tr key={key} className={`text-center `}>
-                                    <td className="relative py-2 pr-3 text-sm font-normal text-xs">
+                                    <td className="relative py-2 pr-3 font-normal text-xs">
                                         <div
                                             className={` ${key === 0 ? 'absolute top-0 left-0 right-0 h-px w-screen bg-gray-100' : ''}`}/>
                                         <div className={` ${key === 0 ?
@@ -220,10 +222,10 @@ const DisbursementContent: React.FC = ({
                                         <div className={` ${key !== transactions.length - 1 ?
                                             'absolute bottom-0 right-full h-px w-full bg-gray-100' : ''}`}/>
                                     </td>
-                                    <td className="hidden px-3 py-2 text-sm sm:table-cell text-xs">{transaction.batchNumber}</td>
-                                    <td className="hidden px-3 py-2 text-sm md:table-cell text-xs capitalize">{transaction.type}</td>
-                                    <td className="px-3 py-2 text-sm text-xs">GHS {transaction.amount}</td>
-                                    <td className="px-3 py-2 text-sm text-xs">
+                                    <td className="hidden px-3 py-2 sm:table-cell text-xs">{transaction.batchNumber}</td>
+                                    <td className="hidden px-3 py-2 md:table-cell text-xs capitalize">{transaction.type}</td>
+                                    <td className="px-3 py-2 text-xs">GHS {transaction.amount}</td>
+                                    <td className="px-3 py-2 text-xs">
                                         <Status color={""} background={""} customStyles="text-red-500"
                                                 status={transaction.status}/>
                                     </td>
@@ -245,15 +247,12 @@ const DisbursementContent: React.FC = ({
 
                 {showDisbursementActionContent &&
                     <DisbursementActionContent
-                        actionType={actionType}
                         contentType={contentType}
-                        resetDashboard={setDashboardState}
-                    />}
+                        resetDashboard={setDashboardState}/>}
             </div>
 
             <OverlayDetailContainer open={openTransactionDetail}
                                     handleOpen={setOpenTransactionDetail}
-                                    showAlert={showAlert}
                                     title="Transaction Information"
                                     description={TransactionDetailDescription}>
                 <div className="group relative flex flex-col py-3">

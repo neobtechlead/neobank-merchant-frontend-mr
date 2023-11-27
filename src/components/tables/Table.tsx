@@ -17,22 +17,31 @@ interface TableProps {
     onButtonClick?: () => void;
 }
 
-const Table: React.FC<TableProps> = ({headers, children, title, iconPath, buttonLabel, onButtonClick}: TableProps) => {
+const Table: React.FC<TableProps> = ({headers, children, title, iconPath, buttonLabel, onButtonClick}) => {
     return (
-        <div className="px-4 sm:px-2 lg:px-4">
-            <div className="sm:flex sm:items-center mt-4 justify-between">
-                {title && <div className="sm:flex-auto">
-                    <h1 className="text-base font-semibold leading-6 text-gray-900">{title}</h1>
-                </div>}
-                <div className="mt-4 sm:ml-16 sm:mt-0 sm:flex-none flex justify-end">
-                    {(buttonLabel || iconPath) &&
-                        <Button buttonType="tertiary" styleType="tertiary" customStyles="gap-x-1"
-                                onClick={onButtonClick}>
-                            {iconPath && <Svg path={FileDownload} fill="#652D90" customStyle="mx-5"/>}
-                            {buttonLabel && <span>{buttonLabel}</span>}
-                        </Button>}
+        <div className="px-4 sm:px-2 lg:px-5 m-5">
+            <div className="grid sm:grid-cols-2 mt-4 items-center">
+                {title && (
+                    <div className="col-span-1">
+                        <h1 className="text-base font-semibold leading-6 text-gray-900">{title}</h1>
+                    </div>
+                )}
+                <div className="sm:ml-16 col-span-1 flex justify-end items-center flex-1 justify-self-end">
+                    {(buttonLabel || iconPath) && (
+                        <Button
+                            buttonType="button"
+                            styleType="tertiary"
+                            customStyles="flex justify-end"
+                            onClick={onButtonClick}
+                        >
+                            {iconPath && <Svg path={iconPath} fill="#652D90" customClasses="" />}
+                            {buttonLabel && <span className="text-xs font-semibold">{buttonLabel}</span>}
+                        </Button>
+                    )}
                 </div>
             </div>
+
+
 
             <div className="mt-4 flow-root">
                 <div className="-mx-4 -my-2 sm:-mx-6 lg:-mx-8">
@@ -40,7 +49,6 @@ const Table: React.FC<TableProps> = ({headers, children, title, iconPath, button
                         <table className="min-w-full border-separate border-spacing-0 relative">
                             <thead>
                             <tr>
-
                                 {headers.map((header, index) => (
                                     <th key={index} className={`capitalize font-semibold py-3 text-xs ${header.classes}`}>
                                         {header.label}

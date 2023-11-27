@@ -1,6 +1,6 @@
 import React, {ChangeEvent, useState} from 'react';
 import Svg from '@/components/Svg';
-import {EyeOpened, EyeClosed} from '../../../public/assets/icons/eye';
+import {EyeOpened, EyeClosed} from '@/assets/icons/eye';
 import {ITextInput} from "@/utils/interfaces/ITextInput";
 
 const TextInput: React.FC<ITextInput> = ({
@@ -22,25 +22,25 @@ const TextInput: React.FC<ITextInput> = ({
                                          }) => {
     const [inputValue, setInputValue] = useState('');
     const [error, setError] = useState<string | null>(null);
-    const [showPassword, setShowPassword] = useState(null);
+    const [showPassword, setShowPassword] = useState<boolean>(false);
 
     const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
         const value = event.target.value;
         setInputValue(value);
         if (inputValue !== '') handleBlur();
-        onInputChange(event);
+        if (onInputChange) onInputChange(event);
     };
 
     const handleBlur = () => {
         if (inputValue === '' && required) {
             setError(`${capitalize(type)} is required!`);
-            hasError(true);
+            if (hasError) hasError(true);
         } else if (type === 'email' && !isValidEmail(inputValue)) {
             setError('Please enter a valid email address.');
-            hasError(true);
+            if (hasError) hasError(true);
         } else {
             setError('');
-            hasError(false);
+            if (hasError) hasError(false);
         }
     };
 
@@ -65,7 +65,7 @@ const TextInput: React.FC<ITextInput> = ({
                     <div
                         className={`flex rounded-md border border-gray-100 sm:min-w-md ${
                             error ? 'border-red-400' : 'focus:border-purple-900'
-                        } focus-within:border-purple-900`}>
+                        } focus-within:border-purple-900 relative`}>
                         {children}
                         <input
                             id={id}

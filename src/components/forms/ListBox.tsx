@@ -1,30 +1,26 @@
 import React, {Fragment, useState} from 'react';
 import {Listbox, Transition} from '@headlessui/react';
-import {CaretDown} from "../../../public/assets/icons/Caret";
+import {CaretDown} from "@/assets/icons/Caret";
 import Svg from "@/components/Svg";
+import {IListBoxProps} from "@/utils/interfaces/IDropdownProps";
 
-interface Option {
-    id: number;
-    label: string;
-}
-
-interface ListBoxProps {
-    options: Option[];
-    customClasses?: string;
-    children?: React.ReactNode;
-}
-
-const ListBox: React.FC<ListBoxProps> = ({options}: ListBoxProps) => {
-    const [selected, setSelected] = useState(options[0]); // Set an initial value here
-
+const ListBox: React.FC<IListBoxProps> = ({
+                                              data,
+                                              optionSelected,
+                                              setOptionSelected,
+                                              customButtonClasses,
+                                              customClasses,
+                                              disableFirstKey
+                                          }) => {
     return (
-        <Listbox value={selected} onChange={setSelected}>
+        <Listbox value={optionSelected} onChange={setOptionSelected}>
             {({open}) => (
-                <div className="relative">
+                <div className={`relative ${customClasses}`}>
                     <Listbox.Button
-                        className="flex justify-between w-full cursor-pointer rounded-md bg-white py-1.5 px-2 gap-5 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none sm:text-sm sm:leading-6"
+                        className={`flex justify-between w-full cursor-pointer rounded-md bg-white gap-3 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none sm:text-sm sm:leading-6 ${customButtonClasses}`}
                     >
-                        <span className="pointer-events-none font-semibold flex items-center">{selected.label}</span>
+                        <span
+                            className="pointer-events-none font-semibold flex items-center">{optionSelected?.label}</span>
                         <Svg fill="#4F4F4F" path={CaretDown}/>
                     </Listbox.Button>
 
@@ -36,15 +32,16 @@ const ListBox: React.FC<ListBoxProps> = ({options}: ListBoxProps) => {
                         leaveTo="opacity-0"
                     >
                         <Listbox.Options
-                            className="absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
+                            className="absolute mt-2 max-h-60 w-full overflow-auto rounded-md bg-white text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm z-50"
                         >
-                            {options.map((item) => (
-                                <Listbox.Option key={item.id} value={item}>
+                            {data.map((item, key) => (
+                                <Listbox.Option key={key} value={item} disabled={disableFirstKey ? key === 0 : false}>
                                     {({active}) => (
                                         <div
-                                            className={`${
-                                                active ? 'text-purple-900' : ''
-                                            } cursor-pointer select-none py-2 pl-3 pr-9 text-gray-900`}
+                                            className={`${active ? 'text-purple-900 bg-purple-200' : ''}
+                                            cursor-pointer select-none py-2 pl-3 pr-9 text-gray-900 capitalize
+                                            ${disableFirstKey && key === 0 ? 'pointer-events-none opacity-50' : ''}
+                                          `}
                                         >
                                             {item.label}
                                         </div>

@@ -18,7 +18,6 @@ interface DashboardProps {
 const DashboardContent: React.FC<DashboardProps> = ({merchant, transactionData}) => {
     const [hasTransaction, setHasTransaction] = useState<boolean | null>(true);
     const [showBalance, setShowBalance] = useState<boolean | null>(true);
-    const [activeTab, setActiveTab] = useState('collections');
 
     const handleToggleBalance = () => {
         setShowBalance(!showBalance);
@@ -354,7 +353,10 @@ const DashboardContent: React.FC<DashboardProps> = ({merchant, transactionData})
                         {hasTransaction && (
                             <div className="flex flex-col justify-between p-3">
                                 <div className="flex justify-between border border-gray-100 rounded-lg text-center">
-                                    <TabsNav tabs={['collections', 'disbursements']} handleClick={handleNavClick}/>
+                                    <TabsNav tabs={[
+                                        {item: 'collections', label: 'collections'},
+                                        {item: 'disbursements', label: 'disbursements'}
+                                    ]} handleClick={handleNavClick}/>
                                 </div>
                                 <div className="flex flex-grow flex-col">
                                     <ReAreaGraph/>

@@ -8,7 +8,6 @@ import OverlayDetailContainer from "@/components/OverlayDetailContainer";
 import TabsNav from "@/components/navigation/TabsNav";
 import {IDisbursementActionContent} from "@/utils/interfaces/IDisbursementActionContent";
 import {useDashboardStore} from "@/store/DashboardStore";
-import {TType} from "ts-interface-checker";
 import TransactionConfirmation from "@/components/transactions/TransactionConfirmation";
 import Modal from "@/components/Modal";
 import {Dialog} from '@headlessui/react'
@@ -20,17 +19,18 @@ import {File} from "@/assets/icons/File";
 import DragAndDrop from "@/components/forms/DragAndDrop";
 import InfoCardItem from "@/components/InfoCardItem";
 import {useDisbursementStore} from "@/store/DisbursementStore";
+import {DateTime} from "luxon";
+import {TransactionType} from "@/utils/types/TransactionType";
 
 const DisbursementActionContent: React.FC<IDisbursementActionContent> = ({
                                                                              contentType,
                                                                              resetDashboard
                                                                          }) => {
-    const [hasError, setHasError] = useState<boolean | null>(null);
+    const [hasError, setHasError] = useState<boolean | undefined>(false);
     const [error, setError] = useState<string | null>(null);
     const [toggleEnabled, setToggleEnabled] = useState<boolean>(false);
-
-    const [selectedTime, setSelectedTime] = useState<TType>('12:00 PM' as TType);
-    const [selectedDate, setSelectedDate] = useState<string>('');
+    const [selectedTime, setSelectedTime] = useState<string>();
+    const [selectedDate, setSelectedDate] = useState(new Date());
     const [showTimePicker, setShowTimePicker] = useState<boolean>(false);
     const [openOverlay, setOpenOverlay] = useState<boolean>(false);
     const [openModal, setModalOpen] = useState<boolean>(false);
@@ -41,31 +41,32 @@ const DisbursementActionContent: React.FC<IDisbursementActionContent> = ({
     const [confirmTransaction, setConfirmTransaction] = useState<boolean>(false);
     const [showTransactionDetail, setShowTransactionDetail] = useState<boolean>(false);
     const [overlayDetailContainerDescription, setOverlayDetailContainerDescription] = useState<string>('');
+    const [uploadedFileName, setUploadedFileName] = useState<string>('');
 
-    const [formData, setFormData] = useState({
+    const [formData, setFormData] = useState<TransactionType>({
         recipient: '',
         phone: '',
         amount: '',
         description: '',
         scheduled: false,
-        date: selectedDate,
+        date: new Date().toLocaleDateString(),
         time: '',
         type: '',
     });
 
-    const handleInputChange = (event) => {
+    const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         event.preventDefault()
         const {name, value} = event.target;
         setFormData({...formData, [name]: value});
     };
 
-    const handleDisbursementConfirmation = (event) => {
+    const handleDisbursementConfirmation: React.FormEventHandler<HTMLFormElement> = (event) => {
         event.preventDefault();
         setOverlayDetailContainerDescription('This generated link will be automatically sent to the customer’s email address provided in the form. Please alert customer to make payment within 5 days after link has been generated.')
         setOpenOverlay(true)
     };
 
-    const handleToggle = (toggle) => {
+    const handleToggle = (toggle: boolean) => {
         setToggleEnabled(() => {
             setFormData((prevFormData) => {
                 return {...prevFormData, scheduled: toggle};
@@ -74,20 +75,29 @@ const DisbursementActionContent: React.FC<IDisbursementActionContent> = ({
         });
     };
 
-    const handleDateSelected = (date) => {
-        setSelectedDate(date)
-        setFormData((prevFormData) => {
-            return {...prevFormData, date: date};
-        });
+    const handleDateSelected = (date: Date) => {
+        try {
+            const formattedDate = new Intl.DateTimeFormat('en-GB', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+            }).format(date);
+
+            const parsedDate = DateTime.fromFormat(formattedDate, 'dd/MM/yyyy');
+            if (parsedDate.isValid) {
+                const formattedDate = parsedDate.toFormat('dd-MM-yyyy');
+                setFormData({...formData, date: formattedDate});
+                setSelectedDate(date)
+            }
+        } catch (error) {
+            console.error('Error parsing date string:', error);
+        }
     }
 
-    const handleTimeSelected = (time) => {
+    const handleTimeSelected = (time: string) => {
         setSelectedTime(time)
         setShowTimePicker(false)
-
-        setFormData((prevFormData) => {
-            return {...prevFormData, time: time};
-        });
+        setFormData({...formData, time: time});
     }
 
     const {
@@ -104,17 +114,15 @@ const DisbursementActionContent: React.FC<IDisbursementActionContent> = ({
         setActionType
     } = useDisbursementStore();
 
-    const handleNavClick = (nav) => {
-        setActionType(() => ({
-            actionType: nav
-        }));
+    const handleNavClick = (nav: string) => {
+        setActionType(nav);
     }
 
-    const handleTransactionConfirmation = (actionType) => {
+    const handleTransactionConfirmation = (actionType?: string) => {
         setModalOpen(true)
     }
 
-    const handleModalOpen = (openModal) => {
+    const handleModalOpen = (openModal: boolean) => {
         setModalOpen(openModal)
     }
     const handleDisbursementTransaction = () => {
@@ -143,13 +151,15 @@ const DisbursementActionContent: React.FC<IDisbursementActionContent> = ({
         setShowBackButton(false)
         setHeaderTitle('Disburse Funds')
         setHeaderDescription("Disburse Funds is a powerful tool that allows you to efficiently transfer allocated funds to their intended recipients. Whether it's sending payments to vendors, distributing salaries to employees, or making withdrawals, this feature streamlines the process for you.")
-        resetDashboard()
+        if (resetDashboard) resetDashboard()
     }
 
     const handleTemplateDownload = () => {
     }
 
-    const handleFileUploaded = () => {
+    const handleFileUploaded = (files: FileList) => {
+        const fileNames = Array.from(files).map((file) => file.name);
+        setUploadedFileName(fileNames[0])
     }
 
     return (
@@ -158,8 +168,13 @@ const DisbursementActionContent: React.FC<IDisbursementActionContent> = ({
                 {contentType === 'initiate' &&
                     <div
                         className="flex justify-center border border-gray-100 rounded-lg text-center mb-10 max-w-xs mx-auto">
-                        <TabsNav tabs={[{item: 'single', label: 'single disbursement'}, {item: 'bulk', label:'bulk disbursement'}]} handleClick={handleNavClick}
-                                 customClasses="text-xs"/>
+                        <TabsNav
+                            tabs={[{item: 'single', label: 'single disbursement'}, {
+                                item: 'bulk',
+                                label: 'bulk disbursement'
+                            }]}
+                            handleClick={handleNavClick}
+                            customClasses="text-xs"/>
                     </div>}
 
                 <form method="POST" onSubmit={handleDisbursementConfirmation}
@@ -172,7 +187,6 @@ const DisbursementActionContent: React.FC<IDisbursementActionContent> = ({
                             type="text"
                             placeholder="Enter recipient's name"
                             required={true}
-                            value={formData.recipient}
                             onInputChange={handleInputChange}
                             hasError={setHasError}
                             autoComplete=""
@@ -186,7 +200,6 @@ const DisbursementActionContent: React.FC<IDisbursementActionContent> = ({
                             type="number"
                             placeholder="Enter phone number"
                             required={false}
-                            value={formData.phone}
                             onInputChange={handleInputChange}
                             hasError={setHasError}
                             autoComplete=""
@@ -200,7 +213,6 @@ const DisbursementActionContent: React.FC<IDisbursementActionContent> = ({
                             type="number"
                             placeholder="0"
                             required={false}
-                            value={formData.amount}
                             onInputChange={handleInputChange}
                             hasError={setHasError} autoComplete=""
                             customClasses="col-span-full"
@@ -217,32 +229,50 @@ const DisbursementActionContent: React.FC<IDisbursementActionContent> = ({
                             type="text"
                             placeholder="Enter description"
                             required={false}
-                            value={formData.description}
                             onInputChange={handleInputChange}
                             hasError={setHasError} autoComplete=""
                             customClasses="col-span-full"
                         />
 
                         {actionType === 'bulk' && <div className="col-span-full mb-5">
-                            <div className="flex flex-col rounded border mb-5">
-                                <div className="flex justify-between m-3">
-                                    <InfoCardItem
-                                        description="Download for our template content should be here"
-                                        title="Bulk Disbursement Template"
-                                        customStyles="my-2 gap-x-2"
-                                        customDescriptionStyles="text-sm"
-                                        svgFill="#652D90"
-                                        svgPath={File}
-                                    />
-                                    <div
-                                        className="shrink-0 flex sm:flex-col sm:items-end justify-center cursor-pointer"
-                                        onClick={handleTemplateDownload}>
-                                        <Svg fill="#4F4F4F" path={Download}/>
+                            <div className="col-span-full mb-5">
+                                {!uploadedFileName && <div className="flex flex-col rounded border mb-5">
+                                    <div className="flex justify-between m-3">
+                                        <InfoCardItem
+                                            description="Download for our template content should be here"
+                                            title="Bulk Disbursement Template"
+                                            customStyles="my-2 gap-x-2"
+                                            customDescriptionStyles="text-sm"
+                                            svgFill="#652D90"
+                                            svgPath={File}
+                                        />
+                                        <div
+                                            className="shrink-0 flex sm:flex-col sm:items-end justify-center cursor-pointer"
+                                            onClick={handleTemplateDownload}>
+                                            <Svg fill="#4F4F4F" path={Download}/>
+                                        </div>
                                     </div>
-                                </div>
-                            </div>
-                            <div className="flex flex-col">
-                                <DragAndDrop fileUploaded={handleFileUploaded}/>
+                                </div>}
+
+                                {!uploadedFileName && <>
+                                    <div className="flex flex-col rounded border mb-5 relative">
+                                        <div className="flex justify-between m-3">
+                                            <InfoCardItem
+                                                description={uploadedFileName}
+                                                title="Bulk Disbursement File"
+                                                customStyles="my-2 gap-x-2"
+                                                customDescriptionStyles="text-sm"
+                                                svgFill="#652D90"
+                                                svgPath={File}
+                                            />
+                                            <div
+                                                className="bg-purple-900 h-1 w-full absolute bottom-0 right-0 rounded-b"/>
+                                        </div>
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <DragAndDrop filesUploaded={handleFileUploaded}/>
+                                    </div>
+                                </>}
                             </div>
                         </div>}
 
@@ -259,7 +289,10 @@ const DisbursementActionContent: React.FC<IDisbursementActionContent> = ({
                                     <div
                                         className={`flex flex-col transition-opacity ${toggleEnabled ? 'opacity-100 duration-500 ease-in-out' : 'opacity-0 duration-500 ease-in-out'}`}>
                                         <div className="flex text-xs mb-2">Date</div>
-                                        <DatePicker selectedDate={handleDateSelected}/>
+                                        <DatePicker
+                                            selectedDate={selectedDate}
+                                            minDate={new Date()}
+                                            setSelectedDate={handleDateSelected}/>
                                     </div>
 
                                     <div
@@ -294,7 +327,8 @@ const DisbursementActionContent: React.FC<IDisbursementActionContent> = ({
                 <TransactionConfirmation transactionType={actionType}
                                          transaction={formData}
                                          handleConfirmation={handleTransactionConfirmation}
-                                         handleCancel={setOpenOverlay}/>
+                                         handleCancel={setOpenOverlay}
+                />
             </OverlayDetailContainer>
 
             <Modal showCloseButton={true} setModalOpen={handleModalOpen} showModal={openModal} customClasses="relative">

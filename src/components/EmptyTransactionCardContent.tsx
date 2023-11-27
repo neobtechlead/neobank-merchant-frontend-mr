@@ -1,24 +1,19 @@
 import React from 'react';
 import Image from "next/image";
+import {IEmptyTransactionCardContentProps} from "@/utils/interfaces/IEmptyTransactionCardContentProps";
 
-type EmptyTransactionCardContentProps = {
-    children: React.ReactNode,
-    showContent: boolean,
-    description?: string,
-};
-
-const EmptyTransactionCardContent: React.FC<EmptyTransactionCardContentProps> = ({
-                                                                                     children,
-                                                                                     customStyles,
-                                                                                     backgroundImage,
-                                                                                     title,
-                                                                                     description,
-                                                                                     showContent,
-                                                                                     iconPath,
-                                                                                     iconWidth,
-                                                                                     iconHeight,
-                                                                                     iconCustomStyle,
-                                                                                 }) => {
+const EmptyTransactionCardContent: React.FC<IEmptyTransactionCardContentProps> = ({
+                                                                                      children,
+                                                                                      customStyles,
+                                                                                      backgroundImage,
+                                                                                      title,
+                                                                                      description,
+                                                                                      showContent,
+                                                                                      iconPath,
+                                                                                      iconWidth,
+                                                                                      iconHeight,
+                                                                                      iconCustomStyle,
+                                                                                  }) => {
     return (
         <div className={`${customStyles} flex flex-col items-center justify-center`}
              style={{backgroundImage: backgroundImage}}>

@@ -1,12 +1,9 @@
 import React, { useRef, useState} from 'react';
 import Link from "next/link";
 import Button from "@/components/forms/Button";
+import {IVerifyOtpProps} from "@/utils/interfaces/IVerifyOtpProps";
 
-interface VerifyOtpProps {
-    handleSubmit: (otp: string) => void;
-}
-
-const VerifyOtp: React.FC<VerifyOtpProps> = ({handleSubmit, apiError}) => {
+const VerifyOtp: React.FC<IVerifyOtpProps> = ({handleSubmit}) => {
     const [error, setError] = useState<string | null>(null);
     const otpLength = 6;
     const [otp, setOtp] = useState<string[]>(Array(otpLength).fill(''));
@@ -52,10 +49,10 @@ const VerifyOtp: React.FC<VerifyOtpProps> = ({handleSubmit, apiError}) => {
         setOtp(Array(otpLength).fill(''));
     };
 
-    const handleVerify = (event) => {
+    const handleVerify: React.FormEventHandler<HTMLFormElement> = (event) => {
         event.preventDefault();
-
         const otpCode = otp.join('');
+        console.log(otpCode)
         return handleSubmit(otpCode)
     };
 
@@ -97,7 +94,7 @@ const VerifyOtp: React.FC<VerifyOtpProps> = ({handleSubmit, apiError}) => {
                         </div>
 
                         <Button buttonType="submit" styleType="primary" disabled={otp.some(value => value === '')}
-                                customStyles={`shadow-sm justify-center ${isFilled ? 'bg-purple-900 cursor-pointer' : 'bg-purple-200 cursor-not-allowed'}`}>
+                                customStyles={`shadow-sm justify-center p-4 md:p-5 rounded-lg ${isFilled() ? 'bg-purple-900 cursor-pointer' : 'bg-purple-200 cursor-not-allowed'}`}>
                             Verify
                         </Button>
                     </div>

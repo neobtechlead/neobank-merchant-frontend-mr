@@ -1,4 +1,5 @@
 export interface ISupport {
-    showButton: boolean;
+    showButton?: boolean;
     setShowButton?: (show: boolean) => void;
+    onClick: () => void;
 }

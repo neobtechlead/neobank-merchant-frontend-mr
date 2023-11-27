@@ -6,18 +6,18 @@ export async function verifyEmailLink(token: string) {
     // return await response.json();
 }
 
-export async function verifyOtp(accessKey: string, otp: string) {
-    // const response = await fetch(`${process.env.REACT_APP_API_KEY}/auth/verify-otp`, {
-    //     method: 'POST',
-    //     headers: {
-    //         'Authorization': `Bearer ${accessKey}`,
-    //         'Content-Type': 'application/json',
-    //     },
-    //     body: JSON.stringify({accessKey, otp})
-    // });
-    //
-    // if (!response.ok) throw new Error('Password change could not be completed!');
-    // return await response.json();
+export async function verifyOtp(accessKey: string | null, otp: string) {
+    const response = await fetch(`https://e7915ae1-ad00-483d-b54a-5a027258d354.mock.pstmn.io/auth/verify-otp`, {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${accessKey}`,
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({accessKey, otp})
+    });
+
+    if (!response.ok) throw new Error('Password change could not be completed!');
+    return await response.json();
 }
 
 export async function changePassword(password: string, confirmPassword: string) {

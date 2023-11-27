@@ -1,0 +1,3 @@
+interface IProfileMerchantProps {
+    merchant: object
+}

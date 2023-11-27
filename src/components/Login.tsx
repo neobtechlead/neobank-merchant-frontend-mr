@@ -12,15 +12,15 @@ import Button from '@/components/forms/Button';
 export default function Login() {
     const router = useRouter();
     const [formData, setFormData] = useState({email: '', password: ''});
-    const [hasError, setHasError] = useState<boolean | null>(null);
+    const [hasError, setHasError] = useState<boolean | undefined>(false);
     const [error, setError] = useState<string | null>(null);
 
-    const handleInputChange = (event) => {
+    const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const {name, value} = event.target;
         setFormData({...formData, [name]: value});
     };
 
-    const handleSubmit = (event) => {
+    const handleSubmit: React.FormEventHandler<HTMLFormElement> = (event) => {
         event.preventDefault();
 
         if (hasError) return;
@@ -46,12 +46,7 @@ export default function Login() {
                         </div>
                     </div>
                     <div className="">
-                        {error && (
-                            <Alert backgroundColor="bg-red-100" iconSrc="/assets/icons/x-circle.svg"
-                                   customClasses="rounded-lg">
-                                <p className="flex items-center text-sm text-red-500">{error}</p>
-                            </Alert>
-                        )}
+                        {error && <Alert alertType="error" description={error} customClasses="rounded-lg"/>}
 
                         <div className="mt-8">
                             <form onSubmit={handleSubmit} className="space-y-6 flex flex-col">
@@ -62,7 +57,6 @@ export default function Login() {
                                     type="email"
                                     placeholder="email"
                                     required={true}
-                                    value={formData.email}
                                     onInputChange={handleInputChange}
                                     hasError={setHasError} autoComplete="false"/>
                                 <TextInput
@@ -72,7 +66,6 @@ export default function Login() {
                                     type="password"
                                     placeholder="password"
                                     required={true}
-                                    value={formData.password}
                                     onInputChange={handleInputChange}
                                     hasError={setHasError} autoComplete="false"/>
 

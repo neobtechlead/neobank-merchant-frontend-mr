@@ -1,27 +1,35 @@
-import { useState } from 'react';
-import {FileUpload} from "../../../public/assets/icons/FileUpload";
+import React, {ChangeEvent, useState} from 'react';
+import {FileUpload} from "@/assets/icons/FileUpload";
 import Svg from "@/components/Svg";
 
-const DragAndDrop = () => {
+const DragAndDrop:  React.FC<IDragAndDropProps> = ({filesUploaded}) => {
     const [isDragging, setIsDragging] = useState(false);
-    const [fileDropped, setFileDropped] = useState(false);
 
-    const handleDragEnter = (e) => {
-        e.preventDefault();
+    const handleDragEnter = (event: React.DragEvent<HTMLDivElement>) => {
+        event.preventDefault()
         setIsDragging(true);
     };
+
+    const setUploadedFile = (event: React.ChangeEvent<HTMLInputElement> | React.DragEvent<HTMLDivElement>) => {
+        event.preventDefault();
+
+        let files = null
+        if (event.type === 'change') {
+            const inputEvent = event as React.ChangeEvent<HTMLInputElement>;
+            files = inputEvent.target.files;
+        } else if (event.type === 'drop') {
+            const dropEvent = event as React.DragEvent<HTMLDivElement>;
+            files = dropEvent.dataTransfer.files;
+        }
+
+        if (filesUploaded && files) filesUploaded(files);
+    };
+
 
     const handleDragLeave = () => {
         setIsDragging(false);
     };
 
-    const handleDrop = (e) => {
-        e.preventDefault();
-        setIsDragging(false);
-
-        const files = e.dataTransfer.files;
-        console.log(files);
-    };
 
     return (
         <div className="flex flex-col">
@@ -30,7 +38,7 @@ const DragAndDrop = () => {
                 onDragEnter={handleDragEnter}
                 onDragLeave={handleDragLeave}
                 onDragOver={(e) => e.preventDefault()}
-                onDrop={handleDrop}
+                onDrop={setUploadedFile}
             >
                 <div className="text-center">
                     <Svg fill="#652D90" path={FileUpload} customClasses="mx-auto h-2 w-12" />
@@ -40,7 +48,7 @@ const DragAndDrop = () => {
                             className="relative cursor-pointer rounded-md bg-white"
                         >
                             <span>Drag & Drop or <span className="font-semibold text-purple-900">Choose file</span> to upload</span>
-                            <input id="file-upload" name="file-upload" type="file" className="sr-only" onChange={(e) => console.log(e.target.files)} />
+                            <input id="file-upload" name="file-upload" type="file" className="sr-only" onChange={setUploadedFile} />
                         </label>
                     </div>
                     <p className="text-xs leading-5 text-gray-600">Max file size: <span className="font-semibold">5mb</span>. Supports: pdf, csv.</p>

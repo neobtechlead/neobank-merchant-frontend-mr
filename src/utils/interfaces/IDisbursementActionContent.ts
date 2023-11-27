@@ -1,4 +1,5 @@
 export interface IDisbursementActionContent {
-    contentType: string;
+    contentType?: string;
     openConfirmationDialog?: (b: boolean) => void;
+    resetDashboard?: () => void;
 }

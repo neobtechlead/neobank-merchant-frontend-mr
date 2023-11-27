@@ -2,14 +2,22 @@
 
 import React, {useEffect} from 'react';
 import {useSearchParams} from 'next/navigation';
-import Verification from "@/components/Verification";
+import {useUserStore} from "@/store/UserStore";
+import VerificationContent from "@/components/VerificationContent";
 
 const Verify: React.FC = () => {
+    const {
+        setVerificationToken,
+    } = useUserStore();
+
     const token = useSearchParams().get('token')
-    // console.log(token)
+
+    useEffect(() => {
+        setVerificationToken(token)
+    }, [])
 
     return (
-        <Verification token={token}/>
+        <VerificationContent/>
     );
 };
 

@@ -1,32 +1,94 @@
 'use client'
-import React from 'react';
-import NavigationLinks from "@/components/navigation/NavigationLinks";
-import ProfileDropdown from "@/components/profile/ProfileDropdown";
-import Image from "next/image";
+import React, {useEffect, useState} from 'react';
 import DashboardLayout from "@/components/layouts/DashboardLayout";
+import {useDashboardStore} from "@/store/DashboardStore";
+import Svg from "@/components/Svg";
+import {ArrowLeft} from "@/assets/icons/ArrowLeft";
+import CollectionContent from "@/components/CollectionContent";
+import ReportContent from "@/components/ReportContent";
+import Status from "@/components/Status";
+import {TransactionType} from "@/utils/types/TransactionType";
 
-const Disbursement: React.FC = () => {
-    const headerStyle = {
-        background: 'url("/assets/images/cyan-background.svg")',
-        height: 147,
-    };
-    const description = "Funds Collection is a vital process that involves gathering and consolidating financial contributions or payments from various sources or contributors. Whether you are managing donations for a non-profit organization, collecting payments for goods or services, or coordinating group contributions, efficient funds collection is key to financial success."
+const ReportsPage: React.FC = () => {
+    const description = "Comprehensive and data-driven documents that provide valuable insights and analytics to businesses and merchants. These reports are instrumental in tracking, analysing, and optimizing various aspects of financial transactions and operations, helping businesses make informed decisions and achieve their goals."
+
+    const {
+        setShowLogo,
+        setShowBackButton,
+        setShowNavigation,
+        setHeaderTitle,
+        setHeaderDescription,
+    } = useDashboardStore();
+
+    useEffect(() => {
+        setHeaderDetails()
+    }, [])
+
+    const [hasActivity, setHasActivity] = useState<boolean>(false);
+    const [showEmptyState, setShowEmptyState] = useState<boolean>(false);
+
+    const transactions: TransactionType[] = [
+        {
+            id: '100000000',
+            date: '15/08/2017',
+            type: 'disbursement',
+            channel: 'neobank',
+            sender: 'Kwaku Frimpong',
+            recipient: 'Kwaku Frimpong',
+            phone: '+233 24 102 8900',
+            amount: '6,908',
+            status: 'successful',
+            balance: '77,000'
+        },
+        {
+            id: '100000000',
+            date: '15/08/2017',
+            type: 'disbursement',
+            channel: 'neobank',
+            sender: 'Kwaku Frimpong',
+            recipient: 'Kwaku Frimpong',
+            phone: '+233 24 102 8900',
+            amount: '6,908',
+            status: 'successful',
+            balance: '77,000'
+        },
+        {
+            id: '100000000',
+            date: '15/08/2017',
+            type: 'disbursement',
+            channel: 'neobank',
+            sender: 'Kwaku Frimpong',
+            recipient: 'Kwaku Frimpong',
+            phone: '+233 24 102 8900',
+            amount: '6,908',
+            status: 'successful',
+            balance: '77,000'
+        }
+    ]
+
+    const setHeaderDetails = () => {
+        setShowLogo(true)
+        setShowBackButton(false)
+        setShowNavigation(true)
+        setHeaderTitle('Merchant Reports')
+        setHeaderDescription(description)
+        !transactions.length ? setShowEmptyState(true) : setHasActivity(true)
+    }
 
     return (
-        <DashboardLayout
-            headerTitle="Funds Collection"
-            headerDescription={description}
-            logo={<Image src="/assets/images/logo.png" alt="neobank" width={85} height={35}/>}
-            showHeader={true}
-            showNavigation={true}
-            navigationLinks={<NavigationLinks/>}
-            profileDropdown={<ProfileDropdown/>}
-            title={""}
-        >
-            Reports works!
+        <DashboardLayout>
+            {{
+                body: <ReportContent
+                    hasActivity={hasActivity}
+                    setHasActivity={setHasActivity}
+                    showEmptyState={showEmptyState}
+                    setShowEmptyState={setShowEmptyState}
+                    transactions={transactions}
+                />
+            }}
         </DashboardLayout>
     );
 };
 
-export default Disbursement;
+export default ReportsPage;
 

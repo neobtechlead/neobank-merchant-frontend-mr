@@ -1,11 +1,7 @@
 import React from 'react';
+import {ICardProps} from "@/utils/interfaces/ICardProps";
 
-type CardProps = {
-    children: React.ReactNode,
-    backgroundColor?: string,
-};
-
-const Card: React.FC<CardProps> = ({children, backgroundImage, customStyles}) => {
+const Card: React.FC<ICardProps> = ({children, backgroundImage, customStyles}) => {
     return (
         <div className={`overflow-hidden ${customStyles}`}
              style={{backgroundImage: backgroundImage}}>

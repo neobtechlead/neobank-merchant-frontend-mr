@@ -43,7 +43,6 @@ const Alert: React.FC<IAlert> = ({
         error: '#EB2F2F1A',
         failed: '#EB2F2F1A',
         completed: '#0000001A'
-
     };
 
     return (

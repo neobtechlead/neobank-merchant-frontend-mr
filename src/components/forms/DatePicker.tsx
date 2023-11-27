@@ -1,20 +1,12 @@
 import React, {useState} from 'react';
 import Datepicker from "tailwind-datepicker-react"
 import Svg from "@/components/Svg";
-import {ArrowCircleLeft, ArrowCircleRight} from "../../../public/assets/icons/ArrowCircle";
-import {Calendar} from "../../../public/assets/icons/Calendar";
+import {ArrowCircleLeft, ArrowCircleRight} from "@/assets/icons/ArrowCircle";
+import {Calendar} from "@/assets/icons/Calendar";
 
-const DatePicker = ({selectedDate}) => {
+const DatePicker: React.FC<IDatePickerProps> = ({selectedDate, setSelectedDate, minDate}) => {
     const [show, setShow] = useState<boolean>(false)
-    const handleChange = (date: Date) => {
-        const formattedDate = new Intl.DateTimeFormat('en-GB', {
-            day: '2-digit',
-            month: '2-digit',
-            year: 'numeric',
-        }).format(date);
 
-        return selectedDate(formattedDate)
-    }
     const handleClose = (state: boolean) => {
         setShow(state)
     }
@@ -28,13 +20,18 @@ const DatePicker = ({selectedDate}) => {
         return new Date(`${year}-${month}-${day}`);
     };
 
-    const options = {
+    const handleClearButtonClick = () => {
+        setSelectedDate(getCurrentDate());
+    };
+
+    const options: object = {
         autoHide: true,
         todayBtn: false,
         clearBtn: true,
         clearBtnText: "Clear",
         maxDate: new Date("2030-01-01"),
-        minDate: new Date(getCurrentDate()),
+        clearBtnClick: handleClearButtonClick,
+        minDate: minDate ? minDate : getCurrentDate(),
         theme: {
             background: "bg-white dark:bg-gray-700",
             todayBtn: "bg-gray-100 focus:outline-none",
@@ -67,7 +64,7 @@ const DatePicker = ({selectedDate}) => {
     }
 
     return (
-        <Datepicker classNames="relative" options={options} onChange={handleChange} show={show} setShow={handleClose}/>
+        <Datepicker classNames="relative z-50" options={options} onChange={setSelectedDate} show={show} setShow={handleClose}/>
     )
 }
 

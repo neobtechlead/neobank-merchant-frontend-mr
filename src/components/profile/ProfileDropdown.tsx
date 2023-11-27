@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
-import ProfileIcon from '@/components/Profile/ProfileIcon';
-import ProfileList from "@/components/Profile/ProfileList";
+import ProfileIcon from "@/components/profile/ProfileIcon";
+import ProfileList from "@/components/profile/ProfileList";
 
-const ProfileDropdown: React.FC = () => {
+const ProfileDropdown: React.FC<IProfileDropdownProps> = ({onClick}) => {
     const [isDropdownOpen, setDropdownOpen] = useState(false);
-    const dropdownRef = useRef(null);
+    const dropdownRef = useRef<HTMLDivElement>(null);
 
     const toggleDropdown = () => setDropdownOpen(!isDropdownOpen);
 
@@ -54,7 +54,7 @@ const ProfileDropdown: React.FC = () => {
                         </div>
 
                         <div className="py-2" role="menu" aria-orientation="vertical" aria-labelledby="dropdown-button">
-                            <ProfileList />
+                            <ProfileList onClick={onClick} />
                         </div>
                     </div>
                 </div>

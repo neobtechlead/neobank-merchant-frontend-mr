@@ -1,4 +1,4 @@
 export type DisbursementStoreType = {
+    setActionType: (actionType: string) => void,
     actionType: string,
-    setActionType: (action: () => { actionType: any }) => void,
 }
