@@ -2,16 +2,17 @@
 import React from 'react';
 import Image from "next/image";
 import {useRouter} from "next/navigation";
+import {IOtpLayoutProps} from "@/utils/interfaces/IOtpLayoutProps";
 
-const OtpLayout = ({children}) => {
+const OtpLayout: React.FC<IOtpLayoutProps> = ({children}) => {
     const router = useRouter()
     const handleLoginRoute = () => router.push("/")
 
     return (
         <div className="min-h-full">
             <div style={{background: '#59D3D4'}}>
-                <div className="pb-64" style={{
-                    backgroundImage: `url('//assets/images/login-background.svg')`,
+                    <div className='pb-64' style={{
+                    backgroundImage: `url('/assets/images/login-background.svg')`,
                     backgroundSize: 'fit'
                 }}>
                     <nav className="bg-white">
@@ -20,7 +21,8 @@ const OtpLayout = ({children}) => {
                                 <div className="flex items-center">
                                     <div className="flex-shrink-0">
                                         <div className="block h-8 w-auto">
-                                            <Image src="/assets/images/logo.png" alt="neobank" width={85} height={35}/>
+                                            <Image src="/assets/images/logo.png" alt="neobank" width={85}
+                                                   height={35}/>
                                         </div>
                                     </div>
                                 </div>

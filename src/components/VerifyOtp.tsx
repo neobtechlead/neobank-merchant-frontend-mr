@@ -3,7 +3,7 @@ import Link from "next/link";
 import Button from "@/components/forms/Button";
 import {IVerifyOtpProps} from "@/utils/interfaces/IVerifyOtpProps";
 
-const VerifyOtp: React.FC<IVerifyOtpProps> = ({handleSubmit}) => {
+const VerifyOtp: React.FC<IVerifyOtpProps> = ({handleSubmit, handleResend}) => {
     const [error, setError] = useState<string | null>(null);
     const otpLength = 6;
     const [otp, setOtp] = useState<string[]>(Array(otpLength).fill(''));
@@ -33,8 +33,8 @@ const VerifyOtp: React.FC<IVerifyOtpProps> = ({handleSubmit}) => {
             const prevInput = inputRefs.current[index - 1];
 
             if (prevInput) {
-                const len = prevInput.value.length;
-                prevInput.setSelectionRange(len, len);
+                const length = prevInput.value.length;
+                prevInput.setSelectionRange(length, length);
             }
         } else if (event.key === 'Backspace' && index > 0) {
             inputRefs.current[index - 1]?.focus();
@@ -44,9 +44,10 @@ const VerifyOtp: React.FC<IVerifyOtpProps> = ({handleSubmit}) => {
         }
     };
 
-    const handleResend = () => {
+    const handleResendOtp = () => {
         setError('')
         setOtp(Array(otpLength).fill(''));
+        if (handleResend) handleResend()
     };
 
     const handleVerify: React.FormEventHandler<HTMLFormElement> = (event) => {
@@ -87,7 +88,7 @@ const VerifyOtp: React.FC<IVerifyOtpProps> = ({handleSubmit}) => {
                             <Link
                                 className="flex flex-row items-center text-purple-900"
                                 href="#"
-                                onClick={handleResend}
+                                onClick={handleResendOtp}
                             >
                                 Resend
                             </Link>

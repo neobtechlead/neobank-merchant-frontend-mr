@@ -5,6 +5,7 @@ import Svg from "@/components/Svg";
 import {CaretDown} from "@/assets/icons/Caret";
 import {ICollectionForm} from "@/utils/interfaces/ICollectionForm";
 import {CollectionFormDataType} from "@/utils/types/CollectionFormDataType";
+import Image from "next/image";
 
 const CollectionForm: React.FC<ICollectionForm> = ({onSubmit}) => {
     const [hasError, setHasError] = useState<boolean | undefined>(false);
@@ -49,8 +50,8 @@ const CollectionForm: React.FC<ICollectionForm> = ({onSubmit}) => {
                 <div className="flex flex-col items-center">
                     <TextInput
                         label="recipient's email address"
-                        id="recipient"
-                        name="recipient"
+                        id="email"
+                        name="email"
                         type="text"
                         placeholder="Enter email address"
                         required={true}
@@ -63,8 +64,8 @@ const CollectionForm: React.FC<ICollectionForm> = ({onSubmit}) => {
                 <div className="flex flex-col items-center">
                     <TextInput
                         label="reference"
-                        id="recipient"
-                        name="recipient"
+                        id="reference"
+                        name="reference"
                         type="text"
                         placeholder="Enter reference"
                         required={true}
@@ -88,7 +89,9 @@ const CollectionForm: React.FC<ICollectionForm> = ({onSubmit}) => {
                     >
                         <div
                             className="flex select-none items-center px-4 bg-gray-300 sm:text-sm rounded-l-md font-semibold"
-                            style={{background: '#EFEFEF'}}>GH <Svg fill="#4F4F4F" path={CaretDown}/>
+                            style={{background: '#EFEFEF'}}>
+                            <Image src="/assets/images/ghana-flag.svg" alt="flag" height={19} width={30}/>
+                            <Svg fill="#4F4F4F" path={CaretDown}/>
                         </div>
                     </TextInput>
                 </div>

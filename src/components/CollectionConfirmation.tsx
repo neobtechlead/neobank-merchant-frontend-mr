@@ -21,20 +21,20 @@ const CollectionConfirmation: React.FC<ICollectionConfirmationProps> = ({
 
             <div className={`flex flex-2 ${customStyles}`}>
                 <div className={`relative flex flex-col min-w-0 flex-1 rounded-lg border px-4 mb-10 ${customStyles}`}>
-                    <InfoCardItem description={transaction.recipient} svgPath={UserCircle} title="Recipients Name"
+                    <InfoCardItem description={transaction?.recipient} svgPath={UserCircle} title="Recipients Name"
                                   customStyles="py-5"/>
-                    <InfoCardItem description={transaction.email} svgPath={Email} title="Email Address"
+                    <InfoCardItem description={transaction?.email} svgPath={Email} title="Email Address"
                                   customStyles="py-5"/>
-                    <InfoCardItem description={transaction.reference} svgPath={ClipboardText} title="Reference"
+                    <InfoCardItem description={transaction?.reference} svgPath={ClipboardText} title="Reference"
                                   customStyles="py-5"/>
-                    <InfoCardItem description={transaction.phone} svgPath={Phone} title="Recipient's Contact Number"
+                    <InfoCardItem description={transaction?.phone} svgPath={Phone} title="Recipient's Contact Number"
                                   customStyles="py-5"/>
-                    <InfoCardItem description={transaction.amount} svgPath={Tag} title="Amount"
+                    <InfoCardItem description={transaction?.amount} svgPath={Tag} title="Amount"
                                   customStyles="py-5"/>
                 </div>
             </div>
 
-            <div className="">
+            <div className="pb-10">
                 <Button buttonType="button" styleType="primary"
                         customStyles="mt-10 justify-center p-4 md:p-5 rounded-lg"
                         onClick={handleConfirmation}

@@ -1,14 +1,9 @@
-import React, {FormEventHandler, useEffect, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import TextInput from "@/components/forms/TextInput";
 import Button from "@/components/forms/Button";
+import {ICreatePasswordProps} from "@/utils/interfaces/ICreatePasswordProps";
 
-interface AlertProps {
-    handleSubmit: (password: string) => void;
-    handleError: (error: string) => void;
-    buttonText?: string;
-}
-
-const CreatePassword: React.FC<AlertProps> = ({handleSubmit, handleError, buttonText= 'Create Password'}) => {
+const CreatePassword: React.FC<ICreatePasswordProps> = ({handleSubmit, handleError, buttonText = 'Create Password'}) => {
     const [formData, setFormData] = useState({password: "", confirmPassword: ""});
     const [hasError, setHasError] = useState<boolean>(false);
 
@@ -23,19 +18,19 @@ const CreatePassword: React.FC<AlertProps> = ({handleSubmit, handleError, button
         if (name === 'confirmPassword' && value.length > 0) setHasError(false)
     };
 
-    const formSubmitted: React.FormEventHandler<HTMLFormElement> = (event) => {
+    const handleCreatePassword: React.FormEventHandler<HTMLFormElement> = (event) => {
         event.preventDefault()
         if (formData.password !== formData.confirmPassword) {
             setHasError(true)
             return handleError('Passwords are not identical')
         }
 
-        if (!hasError) return handleSubmit(formData.password)
+        if (!hasError) return handleSubmit(formData.password, formData.confirmPassword)
     }
 
     return (
         <>
-            <form onSubmit={formSubmitted} className="flex flex-col">
+            <form onSubmit={handleCreatePassword} className="flex flex-col">
                 <div className="space-y-5">
                     <TextInput
                         label="password"

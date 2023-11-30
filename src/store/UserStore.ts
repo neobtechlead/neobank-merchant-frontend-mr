@@ -1,11 +1,17 @@
 import {create} from 'zustand'
+import {UserType} from "@/utils/types/UserType";
 import {UserStoreType} from "@/utils/types/UserStoreType";
 
 export const useUserStore = create<UserStoreType>((set) => ({
-    verificationToken: '',
-    setVerificationToken: (verificationToken) => set((state) => ({...state, verificationToken})),
-
-    accessKey: '',
-    setAccessKey: (accessKey) => set((state) => ({...state, accessKey})),
+    user: {
+        id: '',
+        firstName: '',
+        lastName: '',
+        email: '',
+        verificationToken: '',
+        accessKey: '',
+        authToken: '',
+    },
+    setUser: (user?: UserType) => set((state) => ({user: {...state.user, ...user}})),
 }))
 

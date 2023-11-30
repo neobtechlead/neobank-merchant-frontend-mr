@@ -28,30 +28,30 @@ const CollectionPage: React.FC = () => {
     const [showEmptyState, setShowEmptyState] = useState<boolean>(false);
 
     const transactions: string | any[] = [
-        // {
-        //     id: '100000000',
-        //     date: '15/08/2017',
-        //     client: 'Kwaku Frimpong',
-        //     amount: '6,908',
-        //     status: 'pending',
-        //     reference: 'Payment to a single individual'
-        // },
-        // {
-        //     id: '100000001',
-        //     date: '15/08/2017',
-        //     client: 'Kwaku Frimpong',
-        //     amount: '6,708',
-        //     status: 'pending',
-        //     reference: 'Payment to a single individual'
-        // },
-        // {
-        //     id: '100000002',
-        //     date: '15/08/2017',
-        //     recipient: 'Kwaku Frimpong',
-        //     amount: '3,908',
-        //     status: 'pending',
-        //     reference: 'Payment to a single individual'
-        // },
+        {
+            id: '100000000',
+            date: '15/08/2017',
+            client: 'Kwaku Frimpong',
+            amount: '6,908',
+            status: 'pending',
+            reference: 'Payment to a single individual'
+        },
+        {
+            id: '100000001',
+            date: '15/08/2017',
+            client: 'Kwaku Frimpong',
+            amount: '6,708',
+            status: 'pending',
+            reference: 'Payment to a single individual'
+        },
+        {
+            id: '100000002',
+            date: '15/08/2017',
+            recipient: 'Kwaku Frimpong',
+            amount: '3,908',
+            status: 'pending',
+            reference: 'Payment to a single individual'
+        }
     ]
 
     const setHeaderDetails = () => {

@@ -8,12 +8,18 @@ import CheckboxInput from '@/components/forms/CheckboxInput';
 import Carousel from '@/components/Carousel';
 import Alert from '@/components/Alert';
 import Button from '@/components/forms/Button';
+import {login} from "@/api/auth";
+import {useUserStore} from "@/store/UserStore";
 
 export default function Login() {
     const router = useRouter();
     const [formData, setFormData] = useState({email: '', password: ''});
     const [hasError, setHasError] = useState<boolean | undefined>(false);
     const [error, setError] = useState<string | null>(null);
+    const {
+        user,
+        setUser,
+    } = useUserStore();
 
     const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const {name, value} = event.target;
@@ -24,11 +30,24 @@ export default function Login() {
         event.preventDefault();
 
         if (hasError) return;
-        if (formData.email !== 'jonadab.kwamlah@completefarmer.com') {
-            return setError('Incorrect user details');
-        }
 
-        router.push('/overview');
+        login(formData.email, formData.password)
+            .then(async (response) => {
+                if (response.ok) {
+                    const data = await response.json();
+                    setUser({accessKey: data.accessKey});
+                    setError('')
+                    return router.push('/overview')
+                }
+
+                console.log('response.statusText:', response.statusText)
+
+                if (response.status === 401) setError('Unauthorized!')
+            })
+            .catch((error) => {
+                console.log('error:', error)
+                setError(error.message)
+            })
     };
 
     return (
@@ -83,7 +102,8 @@ export default function Login() {
                                 </div>
 
                                 <div className="flex flex-col gap-y-2">
-                                    <Button styleType="primary" customStyles="justify-center p-4 md:p-5 rounded-lg" buttonType="submit"
+                                    <Button styleType="primary" customStyles="justify-center p-4 md:p-5 rounded-lg"
+                                            buttonType="submit"
                                             disabled={hasError}>
                                         <span className="flex self-center">Sign in</span>
                                     </Button>
