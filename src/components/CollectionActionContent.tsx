@@ -27,7 +27,7 @@ const CollectionActionContent: React.FC<ICollectionActionContentProps> = ({reset
     const [transactionSuccessful, setTransactionSuccessful] = useState<boolean>(false);
     const [overlayDetailContainerDescription, setOverlayDetailContainerDescription] = useState<string>('');
     const [formData, setFormData] = useState<TransactionType | undefined>();
-  
+
     const handleCollectionConfirmation = (formData: CollectionFormDataType) => {
         const data = {...formData}
         setFormData(data)

@@ -53,7 +53,6 @@ const VerifyOtp: React.FC<IVerifyOtpProps> = ({handleSubmit, handleResend}) => {
     const handleVerify: React.FormEventHandler<HTMLFormElement> = (event) => {
         event.preventDefault();
         const otpCode = otp.join('');
-        console.log(otpCode)
         return handleSubmit(otpCode)
     };
 

@@ -1,5 +1,5 @@
 'use client'
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import Card from "@/components/Card";
 import Image from "next/image";
 import EmptyTransactionCardContent from "@/components/EmptyTransactionCardContent";
@@ -9,15 +9,35 @@ import {Asterisk} from '@/assets/icons/asterisk';
 import ReBarGraph from "@/components/charts/ReBarGraph";
 import ReAreaGraph from "@/components/charts/ReAreaGraph";
 import TabsNav from "@/components/navigation/TabsNav";
+import {IOverviewProps} from "@/utils/interfaces/IOverviewProps";
+import {MerchantType} from "@/utils/types/MerchantType";
+import {TransactionType} from "@/utils/types/TransactionType";
+import {useTransactionStore} from "@/store/TransactionStore";
+import {useUserStore} from "@/store/UserStore";
+import {getStats} from "@/api/overview";
 
-interface DashboardProps {
-    transactionData: object[];
-    merchant: object;
-}
-
-const DashboardContent: React.FC<DashboardProps> = ({merchant, transactionData}) => {
+const DashboardContent: React.FC = () => {
     const [hasTransaction, setHasTransaction] = useState<boolean | null>(true);
     const [showBalance, setShowBalance] = useState<boolean | null>(true);
+    const {transaction, transactions, setTransaction, setTransactions} = useTransactionStore()
+    const {merchant, setMerchant} = useUserStore()
+
+    const getMerchantStats = () => {
+        getStats(merchant?.externalId)
+            .then(async (response) => {
+                if (response.ok) {
+                    const data = await response.json();
+                    if (setMerchant) setMerchant();
+                }
+            })
+            .catch((error) => {
+                console.log('error: ', error)
+            })
+    }
+
+    useEffect(() => {
+        getMerchantStats()
+    }, []);
 
     const handleToggleBalance = () => {
         setShowBalance(!showBalance);
@@ -66,12 +86,10 @@ const DashboardContent: React.FC<DashboardProps> = ({merchant, transactionData})
             amt: 2500,
         },
     ];
-
     const disbursementDescription = "Perform disbursements to view recent disbursement"
     const transactionDescription = "Perform a transaction to see your total counts"
 
     const handleNavClick = (nav: string) => {
-        console.log(nav)
     }
 
     return (
@@ -91,7 +109,7 @@ const DashboardContent: React.FC<DashboardProps> = ({merchant, transactionData})
                                     </div>
                                     <div className="w-full flex  justify-between gap-x-4">
                                         <h5 className="text-sm font-medium leading-6 flex">
-                                            {showBalance ? `GHS ${merchant.balance}` : asterisks(6)}
+                                            {showBalance ? `GHS ${merchant?.actualBalance}` : asterisks(6)}
                                         </h5>
                                         <div className="flex justify-center items-center cursor-pointer"
                                              onClick={handleToggleBalance}>
@@ -137,20 +155,20 @@ const DashboardContent: React.FC<DashboardProps> = ({merchant, transactionData})
 
                                         {hasTransaction && <div className="flex flex-grow justify-between w-full">
                                             <ul role="list" className="w-3/4">
-                                                {transactionData.map((item, index) => (
+                                                {transactions.map((item, index) => (
                                                     <li key={index} className="flex justify-between gap-x-6 mb-2">
                                                         <div className="flex min-w-0 gap-x-4">
                                                             <Image src="/assets/icons/file-dark.svg" alt="file"
                                                                    width={24} height={24}/>
                                                             <div className="min-w-0 flex-auto">
                                                                 <p className="mt-1 truncate text-xs leading-5 text-green-600">{item.status}</p>
-                                                                <p className="mt-1 truncate text-xs leading-5 ">{item.batchNo}</p>
+                                                                <p className="mt-1 truncate text-xs leading-5 ">{item.batchId}</p>
                                                                 <p className="text-sm font-semibold leading-6 text-gray-900">{item.amount}</p>
                                                             </div>
                                                         </div>
                                                         <div
                                                             className="hidden shrink-0 sm:flex sm:flex-col sm:items-end justify-center items-center">
-                                                            <p className="mt-1 text-xs leading-5 text-gray-500">{item.date}</p>
+                                                            <p className="mt-1 text-xs leading-5 text-gray-500">{item.createdAt}</p>
                                                         </div>
                                                     </li>
                                                 ))}
@@ -224,14 +242,14 @@ const DashboardContent: React.FC<DashboardProps> = ({merchant, transactionData})
                                             Disbursements</h5>
                                         <div className="flex flex-grow justify-between w-full">
                                             <ul role="list" className="w-full">
-                                                {transactionData.map((item, index) => (
+                                                {transactions.map((item, index) => (
                                                     <li key={index} className="flex justify-between gap-x-6 mb-2">
                                                         <div className="flex min-w-0 gap-x-4">
                                                             <Image src="/assets/icons/file-dark.svg" alt="file"
                                                                    width={24} height={24}/>
                                                             <div className="min-w-0 flex-auto">
                                                                 <p className="mt-1 truncate text-xs leading-5 text-green-600">{item.status}</p>
-                                                                <p className="mt-1 truncate text-xs leading-5 ">{item.batchNo}</p>
+                                                                <p className="mt-1 truncate text-xs leading-5 ">{item.batchId}</p>
                                                                 <p className="text-sm font-semibold leading-6 text-gray-900">{item.amount}</p>
                                                             </div>
                                                         </div>
@@ -309,7 +327,7 @@ const DashboardContent: React.FC<DashboardProps> = ({merchant, transactionData})
                         </div>}
                     </div>
 
-                    {!hasTransaction && <EmptyTransactionCardContent showContent={false} >
+                    {!hasTransaction && <EmptyTransactionCardContent showContent={false}>
                         <div
                             className="flex flex-col justify-center items-center h-full w-full">
                             <div className="flex justify-between my-4">

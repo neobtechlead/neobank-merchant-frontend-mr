@@ -16,10 +16,7 @@ export default function Login() {
     const [formData, setFormData] = useState({email: '', password: ''});
     const [hasError, setHasError] = useState<boolean | undefined>(false);
     const [error, setError] = useState<string | null>(null);
-    const {
-        user,
-        setUser,
-    } = useUserStore();
+    const {setUser} = useUserStore();
 
     const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const {name, value} = event.target;
@@ -35,12 +32,10 @@ export default function Login() {
             .then(async (response) => {
                 if (response.ok) {
                     const data = await response.json();
-                    setUser({accessKey: data.accessKey});
+                    if (setUser) setUser({accessKey: data.accessKey});
                     setError('')
                     return router.push('/overview')
                 }
-
-                console.log('response.statusText:', response.statusText)
 
                 if (response.status === 401) setError('Unauthorized!')
             })

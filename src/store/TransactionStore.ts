@@ -1,23 +1,12 @@
 import {create} from 'zustand'
 import {TransactionType} from '@/utils/types/TransactionType'
+import {TransactionStoreType} from "@/utils/types/TransactionStoreType";
+import {UserType} from "@/utils/types/UserType";
 
-export const useDashboardStore = create<TransactionType>((set) => ({
-    actionType: 'single',
-    setActionType: (actionType) => set((state) => ({...state, actionType})),
-
-    transaction: {
-        id: '',
-        date: '',
-        time: '',
-        recipient: '',
-        type: '',
-        amount: '',
-        status: '',
-        reference: ''
-    },
-    setTransaction: (transaction) => set((state) => ({...state, transaction})),
-
-    transactions: '',
+export const useTransactionStore = create<TransactionStoreType>((set) => ({
+    setTransaction: (transaction?: TransactionType) => set((state) => ({transaction: {...state.transaction, ...transaction}})),
+    transaction: {},
     setTransactions: (transactions) => set((state) => ({...state, transactions})),
+    transactions: [],
 }))
 

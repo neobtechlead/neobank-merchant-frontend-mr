@@ -13,7 +13,7 @@ import Loader from "@/components/Loader";
 const VerificationContent: React.FC = () => {
     const [title, setTitle] = useState<string | null>('Enter OTP');
     const [description, setDescription] = useState<string | null>('We have sent you a One Time Password to your email address.');
-    const [error, setError] = useState<string | null>
+    const [error, setError] = useState<string | null>(null);
     const [otpVerified, setOtpVerified] = useState<boolean | null>(false);
     const router = useRouter();
     const handleResend = () => {
@@ -41,7 +41,7 @@ const VerificationContent: React.FC = () => {
                     if (setLoading) setLoading(false);
                     setVerificationComplete(true);
                     const data = (await response.json()).data
-                    setUser(data)
+                    if (setUser) setUser(data)
                 }
             })
             .catch((error) => {
@@ -53,7 +53,7 @@ const VerificationContent: React.FC = () => {
     const handleVerifyOtp = async (otp: string) => {
         if (setLoading) setLoading(true);
 
-        verifyOtp(user.accessKey, otp)
+        verifyOtp(user?.accessKey, otp)
             .then(async (response) => {
                 if (response.ok) {
                     setError('')
@@ -63,7 +63,7 @@ const VerificationContent: React.FC = () => {
 
                     if (setLoading) setLoading(false);
                     const data = (await response.json()).data
-                    setUser({...data})
+                    if (setUser) setUser({...data})
                 }
             })
             .catch((error) => {
@@ -76,7 +76,7 @@ const VerificationContent: React.FC = () => {
         if (password.length < 6 || confirmPassword.length < 6)
             return setError('Passwords must be at least 6 characters long.')
 
-        createPassword(password, confirmPassword, user.token)
+        createPassword(password, confirmPassword, user?.token)
             .then(async (response) => {
                 if (response.ok) {
                     setError('')
@@ -90,11 +90,12 @@ const VerificationContent: React.FC = () => {
     };
 
     const handleResendOtp = () => {
-        resendOtp(user.email, user.token)
+        resendOtp(user?.accessKey)
             .then(async (response) => {
                 if (response.ok) {
                     setError('')
-                    return
+                    const data = await response.json()
+                    if (setUser) return setUser({accessKey: data.accessKey})
                 }
             })
             .catch((error) => {
@@ -147,7 +148,8 @@ const VerificationContent: React.FC = () => {
                                                customClasses="rounded-md text-sm mb-10 mt-2"/>}
                                 </div>
 
-                                {!otpVerified && <VerifyOtp handleSubmit={handleVerifyOtp} handleResend={handleResendOtp}/>}
+                                {!otpVerified &&
+                                    <VerifyOtp handleSubmit={handleVerifyOtp} handleResend={handleResendOtp}/>}
 
                                 {otpVerified && <CreatePassword handleError={handleError}
                                                                 handleSubmit={handlePasswordChange}/>}
@@ -156,7 +158,7 @@ const VerificationContent: React.FC = () => {
                     </div>
                 </div>
             )}
-        </>);     
+        </>);
 };
 
 export default VerificationContent;

@@ -5,4 +5,3 @@ export const useCollectionStore = create<DisbursementStoreType>((set) => ({
     actionType: 'single',
     setActionType: (action) => set((state) => ({...state, action})),
 }))
-
