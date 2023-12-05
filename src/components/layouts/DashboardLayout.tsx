@@ -1,3 +1,4 @@
+'use client'
 import React, {useEffect, useState} from 'react';
 import NavigationLinks from "@/components/navigation/NavigationLinks";
 import Logo from "@/assets/images/logo.png";
@@ -73,7 +74,7 @@ const DashboardLayout: React.FC<IDashboardLayoutProps> = ({
                 <nav
                     className="bg-white flex justify-between md:items-center px-6 pb-0 md:px-8 h-16 border border-b-gray-200">
                     <div className={`flex md:justify-start items-center ${logoStyles}`}>
-                        {showLogo && <Image src={Logo} alt="neobank" width={85} height={35}/>}
+                        {showLogo && <Image src={Logo} alt="neobank" width={0} height={35} style={{width: 'auto'}}/>}
                         {children.logo}
                     </div>
 
@@ -90,7 +91,7 @@ const DashboardLayout: React.FC<IDashboardLayoutProps> = ({
                     </div>
                 </nav>
 
-                {showHeader && <header className="bg-white shadow-sm flex" style={{
+                {showHeader && <div className="bg-white shadow-sm flex" style={{
                     background: 'url("/assets/images/cyan-background.svg")',
                     height: 147,
                 }}>
@@ -100,7 +101,7 @@ const DashboardLayout: React.FC<IDashboardLayoutProps> = ({
                             <p className="font-normal text-sm mt-2">{headerDescription}</p>
                         </div>
                     </div>
-                </header>}
+                </div>}
             </div>
 
             <div className="overflow-y-hidden md:mx-[12px] mx-auto">

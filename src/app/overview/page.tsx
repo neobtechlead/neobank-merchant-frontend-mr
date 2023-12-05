@@ -4,6 +4,7 @@ import DashboardLayout from "@/components/layouts/DashboardLayout";
 import DashboardContent from "@/components/DashboardContent";
 import {useDashboardStore} from "@/store/DashboardStore";
 import {usePathname} from "next/navigation";
+import {useUserStore} from "@/store/UserStore";
 
 const Overview: React.FC = () => {
     const path = usePathname();
@@ -16,11 +17,13 @@ const Overview: React.FC = () => {
         setHeaderDescription
     } = useDashboardStore();
 
+    const {user} = useUserStore();
+
     const setHeaderDetails = () => {
         setShowLogo(true)
         setShowNavigation(true)
         setShowProfileDropdown(true)
-        setHeaderTitle('Hello Complete Farmer');
+        setHeaderTitle(`Hello ${user?.firstName} ${user?.lastName}  `);
         setHeaderDescription('Welcome to your dashboard');
     }
 

@@ -9,25 +9,46 @@ import {Asterisk} from '@/assets/icons/asterisk';
 import ReBarGraph from "@/components/charts/ReBarGraph";
 import ReAreaGraph from "@/components/charts/ReAreaGraph";
 import TabsNav from "@/components/navigation/TabsNav";
-import {IOverviewProps} from "@/utils/interfaces/IOverviewProps";
-import {MerchantType} from "@/utils/types/MerchantType";
-import {TransactionType} from "@/utils/types/TransactionType";
 import {useTransactionStore} from "@/store/TransactionStore";
 import {useUserStore} from "@/store/UserStore";
 import {getStats} from "@/api/overview";
+import InfoCardItem from "@/components/InfoCardItem";
+import Status from "@/components/Status";
+import RecentTransactionCard from "@/components/RecentTransactionCard";
+import {UserCircleFill} from "@/assets/icons/UserCircleFill";
+import {LineArrowRight} from "@/assets/icons/LineArrowRight";
+import {UsersColorFill} from "@/assets/icons/UsersColorFill";
+import {File} from "@/assets/icons/File";
+import {Info} from "@/assets/icons/Info";
 
 const DashboardContent: React.FC = () => {
-    const [hasTransaction, setHasTransaction] = useState<boolean | null>(true);
+    const [hasTransaction, setHasTransaction] = useState<boolean | null>(false);
     const [showBalance, setShowBalance] = useState<boolean | null>(true);
-    const {transaction, transactions, setTransaction, setTransactions} = useTransactionStore()
+    const {transaction, transactions, setTransaction, setTransactions, transactionsByType} = useTransactionStore()
     const {merchant, setMerchant} = useUserStore()
+
+    const collections = transactionsByType('collection')
+    console.log(collections)
 
     const getMerchantStats = () => {
         getStats(merchant?.externalId)
             .then(async (response) => {
                 if (response.ok) {
                     const data = await response.json();
-                    if (setMerchant) setMerchant();
+                    if (setMerchant) setMerchant(data);
+                }
+            })
+            .catch((error) => {
+                console.log('error: ', error)
+            })
+    }
+
+    const getScheduledPayments = () => {
+        getStats(merchant?.externalId)
+            .then(async (response) => {
+                if (response.ok) {
+                    const data = await response.json();
+                    if (setMerchant) setMerchant(data);
                 }
             })
             .catch((error) => {
@@ -130,21 +151,15 @@ const DashboardContent: React.FC = () => {
                                 <Card
                                     customStyles={`lg:w-2/3 flex flex-col p-3 w-full border border-purple-900 rounded-l-2xl rounded-r-0 h-[197px] `}>
                                     <div className="flex flex-col h-full">
-                                        <h5 className="text-sm md:font-medium leading-6">Recent Disbursements</h5>
-                                        {!hasTransaction && <EmptyTransactionCardContent showContent={false}>
+                                        <h5 className="text-sm md:font-medium leading-6">Recent Transactions</h5>
+                                        {transactions.length === 0 && <EmptyTransactionCardContent showContent={false}>
                                             <div
                                                 className="flex flex-col justify-center items-center h-full w-full mt-4">
-                                                <div className="flex justify-between mt-4">
-                                                    <Image src="/assets/icons/user-circle-color-fill.svg"
-                                                           alt="user"
-                                                           className="" width={24} height={24}
-                                                    />
-                                                    <Image src="/assets/icons/line-arrow-right.svg" alt="arrow"
-                                                           className="mx-8" width={45} height={24}
-                                                    />
-                                                    <Image src="/assets/icons/users-color-fill.svg" alt="users"
-                                                           className="" width={24} height={24}
-                                                    />
+                                                <div className="flex justify-between my-4">
+                                                    <Svg fill="#F29339" path={UserCircleFill}/>
+                                                    <Svg fill="#E6E6E6" path={LineArrowRight} customClasses="mx-8"
+                                                         width={46} height={6}/>
+                                                    <Svg fill="#59D3D4" path={UsersColorFill}/>
                                                 </div>
                                             </div>
                                             <div className="flex flex-col justify-center items-center">
@@ -153,64 +168,55 @@ const DashboardContent: React.FC = () => {
                                             </div>
                                         </EmptyTransactionCardContent>}
 
-                                        {hasTransaction && <div className="flex flex-grow justify-between w-full">
-                                            <ul role="list" className="w-3/4">
-                                                {transactions.map((item, index) => (
-                                                    <li key={index} className="flex justify-between gap-x-6 mb-2">
-                                                        <div className="flex min-w-0 gap-x-4">
-                                                            <Image src="/assets/icons/file-dark.svg" alt="file"
-                                                                   width={24} height={24}/>
-                                                            <div className="min-w-0 flex-auto">
-                                                                <p className="mt-1 truncate text-xs leading-5 text-green-600">{item.status}</p>
-                                                                <p className="mt-1 truncate text-xs leading-5 ">{item.batchId}</p>
-                                                                <p className="text-sm font-semibold leading-6 text-gray-900">{item.amount}</p>
-                                                            </div>
-                                                        </div>
-                                                        <div
-                                                            className="hidden shrink-0 sm:flex sm:flex-col sm:items-end justify-center items-center">
-                                                            <p className="mt-1 text-xs leading-5 text-gray-500">{item.createdAt}</p>
-                                                        </div>
-                                                    </li>
-                                                ))}
-                                            </ul>
-                                        </div>}
+                                        {transactions &&
+                                            <div className="flex flex-grow justify-between w-full">
+                                                <ul role="list" className="w-3/4">
+                                                    {transactions.map((item, index) => (
+                                                        <RecentTransactionCard key={index} transaction={item}/>
+                                                    ))}
+                                                </ul>
+                                            </div>}
                                     </div>
                                 </Card>
                                 <Card
                                     customStyles={`lg:w-1/3 flex flex-col border-t border-r border-b border-purple-900 w-full rounded-r-2xl h-[197px]`}>
                                     <h5 className="text-sm md:font-medium leading-6 p-3">Scheduled Payments</h5>
-                                    {!hasTransaction && <EmptyTransactionCardContent showContent={false}>
+                                    {hasTransaction && <EmptyTransactionCardContent showContent={false}>
                                         <div className="">
                                             <div
                                                 className="flex flex-col justify-center items-center h-full w-full">
                                                 <div className="flex justify-between my-4">
-                                                    <Image src="/assets/images/clock-paragraph.svg" alt="file"
-                                                           className="flex text-white" width={90} height={28}
+                                                    <Image src="/assets/images/clock-paragraph.svg" alt="paragraph"
+                                                           height={28}
+                                                           width={0}
+                                                           style={{width: 90, height: "auto"}}
+                                                           className="flex text-white"
                                                     />
                                                 </div>
                                                 <div className="flex flex-col justify-center items-center w-full">
                                                     <h5 className="font-semibold">No data available</h5>
-                                                    <p className="font-normal text-xs text-center mt-1 lg:w-2/3 md:w-2/3 sm:w-1/3 sm:mx-6">{disbursementDescription}</p>
+                                                    <p className="font-normal text-xs text-center mt-1 lg:w-full md:w-2/3 sm:w-1/3 sm:mx-6 lg:px-2">{disbursementDescription}</p>
                                                 </div>
                                             </div>
                                         </div>
                                     </EmptyTransactionCardContent>}
 
-                                    {hasTransaction && <div className="flex flex-col h-full">
+                                    {!hasTransaction && <div className="flex flex-col h-full">
                                         <div className="flex flex-grow justify-between items-center p-3">
-                                            <div className="flex flex-col">
-                                                <span className="font-bold">150</span>
-                                                <span className="text-xs">Individuals</span>
-                                            </div>
+                                            <InfoCardItem
+                                                title="200" customTitleStyles="font-bold text-md text-gray-900"
+                                                description="Individuals"
+                                                customDescriptionStyles="text-xs"/>
                                             <div className="flex items-center">
                                                 <Image src="/assets/icons/arrow-circle-right.svg" alt="file"
                                                        className="flex text-white" width={24} height={24}
                                                 />
                                             </div>
-                                            <div className="flex flex-col">
-                                                <span className="flex font-bold">&#8373; {280000}</span>
-                                                <span className="text-xs">Total Amount</span>
-                                            </div>
+                                            <InfoCardItem
+                                                title={`GHS 280000`}
+                                                customTitleStyles="font-bold text-md text-gray-900 truncate"
+                                                description="Total Amount"
+                                                customDescriptionStyles="text-xs"/>
                                         </div>
                                         <div className="flex items-end bg-purple-900 p-3">
                                             <div className="flex w-full">
@@ -270,32 +276,27 @@ const DashboardContent: React.FC = () => {
 
                                     <div className="flex flex-col h-full">
                                         <div className="flex flex-grow justify-between items-center p-3">
-                                            <div className="flex flex-col">
-                                                <span className="font-bold">150</span>
-                                                <span className="text-xs truncate">Individuals</span>
-                                            </div>
+                                            <InfoCardItem title={'180'} customTitleStyles="font-bold"
+                                                          description="Individuals"
+                                                          customDescriptionStyles="text-xs truncate"/>
                                             <div className="flex items-center">
                                                 <Image src="/assets/icons/arrow-circle-right.svg" alt="file"
                                                        className="flex text-white" width={24} height={24}
                                                 />
                                             </div>
-                                            <div className="flex flex-col">
-                                                <span className="flex font-bold">&#8373; {280000}</span>
-                                                <span className="text-xs">Total Amount</span>
-                                            </div>
+                                            <InfoCardItem title={`GHS 280000`} customTitleStyles="font-bold"
+                                                          description="Total Amount"
+                                                          customDescriptionStyles="text-xs truncate"/>
                                         </div>
                                         <div className="flex items-end bg-purple-900 p-3">
                                             <div className="flex w-full">
-                                                <Image src="/assets/icons/file-white.svg" alt="file"
-                                                       className="flex text-white" width={24} height={24}
-                                                />
                                                 <div
                                                     className="flex justify-between items-center ml-3 text-white w-full">
-                                                    <div className="flex flex-col">
-                                                        <span className="text-sm">Batch No. 1</span>
-                                                        <span
-                                                            className="text-xs sm:truncate">Scheduled payment</span>
-                                                    </div>
+                                                    <InfoCardItem
+                                                        svgFill="white" svgPath={File}
+                                                        title="Batch No. 1" customTitleStyles="text-xs"
+                                                        description="Scheduled payment"
+                                                        customDescriptionStyles="text-xs sm:truncate"/>
                                                     <div className="flex text-xs items-center justify-end">
                                                         <h5 className="">15/09/2023</h5>
                                                     </div>
@@ -343,7 +344,7 @@ const DashboardContent: React.FC = () => {
                     </EmptyTransactionCardContent>}
 
                     {hasTransaction && <div className="flex flex-col h-full">
-                        <ReBarGraph data={areaGraphData}/>
+                        {/*<ReBarGraph data={areaGraphData}/>*/}
                     </div>}
                 </Card>
 

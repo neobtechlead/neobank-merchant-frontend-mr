@@ -196,7 +196,7 @@ const CollectionContent: React.FC<ICollectionContentProps> = ({
                                     <td className="hidden px-3 py-2 sm:table-cell text-xs">{transaction.client}</td>
                                     <td className="px-3 py-2 text-xs">GHS {transaction.amount}</td>
                                     <td className="px-3 py-2 text-xs">
-                                        <Status color={""} background={""} customStyles="text-red-500"
+                                        <Status customStyles="text-red-500"
                                                 status={transaction.status}/>
                                     </td>
                                     <td className="relative py-2 pl-3 text-right text-xs font-medium flex justify-end col-end-2">

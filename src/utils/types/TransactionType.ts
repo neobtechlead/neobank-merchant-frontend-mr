@@ -11,11 +11,11 @@ export type TransactionType = {
     updatedAt?: string,
     balanceBefore?: number,
     balanceAfter?: number,
-    processAt?: string,
+    processAt?: string | null,
     accountNumber?: string,
     initiatorName?: string,
-    callbackUrl?: string,
-    batchId?: string
+    callbackUrl?: string | null,
+    batchId?: string | null
 
     id?: string,
     date?: string,

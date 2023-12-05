@@ -8,7 +8,7 @@ const InfoCardItem: React.FC<IDetailItemProps> = ({svgFill = '#4F4F4F', svgPath,
                 <Svg fill={svgFill ?? ''} path={svgPath ?? ''}/>
             </div>}
             <div className="truncate">
-                <p className={`truncate text-xs font-semibold text-gray-600 ${customTitleStyles}`}>{title}</p>
+                <p className={`truncate text-gray-600 ${customTitleStyles}`}>{title}</p>
                 <p className={`truncate text-gray-950 ${customDescriptionStyles}`}>{description}</p>
             </div>
         </div>

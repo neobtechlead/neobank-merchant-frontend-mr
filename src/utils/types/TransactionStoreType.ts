@@ -5,4 +5,9 @@ export type TransactionStoreType = {
     transaction: TransactionType,
     setTransactions: (transactions: TransactionType[]) => void
     transactions: TransactionType[],
+    transactionsByType: (type: string) => void,
+    setDisbursements?: () => void,
+    disbursements?: TransactionType[],
+    setCollections?: () => void,
+    collections?: TransactionType[],
 }

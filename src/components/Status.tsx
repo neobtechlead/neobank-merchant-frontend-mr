@@ -1,19 +1,13 @@
 import React from 'react';
 
 interface StatusBadgeProps {
-    color: string;
-    background: string;
-    status: string | undefined;
+    status: string;
+    background?: boolean;
     customStyles?: string;
 }
 
-const StatusBadge: React.FC<StatusBadgeProps> = ({color, background, status, customStyles}) => {
-    const badgeStyle = {
-        color,
-        background,
-    };
-
-    const statusColors = {
+const StatusBadge: React.FC<StatusBadgeProps> = ({status, background, customStyles}) => {
+    const statusColors: { [key: string]: string; } = {
         success: '#008000',
         info: '#06b6d4',
         pending: '#F29339',
@@ -22,7 +16,7 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({color, background, status, cus
         completed: '#000000'
     };
 
-    const statusBackgroundColors = {
+    const statusBackgroundColors: { [key: string]: string; } = {
         success: '#0080001A',
         info: '#ECFEFF',
         warning: '#F293391A',
@@ -31,8 +25,7 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({color, background, status, cus
 
     };
 
-
-    const formattedStatuses = {
+    const formattedStatuses: { [key: string]: string; } = {
         successful: 'success',
         success: 'success',
         failed: 'failed',
@@ -45,7 +38,10 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({color, background, status, cus
         <div className="">
             <dt className="sr-only">Status</dt>
             <dd className={`inline-flex items-center rounded-md text-xs capitalize ${customStyles}`}
-                style={{color: statusColors[formattedStatuses[status]]}}>
+                style={{
+                    color: statusColors[formattedStatuses[status]],
+                    background: background ? statusBackgroundColors[formattedStatuses[status]] : ''
+                }}>
                 {status}
             </dd>
         </div>
