@@ -11,24 +11,21 @@ import ReAreaGraph from "@/components/charts/ReAreaGraph";
 import TabsNav from "@/components/navigation/TabsNav";
 import {useTransactionStore} from "@/store/TransactionStore";
 import {useUserStore} from "@/store/UserStore";
-import {getStats} from "@/api/overview";
+import {getStats, getTransactionSummary} from "@/api/overview";
 import InfoCardItem from "@/components/InfoCardItem";
-import Status from "@/components/Status";
 import RecentTransactionCard from "@/components/RecentTransactionCard";
 import {UserCircleFill} from "@/assets/icons/UserCircleFill";
 import {LineArrowRight} from "@/assets/icons/LineArrowRight";
 import {UsersColorFill} from "@/assets/icons/UsersColorFill";
 import {File} from "@/assets/icons/File";
-import {Info} from "@/assets/icons/Info";
+import {calculateDateRange} from "@/utils/lib";
+import {TransactionGraphDataType} from "@/utils/types/TranasctionGraphDataType";
 
 const DashboardContent: React.FC = () => {
     const [hasTransaction, setHasTransaction] = useState<boolean | null>(false);
     const [showBalance, setShowBalance] = useState<boolean | null>(true);
-    const {transaction, transactions, setTransaction, setTransactions, transactionsByType} = useTransactionStore()
+    const {transactions, setTransactions, collections, disbursements} = useTransactionStore()
     const {merchant, setMerchant} = useUserStore()
-
-    const collections = transactionsByType('collection')
-    console.log(collections)
 
     const getMerchantStats = () => {
         getStats(merchant?.externalId)
@@ -56,6 +53,21 @@ const DashboardContent: React.FC = () => {
             })
     }
 
+    const getTransactions = () => {
+        const {startDate, endDate} = calculateDateRange(6, true);
+
+        getTransactionSummary(merchant?.externalId, startDate, endDate)
+            .then(async (response) => {
+                if (response.ok) {
+                    const data = await response.json();
+                    if (setMerchant) setMerchant(data);
+                }
+            })
+            .catch((error) => {
+                console.log('error: ', error)
+            })
+    }
+
     useEffect(() => {
         getMerchantStats()
     }, []);
@@ -69,43 +81,29 @@ const DashboardContent: React.FC = () => {
             <Svg key={index} path={Asterisk} fill="#FEFEFE"/>
         ));
 
-    const areaGraphData = [
-        {
-            name: 'Jan',
-            uv: 100,
-            pv: 200,
-            amt: 2400,
-        },
-        {
-            name: 'Feb',
-            uv: 340,
-            pv: 98,
-            amt: 2210,
-        },
-        {
-            name: 'Mar',
-            uv: 200,
-            pv: 350,
-            amt: 2290,
-        },
-        {
-            name: 'Apr',
-            uv: 280,
-            pv: 308,
-            amt: 2000,
-        },
-        {
-            name: 'May',
-            uv: 190,
-            pv: 270,
-            amt: 2181,
-        },
-        {
-            name: 'June',
-            uv: 90,
-            pv: 300,
-            amt: 2500,
-        },
+    const getDataOptions = [
+        {key: 'collections', color: '#652D90'},
+        {key: 'disbursements', color: '#59D3D4'}
+    ];
+
+    const barGraphData: TransactionGraphDataType[] = [
+        {name: 'Jan', collections: 100, disbursements: 200},
+        {name: 'Feb', collections: 340, disbursements: 98},
+        {name: 'Mar', collections: 200, disbursements: 350},
+        {name: 'Apr', collections: 280, disbursements: 308},
+        {name: 'May', collections: 190, disbursements: 270},
+        {name: 'Jun', collections: 90, disbursements: 300},
+    ];
+    const areaGraphData: TransactionGraphDataType[] = [
+        {name: 'Jan', collections: 5, disbursements: 2400},
+        {name: 'Feb', collections: 10, disbursements: 1398},
+        {name: 'Mar', collections: 30, disbursements: 9800},
+        {name: 'Apr', collections: 30, disbursements: 3908},
+        {name: 'May', collections: 50, disbursements: 4800},
+        {name: 'Jun', collections: 50, disbursements: 3800},
+        {name: 'Jul', collections: 55, disbursements: 4300},
+        {name: 'Aug', collections: 50, disbursements: 4300},
+        {name: 'Sep', collections: 58, disbursements: 4300},
     ];
     const disbursementDescription = "Perform disbursements to view recent disbursement"
     const transactionDescription = "Perform a transaction to see your total counts"
@@ -123,14 +121,14 @@ const DashboardContent: React.FC = () => {
                                 backgroundImage="url('/assets/images/card-background.svg')"
                                 customStyles={`bg-purple-900 flex rounded-2xl h-[197px] mb-2`}
                             >
-                                <div className="flex flex-col justify-center text-white px-6 w-full">
+                                <div className="flex flex-col justify-center text-white px-6 w-full gap-y-3">
                                     <div className="flex items-center gap-x-4 mb-2">
-                                        <Image src="/assets/icons/wallet.svg" alt="wallet" width={24} height={24}/>
-                                        <div className="text-sm font-medium leading-6">Balance</div>
+                                        <Image src="/assets/icons/wallet.svg" alt="wallet" width={39} height={39}/>
+                                        <div className="font-medium leading-6">Balance</div>
                                     </div>
-                                    <div className="w-full flex  justify-between gap-x-4">
-                                        <h5 className="text-sm font-medium leading-6 flex">
-                                            {showBalance ? `GHS ${merchant?.actualBalance}` : asterisks(6)}
+                                    <div className="w-full flex justify-between gap-x-4">
+                                        <h5 className="font-medium leading-6 flex">
+                                            {showBalance ? `GHS ${merchant?.actualBalance}89384787` : asterisks(6)}
                                         </h5>
                                         <div className="flex justify-center items-center cursor-pointer"
                                              onClick={handleToggleBalance}>
@@ -344,7 +342,7 @@ const DashboardContent: React.FC = () => {
                     </EmptyTransactionCardContent>}
 
                     {hasTransaction && <div className="flex flex-col h-full">
-                        {/*<ReBarGraph data={areaGraphData}/>*/}
+                        <ReBarGraph data={barGraphData} dataOptionSet={getDataOptions} options={{tooltip: true}}/>
                     </div>}
                 </Card>
 
@@ -378,7 +376,7 @@ const DashboardContent: React.FC = () => {
                                     ]} handleClick={handleNavClick}/>
                                 </div>
                                 <div className="flex flex-grow flex-col">
-                                    <ReAreaGraph/>
+                                    <ReAreaGraph data={areaGraphData}/>
                                 </div>
                             </div>
                         )}
