@@ -17,14 +17,12 @@ const ReportContent: React.FC<IReportContentProps> = ({
                                                           transactions
                                                       }) => {
     const {
-        setHeaderTitle,
-        setHeaderDescription
+        setShowSupportButton,
+        setNavTitle,
     } = useDashboardStore();
 
     useEffect(() => {
         setDashboardState()
-        setHeaderTitle('')
-        setHeaderDescription('')
     }, [])
 
     const tableHeading = [
@@ -41,7 +39,10 @@ const ReportContent: React.FC<IReportContentProps> = ({
     ]
     const noActivityDescription = "We regret to inform you that the data required to generate reports is currently unavailable. This may be due to various reasons, including system maintenance, data processing delays, or temporary disruptions."
     const setDashboardState = () => {
-        return !transactions.length ? setShowEmptyState(true) : setHasActivity(true)
+        setShowSupportButton(true)
+        setNavTitle('')
+        return transactions.length ? setHasActivity(true) : setShowEmptyState(true)
+
     }
 
     const handlePrevious = () => {
@@ -103,8 +104,7 @@ const ReportContent: React.FC<IReportContentProps> = ({
                                     <td className="hidden px-3 py-2 sm:table-cell text-xs">{transaction.phone}</td>
                                     <td className="px-3 py-2 text-xs">GHS {transaction.amount}</td>
                                     <td className="px-3 py-2 text-xs">
-                                        <Status color={""} background={""} customStyles="text-red-500"
-                                                status={transaction.status}/>
+                                        <Status customStyles="text-red-500" status={transaction.status ?? ''}/>
                                     </td>
                                     <td className="px-3 py-2 text-xs">GHS {transaction.balance}</td>
                                 </tr>

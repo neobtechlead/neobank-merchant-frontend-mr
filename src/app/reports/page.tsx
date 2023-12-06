@@ -4,20 +4,22 @@ import DashboardLayout from "@/components/layouts/DashboardLayout";
 import {useDashboardStore} from "@/store/DashboardStore";
 import Svg from "@/components/Svg";
 import {ArrowLeft} from "@/assets/icons/ArrowLeft";
-import CollectionContent from "@/components/CollectionContent";
 import ReportContent from "@/components/ReportContent";
-import Status from "@/components/Status";
 import {TransactionType} from "@/utils/types/TransactionType";
 
 const ReportsPage: React.FC = () => {
-    const description = "Comprehensive and data-driven documents that provide valuable insights and analytics to businesses and merchants. These reports are instrumental in tracking, analysing, and optimizing various aspects of financial transactions and operations, helping businesses make informed decisions and achieve their goals."
-
+    const pageDescription = "Comprehensive and data-driven documents that provide valuable insights and analytics to businesses and merchants. These reports are instrumental in tracking, analysing, and optimizing various aspects of financial transactions and operations, helping businesses make informed decisions and achieve their goals."
+    const pageTitle = "Merchant Reports"
     const {
+        showBackButton,
+        navTitle,
         setShowLogo,
         setShowBackButton,
         setShowNavigation,
         setHeaderTitle,
         setHeaderDescription,
+        setShowSupportButton,
+        setNavTitle,
     } = useDashboardStore();
 
     useEffect(() => {
@@ -27,57 +29,31 @@ const ReportsPage: React.FC = () => {
     const [hasActivity, setHasActivity] = useState<boolean>(false);
     const [showEmptyState, setShowEmptyState] = useState<boolean>(false);
 
-    const transactions: TransactionType[] = [
-        {
-            id: '100000000',
-            date: '15/08/2017',
-            type: 'disbursement',
-            channel: 'neobank',
-            sender: 'Kwaku Frimpong',
-            recipient: 'Kwaku Frimpong',
-            phone: '+233 24 102 8900',
-            amount: '6,908',
-            status: 'successful',
-            balance: '77,000'
-        },
-        {
-            id: '100000000',
-            date: '15/08/2017',
-            type: 'disbursement',
-            channel: 'neobank',
-            sender: 'Kwaku Frimpong',
-            recipient: 'Kwaku Frimpong',
-            phone: '+233 24 102 8900',
-            amount: '6,908',
-            status: 'successful',
-            balance: '77,000'
-        },
-        {
-            id: '100000000',
-            date: '15/08/2017',
-            type: 'disbursement',
-            channel: 'neobank',
-            sender: 'Kwaku Frimpong',
-            recipient: 'Kwaku Frimpong',
-            phone: '+233 24 102 8900',
-            amount: '6,908',
-            status: 'successful',
-            balance: '77,000'
-        }
-    ]
+    const transactions: TransactionType[] = []
 
     const setHeaderDetails = () => {
         setShowLogo(true)
         setShowBackButton(false)
         setShowNavigation(true)
-        setHeaderTitle('Merchant Reports')
-        setHeaderDescription(description)
+        setHeaderTitle(pageTitle)
+        setHeaderDescription(pageDescription)
+        setNavTitle('')
+        setShowSupportButton(true)
         !transactions.length ? setShowEmptyState(true) : setHasActivity(true)
+    }
+
+    const handleBackButtonClicked = () => {
+        setHeaderDetails()
     }
 
     return (
         <DashboardLayout>
             {{
+                logo: showBackButton &&
+                    (<div className="flex cursor-pointer gap-2 lg:pl-5" onClick={handleBackButtonClicked}>
+                        <Svg fill="#4F4F4F" path={ArrowLeft}/> Back
+                    </div>),
+                navigationLinks: <span className="font-semibold">{navTitle}</span>,
                 body: <ReportContent
                     hasActivity={hasActivity}
                     setHasActivity={setHasActivity}

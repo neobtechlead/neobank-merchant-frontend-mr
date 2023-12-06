@@ -16,12 +16,6 @@ const ReportFilter: React.FC<IReportFilterProps> = ({onSubmit}) => {
         status: ''
     });
 
-    const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        event.preventDefault()
-        const {name, value} = event.target;
-        setFormData({...formData, [name]: value});
-    };
-
     const dropdownData: IListBoxItem[] = [
         {label: 'select status', value: 'select status'},
         {label: 'in progress', value: 'in progress'},
@@ -32,6 +26,23 @@ const ReportFilter: React.FC<IReportFilterProps> = ({onSubmit}) => {
 
     const [hasError, setHasError] = useState<boolean | null>(null);
     const [statusFilter, setStatusFilter] = useState<IListBoxItem>(dropdownData[0]);
+    const [disableExternalIdInput, setDisableExternalIdInput] = useState<boolean | undefined>(false);
+    const [disableStatusInput, setDisableStatusIdInput] = useState<boolean | undefined>(false);
+    const [disableDateInput, setDisableDateInput] = useState<boolean | undefined>(false);
+
+    const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        event.preventDefault()
+        const {name, value} = event.target;
+        handleDisableOtherInputFields(value)
+        setFormData({...formData, [name]: value});
+    };
+
+    const handleDisableOtherInputFields = (value: string) => {
+        let inputState = false
+        if (value.length > 0) inputState = true
+        setDisableStatusIdInput(inputState)
+        setDisableDateInput(inputState)
+    };
 
     const handleDateSelected = (name: string, date: Date) => {
         try {
@@ -44,7 +55,8 @@ const ReportFilter: React.FC<IReportFilterProps> = ({onSubmit}) => {
             const parsedDate = DateTime.fromFormat(formattedDate, 'dd/MM/yyyy');
             if (parsedDate.isValid) {
                 const formattedDate = parsedDate.toFormat('dd-MM-yyyy');
-                setFormData({...formData, [name]: formattedDate});
+                setFormData({...formData, [name]: formattedDate, externalId: ''});
+                setDisableExternalIdInput(true)
             }
         } catch (error) {
             console.error('Error parsing date string:', error);
@@ -53,7 +65,8 @@ const ReportFilter: React.FC<IReportFilterProps> = ({onSubmit}) => {
 
     const handleSetStatusFilter = (option: IListBoxItem) => {
         setStatusFilter(option)
-        setFormData({...formData, ['status']: option.value});
+        setFormData({...formData, ['status']: option.value, externalId: ''});
+        setDisableExternalIdInput(true)
     };
 
     const handleSubmitFilter: React.FormEventHandler<HTMLFormElement> = (event) => {
@@ -62,11 +75,13 @@ const ReportFilter: React.FC<IReportFilterProps> = ({onSubmit}) => {
     }
 
     const handleResetFilter: React.FormEventHandler<HTMLFormElement> = (event) => {
-        // event.preventDefault()
         setFormData({...formData, ['externalId']: ''});
         setStatusFilter(dropdownData[0])
         handleDateSelected('startDate', new Date())
         handleDateSelected('endDate', new Date())
+        setDisableStatusIdInput(false)
+        setDisableDateInput(false)
+        setDisableExternalIdInput(false)
     }
 
     return (
@@ -87,6 +102,7 @@ const ReportFilter: React.FC<IReportFilterProps> = ({onSubmit}) => {
                                     required={false}
                                     onInputChange={handleInputChange}
                                     hasError={setHasError}
+                                    disabled={disableExternalIdInput}
                                 />
                             </div>
 
@@ -100,7 +116,9 @@ const ReportFilter: React.FC<IReportFilterProps> = ({onSubmit}) => {
                                          className={`flex flex-col transition-opacity opacity-100 duration-500 ease-in-out`}>
                                         <DatePicker minDate={new Date('2023/07/31')}
                                                     selectedDate={new Date(formData.startDate ?? '')}
-                                                    setSelectedDate={(date: Date) => handleDateSelected('startDate', date)}/>
+                                                    setSelectedDate={(date: Date) => handleDateSelected('startDate', date)}
+                                                    disabled={disableDateInput}
+                                        />
                                     </div>
                                 </div>
                             </div>
@@ -116,7 +134,8 @@ const ReportFilter: React.FC<IReportFilterProps> = ({onSubmit}) => {
                                         <DatePicker
                                             minDate={new Date('2023/07/31')}
                                             selectedDate={new Date(formData.endDate ?? '')}
-                                            setSelectedDate={(date: Date) => handleDateSelected('endDate', date)}/>
+                                            setSelectedDate={(date: Date) => handleDateSelected('endDate', date)}
+                                            disabled={disableDateInput}/>
                                     </div>
                                 </div>
                             </div>
@@ -131,6 +150,7 @@ const ReportFilter: React.FC<IReportFilterProps> = ({onSubmit}) => {
                                     optionSelected={statusFilter}
                                     setOptionSelected={handleSetStatusFilter}
                                     disableFirstKey={true}
+                                    disableButton={disableStatusInput}
                                 />
                             </div>
                         </div>

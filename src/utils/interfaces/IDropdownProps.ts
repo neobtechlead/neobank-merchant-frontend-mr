@@ -15,4 +15,5 @@ export interface IListBoxProps {
     customClasses?: string;
     customButtonClasses?: string;
     disableFirstKey?: boolean
+    disableButton?: boolean
 }

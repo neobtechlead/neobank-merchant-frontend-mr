@@ -5,7 +5,6 @@ import Button from "@/components/forms/Button";
 import Svg from "@/components/Svg";
 import OverlayDetailContainer from "@/components/OverlayDetailContainer";
 import Table from "@/components/tables/Table";
-import {CaretRight} from "@/assets/icons/Caret";
 import Status from "@/components/Status";
 import Footer from "@/components/tables/Footer";
 import {useDashboardStore} from "@/store/DashboardStore";
@@ -14,17 +13,17 @@ import {TransactionType} from "@/utils/types/TransactionType";
 import Image from "next/image";
 import CollectionActionContent from "@/components/CollectionActionContent";
 import {ICollectionContentProps} from "@/utils/interfaces/ICollectionContentProps";
+import {Copy} from "@/assets/icons/Copy";
+import {ShareNetwork} from "@/assets/icons/ShareNetwork";
 
 const CollectionContent: React.FC<ICollectionContentProps> = ({
                                                                   showPaymentLinkForm,
-                                                                  setCollectionNavTitle,
                                                                   setShowPaymentLinkForm,
                                                                   hasActivity,
                                                                   setHasActivity,
                                                                   showEmptyState,
                                                                   setShowEmptyState,
-                                                                  transactions,
-                                                                  setDefaultScreens
+                                                                  transactions
                                                               }) => {
     const {
         setShowLogo,
@@ -32,13 +31,13 @@ const CollectionContent: React.FC<ICollectionContentProps> = ({
         setShowBackButton,
         setShowProfileDropdown,
         setHeaderTitle,
-        setHeaderDescription
+        setHeaderDescription,
+        setNavTitle,
+        setShowSupportButton
     } = useDashboardStore();
 
     useEffect(() => {
         setDashboardState()
-        setHeaderTitle('')
-        setHeaderDescription('')
     }, [])
 
 
@@ -61,7 +60,7 @@ const CollectionContent: React.FC<ICollectionContentProps> = ({
         {label: 'client name', classes: 'hidden sm:table-cell'},
         {label: 'amount', classes: ''},
         {label: 'status', classes: ''},
-        {label: ' ', classes: ''}
+        {label: 'action', classes: ''}
     ]
     const noActivityDescription = "It seems like there's currently no data available regarding funds collection in your account. This section will display information when funds are collected and any related transactions."
     const TransactionDetailDescription = "You can see the details of this transaction. Lorem Ipsum lawal ........You can see the details of this transaction. Lorem Ipsum lawal ........You can see the details of this transaction. Lorem Ipsum lawal ........You can see the details of this transaction. Lorem Ipsum lawal ........"
@@ -69,9 +68,10 @@ const CollectionContent: React.FC<ICollectionContentProps> = ({
     const collectionActionDescription = "Generate Payment Link is a valuable feature that empowers businesses and individuals to create customized and convenient payment links for secure and efficient transactions. Whether you are a seller, service provider, or fundraiser, this tool simplifies the payment process and allows you to receive payments seamlessly."
 
     const setDashboardState = () => {
+        setShowSupportButton(true)
         setShowPaymentLinkForm(false)
-        setCollectionNavTitle('')
-        return !transactions.length ? setShowEmptyState(true) : setHasActivity(true)
+        setNavTitle('')
+        return transactions.length ? setHasActivity(true) : setShowEmptyState(true)
     }
 
     const handlePrevious = () => {
@@ -79,9 +79,12 @@ const CollectionContent: React.FC<ICollectionContentProps> = ({
     const handleNext = () => {
     }
 
-    const handleTransactionDetails = (transaction: TransactionType) => {
+    const handleCopyPaymentLink = (transaction: TransactionType) => {
         setTransaction(transaction)
-        setOpenTransactionDetail(true)
+    }
+
+    const handleSharePaymentLink = (transaction: TransactionType) => {
+        setTransaction(transaction)
     }
 
     const handleCollectionActionContent = () => {
@@ -93,8 +96,9 @@ const CollectionContent: React.FC<ICollectionContentProps> = ({
         setShowNavigation(false)
         setShowProfileDropdown(false)
         setHasActivity(false)
-        setCollectionNavTitle("Generate Link")
+        setNavTitle("Generate Link")
         setShowPaymentLinkForm(true)
+        setShowSupportButton(false)
     }
 
     return (
@@ -110,7 +114,7 @@ const CollectionContent: React.FC<ICollectionContentProps> = ({
                 description={noActivityDescription}
             >
                 <div className="text-center">
-                    <div className="flex flex-col mt-10 mb-10">
+                    <div className="flex flex-col my-10">
                         <Button styleType="primary" customStyles="justify-center p-4 md:p-5 rounded-md"
                                 buttonType="button"
                                 onClick={handleCollectionActionContent}>
@@ -162,7 +166,7 @@ const CollectionContent: React.FC<ICollectionContentProps> = ({
 
                                     <div className="flex col-end-4 col-span-1">
                                         <Button styleType="primary"
-                                                customStyles="justify-center p-4 md:p-5 rounded-md text-sm"
+                                                customStyles="justify-center p-4 sm:p-5 rounded-md text-sm"
                                                 buttonType="button"
                                                 onClick={handleCollectionActionContent}>
                                             <div className="flex items-center font-semibold">
@@ -197,12 +201,16 @@ const CollectionContent: React.FC<ICollectionContentProps> = ({
                                     <td className="px-3 py-2 text-xs">GHS {transaction.amount}</td>
                                     <td className="px-3 py-2 text-xs">
                                         <Status customStyles="text-red-500"
-                                                status={transaction.status}/>
+                                                status={transaction.status ?? ''}/>
                                     </td>
-                                    <td className="relative py-2 pl-3 text-right text-xs font-medium flex justify-end col-end-2">
-                                        <div onClick={() => handleTransactionDetails(transaction)}
+                                    <td className="relative py-2 pl-3 text-right text-xs font-medium flex justify-center gap-6">
+                                        <div onClick={() => handleCopyPaymentLink(transaction)}
                                              className="cursor-pointer">
-                                            <Svg fill="#4F4F4F" path={CaretRight}/>
+                                            <Svg fill="#4F4F4F" path={Copy}/>
+                                        </div>
+                                        <div onClick={() => handleSharePaymentLink(transaction)}
+                                             className="cursor-pointer">
+                                            <Svg fill="#4F4F4F" path={ShareNetwork}/>
                                         </div>
                                     </td>
                                 </tr>

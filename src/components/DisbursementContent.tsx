@@ -16,36 +16,28 @@ import {useDisbursementStore} from "@/store/DisbursementStore";
 import {IDisbursementContent} from "@/utils/interfaces/IDisbursementContent";
 
 const DisbursementContent: React.FC<IDisbursementContent> = ({
-                                           setDisbursementType,
-                                           showDisbursementActionContent,
-                                           setShowDisbursementActionContent,
-                                           hasActivity,
-                                           setHasActivity,
-                                           showEmptyState,
-                                           setShowEmptyState,
-                                           setDefaultScreens,
-                                           transactions
-                                       }) => {
+                                                                 showDisbursementActionContent,
+                                                                 setShowDisbursementActionContent,
+                                                                 hasActivity,
+                                                                 setHasActivity,
+                                                                 showEmptyState,
+                                                                 setShowEmptyState,
+                                                                 transactions
+                                                             }) => {
     const {
         setShowLogo,
         setShowNavigation,
         setShowBackButton,
         setShowProfileDropdown,
         setHeaderTitle,
-        setHeaderDescription
+        setHeaderDescription,
+        setNavTitle,
+        setShowSupportButton,
     } = useDashboardStore();
-
-    const {
-        actionType,
-        setActionType
-    } = useDisbursementStore();
-
 
     useEffect(() => {
         setDashboardState()
         setShowAlert(true)
-        setHeaderTitle('')
-        setHeaderDescription('')
     }, [])
 
     const [contentType, setContentType] = useState<string>('initiate');
@@ -83,7 +75,7 @@ const DisbursementContent: React.FC<IDisbursementContent> = ({
     const disbursementActionDescription = "Transferring funds or making a payment in a one-time transaction. It is a straightforward and efficient way to send money, whether it's for a specific purchase, a salary payment, or any other singular financial transaction."
 
     const setDashboardState = () => {
-        setActionType('')
+        setNavTitle('')
         if (setShowDisbursementActionContent) setShowDisbursementActionContent(false)
         return !transactions.length ? setShowEmptyState ? setShowEmptyState(true) : setHasActivity ? setHasActivity(true) : null : null
     }
@@ -104,9 +96,10 @@ const DisbursementContent: React.FC<IDisbursementContent> = ({
         let description = ''
         setShowLogo(false)
         setShowBackButton(true)
+        setShowSupportButton(false)
 
         if (!transactions.length) {
-            setActionType('single')
+            setNavTitle('single')
             setContentType('initiate')
             if (setShowEmptyState) setShowEmptyState(false)
             title = 'Initiate Disbursement'
@@ -116,11 +109,11 @@ const DisbursementContent: React.FC<IDisbursementContent> = ({
             title = actionType.charAt(0).toUpperCase() + actionType.slice(1) + " Disbursement";
             pageHeading = title
             description = disbursementActionDescription
-            setActionType(actionType)
+            setNavTitle(actionType)
             setContentType(actionType)
         }
 
-        if (setDisbursementType) setDisbursementType(pageHeading)
+        setNavTitle(pageHeading)
         if (setHasActivity) setHasActivity(false)
         if (setShowDisbursementActionContent) setShowDisbursementActionContent(true)
 
@@ -144,7 +137,8 @@ const DisbursementContent: React.FC<IDisbursementContent> = ({
             >
                 <div className="text-center">
                     <div className="flex flex-col mt-10 mb-20">
-                        <Button styleType="primary" customStyles="justify-center p-4 md:p-5 rounded-lg" buttonType="button"
+                        <Button styleType="primary" customStyles="justify-center p-4 md:p-5 rounded-lg"
+                                buttonType="button"
                                 onClick={handleDisbursementActionContent}>
                             <span className="flex self-center">
                                 <Svg customClasses="mr-1" fill="white" path={Plus}/>
@@ -226,8 +220,7 @@ const DisbursementContent: React.FC<IDisbursementContent> = ({
                                     <td className="hidden px-3 py-2 md:table-cell text-xs capitalize">{transaction.type}</td>
                                     <td className="px-3 py-2 text-xs">GHS {transaction.amount}</td>
                                     <td className="px-3 py-2 text-xs">
-                                        <Status color={""} background={""} customStyles="text-red-500"
-                                                status={transaction.status}/>
+                                        <Status customStyles="text-red-500" status={transaction.status ?? ''}/>
                                     </td>
                                     <td className="relative py-2 pl-3 text-right text-xs font-medium flex justify-end col-end-2">
                                         <div onClick={() => handleTransactionDetails(transaction)}

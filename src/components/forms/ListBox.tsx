@@ -10,14 +10,16 @@ const ListBox: React.FC<IListBoxProps> = ({
                                               setOptionSelected,
                                               customButtonClasses,
                                               customClasses,
-                                              disableFirstKey
+                                              disableFirstKey,
+                                              disableButton,
                                           }) => {
     return (
         <Listbox value={optionSelected} onChange={setOptionSelected}>
             {({open}) => (
                 <div className={`relative ${customClasses}`}>
                     <Listbox.Button
-                        className={`flex justify-between w-full cursor-pointer rounded-md bg-white gap-3 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none sm:text-sm sm:leading-6 ${customButtonClasses}`}
+                        className={`flex justify-between w-full cursor-pointer rounded-md bg-white gap-3 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none sm:text-sm sm:leading-6 ${customButtonClasses}
+                        ${disableButton ? 'pointer-events-none opacity-50' : ''}`}
                     >
                         <span
                             className="pointer-events-none font-semibold flex items-center">{optionSelected?.label}</span>

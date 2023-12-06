@@ -4,7 +4,7 @@ import Svg from "@/components/Svg";
 import {ArrowCircleLeft, ArrowCircleRight} from "@/assets/icons/ArrowCircle";
 import {Calendar} from "@/assets/icons/Calendar";
 
-const DatePicker: React.FC<IDatePickerProps> = ({selectedDate, setSelectedDate, minDate}) => {
+const DatePicker: React.FC<IDatePickerProps> = ({selectedDate, setSelectedDate, minDate, disabled = false}) => {
     const [show, setShow] = useState<boolean>(false)
 
     const handleClose = (state: boolean) => {
@@ -60,11 +60,13 @@ const DatePicker: React.FC<IDatePickerProps> = ({selectedDate, setSelectedDate, 
             day: "numeric",
             month: "long",
             year: "numeric"
-        }
+        },
+        disabled: disabled
     }
 
     return (
-        <Datepicker classNames="relative z-50" options={options} onChange={setSelectedDate} show={show} setShow={handleClose}/>
+        <Datepicker classNames={`relative z-50 ${disabled ? 'pointer-events-none opacity-50' : ''}`} options={options}
+                    onChange={setSelectedDate} show={show} setShow={handleClose}/>
     )
 }
 

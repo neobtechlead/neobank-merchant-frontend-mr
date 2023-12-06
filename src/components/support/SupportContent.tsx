@@ -4,11 +4,7 @@ import SupportChannels from "@/components/support/SupportChannels";
 import FAQs from "@/components/support/FAQs";
 
 const SupportContent: React.FC<IAlert> = ({
-                                     alertType,
-                                     description,
                                      customClasses,
-                                     children,
-                                     descriptionClasses
                                  }) => {
 
     return (

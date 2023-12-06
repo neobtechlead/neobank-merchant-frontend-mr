@@ -25,31 +25,45 @@ const DashboardLayout: React.FC<IDashboardLayoutProps> = ({
         headerTitle,
         headerDescription,
         showHeader,
+        showBody,
+        showSupportButton,
+        showSupportContent,
+        showProfile,
+        showSettings,
         setShowHeader,
         setHeaderDescription,
         setHeaderTitle,
+        setShowNavigation,
+        setShowLogo,
+        setShowProfileDropdown,
+        setShowBackButton,
+        setShowBody,
+        setShowSupportContent,
+        setShowProfile,
+        setShowSettings,
+        setNavTitle,
     } = useDashboardStore();
 
     const handleSupportClicked = () => {
+        setNavTitle('Support')
         setShowHeader(false)
         setShowBody(false)
-        setShowProfile(false)
         setShowSettings(false)
-        setShowSupport(true)
+        setShowNavigation(false)
+        setShowLogo(false)
+        setShowProfileDropdown(false)
+        setShowSupportContent(true)
+        setShowBackButton(true)
     }
 
-    const [showBody, setShowBody] = useState<boolean>(true);
-    const [showSupport, setShowSupport] = useState<boolean>(false);
-    const [showProfile, setShowProfile] = useState<boolean>(false);
-    const [showSettings, setShowSettings] = useState<boolean>(false);
-
     useEffect(() => {
-        showSupport ? setShowHeader(false) : setShowHeader(true)
-    }, [showSupport])
+        showSupportContent ? setShowHeader(false) : setShowHeader(true)
+        showNavigation ? handleShowBody() : null
+    }, [setShowSupportContent, showNavigation])
 
     const handleProfileItemClicked = (item: string) => {
         setShowBody(false)
-        setShowSupport(false)
+        setShowSupportContent(false)
         setHeaderTitle("Account Information")
         setHeaderDescription("Put content for account information here. Put content for account information here. Put content for account information here. Put content for account information here. Put content for account information here.n")
 
@@ -67,6 +81,15 @@ const DashboardLayout: React.FC<IDashboardLayoutProps> = ({
         setShowSettings(true)
     }
 
+    const handleShowBody = () => {
+        setShowSupportContent(false)
+        setShowHeader(true)
+        setShowProfileDropdown(true)
+        setShowBody(true)
+        setShowProfile(false)
+        setShowSettings(false)
+        setNavTitle('')
+    }
 
     return (
         <div>
@@ -107,13 +130,13 @@ const DashboardLayout: React.FC<IDashboardLayoutProps> = ({
             <div className="overflow-y-hidden md:mx-[12px] mx-auto">
                 <div className="h-full md:px-3 lg:px-[70px]">
                     {showBody && <>{children.body}</>}
-                    {showSupport && <SupportContent/>}
+                    {showSupportContent && <SupportContent/>}
                     {showProfile && <ProfileContent/>}
                     {showSettings && <SettingsContent onClick={handleSettingsClicked}/>}
                 </div>
             </div>
 
-            <SupportButton onClick={handleSupportClicked}/>
+            {showSupportButton && <SupportButton onClick={handleSupportClicked}/>}
         </div>
     );
 };
