@@ -1,3 +1,5 @@
+'use client'
+
 import React, {useState} from 'react';
 import TextInput from "@/components/forms/TextInput";
 import Button from "@/components/forms/Button";
@@ -21,16 +23,17 @@ import InfoCardItem from "@/components/InfoCardItem";
 import {useDisbursementStore} from "@/store/DisbursementStore";
 import {DateTime} from "luxon";
 import {TransactionType} from "@/utils/types/TransactionType";
+import {downloadBulkDisbursementTemplate} from "@/api/disbursement";
 
 const DisbursementActionContent: React.FC<IDisbursementActionContent> = ({
                                                                              contentType,
                                                                              resetDashboard
                                                                          }) => {
-    const [hasError, setHasError] = useState<boolean | undefined>(false);
+    const [hasError, setHasError] = useState<boolean | undefined>(true);
     const [error, setError] = useState<string | null>(null);
     const [toggleEnabled, setToggleEnabled] = useState<boolean>(false);
     const [selectedTime, setSelectedTime] = useState<string>();
-    const [selectedDate, setSelectedDate] = useState(new Date());
+    const [selectedDate, setSelectedDate] = useState<Date>();
     const [showTimePicker, setShowTimePicker] = useState<boolean>(false);
     const [openOverlay, setOpenOverlay] = useState<boolean>(false);
     const [openModal, setModalOpen] = useState<boolean>(false);
@@ -64,35 +67,36 @@ const DisbursementActionContent: React.FC<IDisbursementActionContent> = ({
         event.preventDefault();
         setOverlayDetailContainerDescription('This generated link will be automatically sent to the customer’s email address provided in the form. Please alert customer to make payment within 5 days after link has been generated.')
         setOpenOverlay(true)
+        !toggleEnabled ? handleToggle(false) : setFormData({...formData, date: new Date().toLocaleDateString(),})
+        console.log(formData)
     };
 
     const handleToggle = (toggle: boolean) => {
-        setToggleEnabled(() => {
-            setFormData((prevFormData) => {
-                return {...prevFormData, scheduled: toggle};
-            });
-            return toggle;
+        setToggleEnabled(toggle);
+        setFormData((formData) => {
+            // To be removed when scenario is clarified
+            // if (!toggle) {
+            //     const {date, time, ...formDataWithoutDateAndTime} = formData;
+            //     return {...formDataWithoutDateAndTime, scheduled: toggle};
+            // }
+            return {...formData, scheduled: toggle};
         });
     };
 
+
     const handleDateSelected = (date: Date) => {
         try {
-            const formattedDate = new Intl.DateTimeFormat('en-GB', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric',
-            }).format(date);
+            const parsedDate = DateTime.fromJSDate(date);
 
-            const parsedDate = DateTime.fromFormat(formattedDate, 'dd/MM/yyyy');
             if (parsedDate.isValid) {
-                const formattedDate = parsedDate.toFormat('dd-MM-yyyy');
-                setFormData({...formData, date: formattedDate});
-                setSelectedDate(date)
+                const formattedDate = parsedDate.toFormat('dd/MM/yyyy');
+                setFormData({ ...formData, date: formattedDate });
+                setSelectedDate(parsedDate.toJSDate());
             }
         } catch (error) {
             console.error('Error parsing date string:', error);
         }
-    }
+    };
 
     const handleTimeSelected = (time: string) => {
         setSelectedTime(time)
@@ -113,10 +117,6 @@ const DisbursementActionContent: React.FC<IDisbursementActionContent> = ({
         actionType,
         setActionType
     } = useDisbursementStore();
-
-    const handleNavClick = (nav: string) => {
-        setActionType(nav);
-    }
 
     const handleTransactionConfirmation = (actionType?: string) => {
         setModalOpen(true)
@@ -152,13 +152,17 @@ const DisbursementActionContent: React.FC<IDisbursementActionContent> = ({
         setHeaderTitle('Disburse Funds')
         setHeaderDescription("Disburse Funds is a powerful tool that allows you to efficiently transfer allocated funds to their intended recipients. Whether it's sending payments to vendors, distributing salaries to employees, or making withdrawals, this feature streamlines the process for you.")
         if (resetDashboard) resetDashboard()
+        setUploadedFileName('')
     }
 
     const handleTemplateDownload = () => {
+        downloadBulkDisbursementTemplate()
+            .then(response => console.log(response))
     }
 
     const handleFileUploaded = (files: FileList) => {
         const fileNames = Array.from(files).map((file) => file.name);
+        console.log(fileNames[0])
         setUploadedFileName(fileNames[0])
     }
 
@@ -169,12 +173,12 @@ const DisbursementActionContent: React.FC<IDisbursementActionContent> = ({
                     <div
                         className="flex justify-center border border-gray-100 rounded-lg text-center mb-10 max-w-xs mx-auto">
                         <TabsNav
-                            tabs={[{item: 'single', label: 'single disbursement'}, {
-                                item: 'bulk',
-                                label: 'bulk disbursement'
-                            }]}
-                            handleClick={handleNavClick}
-                            customClasses="text-xs"/>
+                            tabs={[
+                                {item: 'single', label: 'single disbursement'},
+                                {item: 'bulk', label: 'bulk disbursement'}
+                            ]}
+                            handleClick={setActionType}
+                            customClasses="text-xs" activeTab={actionType}/>
                     </div>}
 
                 <form method="POST" onSubmit={handleDisbursementConfirmation}
@@ -199,7 +203,7 @@ const DisbursementActionContent: React.FC<IDisbursementActionContent> = ({
                             name="phone"
                             type="number"
                             placeholder="Enter phone number"
-                            required={false}
+                            required={true}
                             onInputChange={handleInputChange}
                             hasError={setHasError}
                             autoComplete=""
@@ -212,7 +216,7 @@ const DisbursementActionContent: React.FC<IDisbursementActionContent> = ({
                             name="amount"
                             type="number"
                             placeholder="0"
-                            required={false}
+                            required={true}
                             onInputChange={handleInputChange}
                             hasError={setHasError} autoComplete=""
                             customClasses="col-span-full"
@@ -234,34 +238,41 @@ const DisbursementActionContent: React.FC<IDisbursementActionContent> = ({
                             customClasses="col-span-full"
                         />
 
-                        {actionType === 'bulk' && <div className="col-span-full mb-5">
-                            <div className="col-span-full mb-5">
-                                {!uploadedFileName && <div className="flex flex-col rounded border mb-5">
-                                    <div className="flex justify-between m-3">
-                                        <InfoCardItem
-                                            description="Download for our template content should be here"
-                                            title="Bulk Disbursement Template"
-                                            customStyles="my-2 gap-x-2"
-                                            customDescriptionStyles="text-sm"
-                                            svgFill="#652D90"
-                                            svgPath={File}
-                                        />
-                                        <div
-                                            className="shrink-0 flex sm:flex-col sm:items-end justify-center cursor-pointer"
-                                            onClick={handleTemplateDownload}>
-                                            <Svg fill="#4F4F4F" path={Download}/>
+                        {actionType === 'bulk' && <div className="col-span-full">
+                            <div className="col-span-full">
+                                {!uploadedFileName && <>
+                                    <div className="flex flex-col rounded border">
+                                        <div className="flex justify-between m-3">
+                                            <InfoCardItem
+                                                description="Download for our template content should be here"
+                                                title="Bulk Disbursement Template"
+                                                customStyles="my-2 gap-x-2"
+                                                customDescriptionStyles="text-sm"
+                                                customTitleStyles="text-xs"
+                                                svgFill="#652D90"
+                                                svgPath={File}
+                                            />
+                                            <div
+                                                className="shrink-0 flex sm:flex-col sm:items-end justify-center cursor-pointer"
+                                                onClick={handleTemplateDownload}>
+                                                <Svg fill="#4F4F4F" path={Download}/>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>}
+                                    <div className="flex flex-col mt-4">
+                                        <DragAndDrop filesUploaded={handleFileUploaded}/>
+                                    </div>
+                                </>}
 
-                                {!uploadedFileName && <>
-                                    <div className="flex flex-col rounded border mb-5 relative">
+                                {uploadedFileName && <>
+                                    <div className="flex flex-col rounded border mb-3 relative">
                                         <div className="flex justify-between m-3">
                                             <InfoCardItem
                                                 description={uploadedFileName}
                                                 title="Bulk Disbursement File"
                                                 customStyles="my-2 gap-x-2"
                                                 customDescriptionStyles="text-sm"
+                                                customTitleStyles="text-xs"
                                                 svgFill="#652D90"
                                                 svgPath={File}
                                             />
@@ -269,14 +280,11 @@ const DisbursementActionContent: React.FC<IDisbursementActionContent> = ({
                                                 className="bg-purple-900 h-1 w-full absolute bottom-0 right-0 rounded-b"/>
                                         </div>
                                     </div>
-                                    <div className="flex flex-col">
-                                        <DragAndDrop filesUploaded={handleFileUploaded}/>
-                                    </div>
                                 </>}
                             </div>
                         </div>}
 
-                        <div className="flex gap-4 relative mt-3">
+                        <div className="flex gap-x-4 relative mt-4">
                             <div className="flex text-sm">Schedule disbursement</div>
                             <div className="absolute right-[-310px]">
                                 <Toggle enabled={toggleEnabled} handleToggle={handleToggle}/>
@@ -361,20 +369,19 @@ const DisbursementActionContent: React.FC<IDisbursementActionContent> = ({
                     {!transactionSuccessful && <div className="bg-gray-100 my-3 rounded border border-gray-10">
                         <div className="flex flex-col justify-center p-5 py-0 divide-y divide-gray-300">
                             <InfoCardItem description={formData.recipient ?? 'data'} title="Recipients Name"
-                                          customStyles="my-2" customTitleStyles="mt-5"/>
+                                          customStyles="my-2" customTitleStyles="mt-5 text-xs"/>
                             <InfoCardItem description={formData.phone} title="Recipient's Phone Number"
-                                          customStyles="my-2" customTitleStyles="mt-5"/>
+                                          customStyles="my-2" customTitleStyles="mt-5 text-xs"/>
                             <InfoCardItem description={formData.amount} title="Total Amount" customStyles="my-2"
-                                          customTitleStyles="mt-5"/>
+                                          customTitleStyles="mt-5 text-xs"/>
                             <InfoCardItem description={formData.description} title="Description" customStyles="my-2"
-                                          customTitleStyles="mt-5"/>
+                                          customTitleStyles="mt-5 text-xs"/>
                             {formData.date &&
                                 <InfoCardItem description={formData.date} title="Scheduled Date" customStyles="my-2"
-                                              customTitleStyles="mt-5"/>}
+                                              customTitleStyles="mt-5 text-xs"/>}
                             {formData.time &&
                                 <InfoCardItem description={formData.time} title="Scheduled Time" customStyles="my-2"
-                                              customTitleStyles="mt-5"/>}
-
+                                              customTitleStyles="mt-5 text-xs"/>}
                         </div>
                     </div>}
 

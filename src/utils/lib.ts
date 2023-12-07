@@ -11,10 +11,30 @@ export const normalizeDate = (date: string) => {
 export const calculateDateRange = (range: number = 6, customStart: boolean = false, whereStart: DateTimeUnit = 'month') => {
     const endDate = DateTime.local();
     const dateDifference = endDate.minus({months: range})
-    const startDate =  customStart ? dateDifference.startOf(whereStart) : dateDifference
+    const startDate = customStart ? dateDifference.startOf(whereStart) : dateDifference
 
     return {
         startDate: startDate.toJSDate(),
         endDate: endDate.toJSDate(),
     };
 }
+
+export const camelCaseToWords = (text: string = '') => {
+    return text.replace(/([A-Z])/g, ' $1').toLowerCase();
+}
+
+export const downloadFile = async (response: Response | Blob, fileName: string = 'sample.txt') => {
+    try {
+        const blob = (response instanceof Response) ? await response.blob() : response;
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    } catch (error) {
+        console.error('Error downloading file:', error);
+    }
+};

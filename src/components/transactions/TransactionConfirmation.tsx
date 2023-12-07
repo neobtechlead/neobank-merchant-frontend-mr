@@ -27,19 +27,19 @@ const TransactionConfirmation: React.FC<ITransactionConfirmation> = ({
             {transactionType === 'single' && <div className={`flex flex-2 ${customStyles}`}>
                 <div className={`relative flex flex-col min-w-0 flex-1 rounded-lg border px-4 mb-10 ${customStyles}`}>
                     <InfoCardItem description={transaction.recipient} svgPath={UserCircle} title="Recipients Name"
-                                  customStyles="py-5"/>
+                                  customStyles="py-5" customDescriptionStyles="text-sm"/>
                     <InfoCardItem description={transaction.phone} svgPath={Phone} title="Recipient's Phone Number"
-                                  customStyles="py-5"/>
+                                  customStyles="py-5" customDescriptionStyles="text-sm"/>
                     <InfoCardItem description={transaction.amount} svgPath={Tag} title="Total Amount"
-                                  customStyles="py-5"/>
+                                  customStyles="py-5" customDescriptionStyles="text-sm"/>
                     <InfoCardItem description={transaction.description} svgPath={ClipboardText} title="Description"
                                   customStyles="py-5"/>
-                    {transaction.date &&
+                    {transaction.scheduled &&
                         <InfoCardItem description={transaction.date} svgPath={Calendar} title="Scheduled Date"
-                                      customStyles="py-5"/>}
-                    {transaction.time &&
+                                      customStyles="py-5" customDescriptionStyles="text-sm"/>}
+                    {transaction.scheduled &&
                         <InfoCardItem description={transaction.time} svgPath={Clock} title="Scheduled Time"
-                                      customStyles="py-5"/>}
+                                      customStyles="py-5" customDescriptionStyles="text-sm"/>}
                 </div>
             </div>}
 

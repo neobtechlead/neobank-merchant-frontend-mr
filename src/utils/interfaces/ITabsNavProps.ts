@@ -5,4 +5,5 @@ interface ITabsNavProps {
         label: string,
     }[],
     customClasses?: string
+    activeTab?: string
 }

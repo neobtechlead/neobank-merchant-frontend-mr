@@ -5,8 +5,8 @@ export type TransactionStoreType = {
     transaction: TransactionType,
     setTransactions: (transactions: TransactionType[]) => void
     transactions: TransactionType[],
-    setDisbursements?: () => void,
+    setDisbursements?: (disbursements: TransactionType[]) => void,
     disbursements?: TransactionType[],
-    setCollections?: () => void,
+    setCollections?: (collections: TransactionType[]) => void,
     collections?: TransactionType[],
 }

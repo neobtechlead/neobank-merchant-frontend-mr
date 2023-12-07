@@ -1,3 +1,4 @@
+'use client'
 import React, {useEffect, useState} from 'react';
 import {Plus} from '@/assets/icons/plus'
 import EmptyTransactionCardContent from "@/components/EmptyTransactionCardContent";
@@ -12,17 +13,14 @@ import {useDashboardStore} from "@/store/DashboardStore";
 import DisbursementActionContent from "@/components/DisbursementActionContent";
 import TransactionDetail from "@/components/transactions/TransactionDetail";
 import {TransactionType} from "@/utils/types/TransactionType";
-import {useDisbursementStore} from "@/store/DisbursementStore";
 import {IDisbursementContent} from "@/utils/interfaces/IDisbursementContent";
+import {useTransactionStore} from "@/store/TransactionStore";
+import {useUserStore} from "@/store/UserStore";
+import {listDisbursements} from "@/api/disbursement";
 
 const DisbursementContent: React.FC<IDisbursementContent> = ({
                                                                  showDisbursementActionContent,
-                                                                 setShowDisbursementActionContent,
-                                                                 hasActivity,
-                                                                 setHasActivity,
-                                                                 showEmptyState,
-                                                                 setShowEmptyState,
-                                                                 transactions
+                                                                 setShowDisbursementActionContent
                                                              }) => {
     const {
         setShowLogo,
@@ -34,15 +32,31 @@ const DisbursementContent: React.FC<IDisbursementContent> = ({
         setNavTitle,
         setShowSupportButton,
     } = useDashboardStore();
+    const {transactions, setTransactions, disbursements, setDisbursements} = useTransactionStore()
+    const {merchant, setMerchant} = useUserStore()
+
+    const [hasActivity, setHasActivity] = useState<boolean | undefined>(false);
+    const [showEmptyState, setShowEmptyState] = useState<boolean | undefined>(false);
 
     useEffect(() => {
         setDashboardState()
-        setShowAlert(true)
+        getDisbursementTransactions()
     }, [])
 
-    const [contentType, setContentType] = useState<string>('initiate');
-    const [showAlert, setShowAlert] = useState<boolean>(true);
+    const getDisbursementTransactions = () => {
+        listDisbursements(merchant?.externalId)
+            .then(async (response) => {
+                if (response.ok) {
+                    const data = await response.json();
+                    if (setDisbursements) setDisbursements(data);
+                }
+            })
+            .catch((error) => {
+                console.log('error: ', error)
+            })
+    }
 
+    const [contentType, setContentType] = useState<string>('initiate');
     const [openTransactionDetail, setOpenTransactionDetail] = useState<boolean>(false);
     const [transaction, setTransaction] = useState<TransactionType>({
         date: "",
@@ -77,7 +91,7 @@ const DisbursementContent: React.FC<IDisbursementContent> = ({
     const setDashboardState = () => {
         setNavTitle('')
         if (setShowDisbursementActionContent) setShowDisbursementActionContent(false)
-        return !transactions.length ? setShowEmptyState ? setShowEmptyState(true) : setHasActivity ? setHasActivity(true) : null : null
+        return transactions.length ? (setShowEmptyState(false), setHasActivity(true)) : (setShowEmptyState(true), setHasActivity(false));
     }
 
     const handlePrevious = () => {
@@ -106,8 +120,7 @@ const DisbursementContent: React.FC<IDisbursementContent> = ({
             pageHeading = 'Disburse Funds'
             description = 'A crucial step in ensuring the smooth, seamless and efficient transfer of funds or assets from one source to another.'
         } else {
-            title = actionType.charAt(0).toUpperCase() + actionType.slice(1) + " Disbursement";
-            pageHeading = title
+            pageHeading = actionType.charAt(0).toUpperCase() + actionType.slice(1) + " Disbursement";
             description = disbursementActionDescription
             setNavTitle(actionType)
             setContentType(actionType)

@@ -28,10 +28,6 @@ const DisbursementPage: React.FC = () => {
     }, [])
 
     const [showDisbursementActionContent, setShowDisbursementActionContent] = useState<boolean>(false);
-    const [hasActivity, setHasActivity] = useState<boolean | undefined>(false);
-    const [showEmptyState, setShowEmptyState] = useState<boolean | undefined>(false);
-
-    const transactions: TransactionType[] = []
 
     const setHeaderDetails = () => {
         setShowLogo(true)
@@ -41,7 +37,6 @@ const DisbursementPage: React.FC = () => {
         setHeaderDescription(pageDescription)
         setNavTitle('')
         setShowDisbursementActionContent(false)
-        !transactions.length ? setShowEmptyState(true) : setHasActivity(true)
         setShowSupportButton(true)
     }
 
@@ -58,12 +53,7 @@ const DisbursementPage: React.FC = () => {
                     </div>),
                 navigationLinks: <span className="font-semibold">{navTitle}</span>,
                 body: <DisbursementContent showDisbursementActionContent={showDisbursementActionContent}
-                                           setShowDisbursementActionContent={setShowDisbursementActionContent}
-                                           hasActivity={hasActivity}
-                                           setHasActivity={setHasActivity}
-                                           showEmptyState={showEmptyState}
-                                           setShowEmptyState={setShowEmptyState}
-                                           transactions={transactions}/>
+                                           setShowDisbursementActionContent={setShowDisbursementActionContent}/>
             }}
         </DashboardLayout>
     );

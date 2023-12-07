@@ -2,6 +2,7 @@ import React, {ChangeEvent, useState} from 'react';
 import Svg from '@/components/Svg';
 import {EyeOpened, EyeClosed} from '@/assets/icons/eye';
 import {ITextInput} from "@/utils/interfaces/ITextInput";
+import {camelCaseToWords} from "@/utils/lib";
 
 const TextInput: React.FC<ITextInput> = ({
                                              label,
@@ -33,7 +34,7 @@ const TextInput: React.FC<ITextInput> = ({
 
     const handleBlur = () => {
         if (inputValue === '' && required) {
-            setError(`${capitalize(type)} is required!`);
+            setError(`${capitalize(camelCaseToWords(name))} is required!`);
             if (hasError) hasError(true);
         } else if (type === 'email' && !isValidEmail(inputValue)) {
             setError('Please enter a valid email address.');

@@ -7,9 +7,9 @@ const useDisbursementStore = create<DisbursementStoreType>()(
         persist(
             (set) => ({
                 actionType: 'single',
-                setActionType: (action: any) => set((state) => ({...state, action})),
+                setActionType: (action: string) => set({actionType: action}),
             }),
-            {name: 'dashboard'},
+            {name: 'disbursement'},
         ),
     ),
 )
