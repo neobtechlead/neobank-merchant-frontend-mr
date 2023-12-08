@@ -17,6 +17,7 @@ import {IDisbursementContent} from "@/utils/interfaces/IDisbursementContent";
 import {useTransactionStore} from "@/store/TransactionStore";
 import {useUserStore} from "@/store/UserStore";
 import {listDisbursements} from "@/api/disbursement";
+import {normalizeDate} from "@/utils/lib";
 
 const DisbursementContent: React.FC<IDisbursementContent> = ({
                                                                  showDisbursementActionContent,
@@ -47,8 +48,9 @@ const DisbursementContent: React.FC<IDisbursementContent> = ({
         listDisbursements(merchant?.externalId)
             .then(async (response) => {
                 if (response.ok) {
-                    const data = await response.json();
-                    if (setDisbursements) setDisbursements(data);
+                    const disbursements = await response.json();
+                    const data = disbursements.data;
+                    if (setDisbursements) setDisbursements(data.transactions);
                 }
             })
             .catch((error) => {
@@ -91,7 +93,13 @@ const DisbursementContent: React.FC<IDisbursementContent> = ({
     const setDashboardState = () => {
         setNavTitle('')
         if (setShowDisbursementActionContent) setShowDisbursementActionContent(false)
-        return transactions.length ? (setShowEmptyState(false), setHasActivity(true)) : (setShowEmptyState(true), setHasActivity(false));
+        if (disbursements && disbursements.length > 0) {
+            setShowEmptyState(false)
+            setHasActivity(true)
+        } else {
+            setShowEmptyState(true)
+            setHasActivity(false)
+        }
     }
 
     const handlePrevious = () => {
@@ -163,7 +171,7 @@ const DisbursementContent: React.FC<IDisbursementContent> = ({
             </EmptyTransactionCardContent>}
 
             <div className="h-full">
-                {hasActivity && <div>
+                {disbursements && disbursements.map && <div>
                     <div className="grid grid-cols-1 mt-4 md:grid-cols-2 lg:grid-cols-2 xl:gap-x-2 gap-4">
                         <EmptyTransactionCardContent
                             iconPath="/assets/images/single-disbursement.svg"
@@ -215,7 +223,7 @@ const DisbursementContent: React.FC<IDisbursementContent> = ({
                     </div>
                     <div className=" overflow-hidden rounded-lg border border-gray-100 m-5 px-5">
                         <Table title="Disbursement Transaction" headers={tableHeading}>
-                            {transactions.map((transaction, key) => (
+                            {disbursements.map((transaction, key) => (
                                 <tr key={key} className={`text-center `}>
                                     <td className="relative py-2 pr-3 font-normal text-xs">
                                         <div
@@ -223,13 +231,13 @@ const DisbursementContent: React.FC<IDisbursementContent> = ({
                                         <div className={` ${key === 0 ?
                                             'absolute top-0 right-full h-px w-full bg-gray-100' : ''}`}/>
 
-                                        {transaction.date}
+                                        {normalizeDate(transaction.createdAt ?? '')}
                                         <div className={` ${key !== transactions.length - 1 ?
                                             'absolute bottom-0 left-0 right-0 h-px w-screen bg-gray-100' : ''}`}/>
                                         <div className={` ${key !== transactions.length - 1 ?
                                             'absolute bottom-0 right-full h-px w-full bg-gray-100' : ''}`}/>
                                     </td>
-                                    <td className="hidden px-3 py-2 sm:table-cell text-xs">{transaction.batchNumber}</td>
+                                    <td className="hidden px-3 py-2 sm:table-cell text-xs">{transaction.externalId}</td>
                                     <td className="hidden px-3 py-2 md:table-cell text-xs capitalize">{transaction.type}</td>
                                     <td className="px-3 py-2 text-xs">GHS {transaction.amount}</td>
                                     <td className="px-3 py-2 text-xs">

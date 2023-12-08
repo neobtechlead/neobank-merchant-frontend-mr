@@ -20,7 +20,7 @@ export const useUserStore = create<UserStoreType>()(
                 },
                 setMerchant: (merchant?: MerchantType) => set((state) => ({user: {...state.merchant, ...merchant}})),
                 merchant: {
-                    externalId: '',
+                    externalId: 'b615555a-f190-4d03-a20b-0e5648efcb23',
                     email: '',
                     recentTransactions: [],
                     actualBalance: 0,

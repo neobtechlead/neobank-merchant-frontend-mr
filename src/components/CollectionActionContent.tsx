@@ -15,6 +15,11 @@ import {Copy} from "@/assets/icons/Copy";
 import CollectionForm from "@/components/CollectionForm";
 import {CollectionFormDataType} from "@/utils/types/CollectionFormDataType";
 import {TransactionType} from "@/utils/types/TransactionType";
+import {formatAmount} from "@/utils/lib";
+import {useCopyToClipboard} from 'usehooks-ts'
+import {generatePaymentLink} from "@/api/collection";
+import {useUserStore} from "@/store/UserStore";
+import {useTransactionStore} from "@/store/TransactionStore";
 
 const CollectionActionContent: React.FC<ICollectionActionContentProps> = ({resetDashboard}) => {
     const [hasError, setHasError] = useState<boolean | null>(null);
@@ -24,6 +29,7 @@ const CollectionActionContent: React.FC<ICollectionActionContentProps> = ({reset
     const [modalTitle, setModalTitle] = useState<string>('Confirm Collection Details');
     const [modalDescription, setModalDescription] = useState<string>('Please confirm the information below before proceeding.');
     const [modalButtonText, setModalButtonText] = useState<string>('Confirm');
+    const [toolTipText, setToolTipText] = useState<string>('Copy');
     const [transactionSuccessful, setTransactionSuccessful] = useState<boolean>(false);
     const [overlayDetailContainerDescription, setOverlayDetailContainerDescription] = useState<string>('');
     const [formData, setFormData] = useState<TransactionType | undefined>();
@@ -45,28 +51,44 @@ const CollectionActionContent: React.FC<ICollectionActionContentProps> = ({reset
     } = useDashboardStore();
 
     const {
-        actionType,
-    } = useCollectionStore();
+        user,
+    } = useUserStore();
+
+    const {
+        setCollection,
+    } = useTransactionStore();
 
     const handleTransactionConfirmation = () => {
         setModalOpen(true)
     }
 
-    const handleModalOpen = (openModal: boolean | ((prevState: boolean) => boolean)) => {
-        setModalOpen(openModal)
-    }
+    const handleModalOpen = (boole: React.MouseEvent<HTMLDivElement>) => {
+
+    };
+
     const handlePaymentLinkGeneration = () => {
         if (!transactionSuccessful) {
-            // Make an api call
-            setModalTitle('Link Created Successfully')
-            setModalDescription('You have successfully created a payment link. You can share this link by either copying or through social media platforms.')
-
-            setTransactionSuccessful((transactionSuccessful) => transactionSuccessful = true)
-
-            setModalButtonText('Go to collections dashboard')
-            return
+            generatePaymentLink('b615555a-f190-4d03-a20b-0e5648efcb23', user?.authToken, {
+                accountNumber: formData?.accountNumber,
+                accountIssuer: "NEO",
+                accountName: formData?.description,
+                narration: formData?.narration,
+                email: formData?.email,
+                amount: formData?.amount,
+                processAt: formData?.processAt
+            }).then(async response => {
+                if (response.ok) {
+                    setModalTitle('Link Generated Successfully')
+                    setModalDescription('You have successfully created a payment link. You can share this link by either copying or through social media platforms.')
+                    setTransactionSuccessful((transactionSuccessful) => transactionSuccessful = true)
+                    setModalButtonText('Go to collections dashboard')
+                    const collection = await response.json();
+                    console.log(collection.data)
+                    if (setCollection) setCollection(collection?.data)
+                    return
+                }
+            })
         }
-
         setModalOpen(false)
         resetCollectionStore()
     }
@@ -82,7 +104,19 @@ const CollectionActionContent: React.FC<ICollectionActionContentProps> = ({reset
         resetDashboard()
     }
 
-    const paymentLink = "neobank.completefarmer.com/transactions/new-payment-link"
+    const paymentLink = "https://neobank.completefarmer.com/transactions/new-payment-link"
+    const [value, copy] = useCopyToClipboard()
+
+    const handleCopyPaymentLink = (event: React.MouseEvent<HTMLDivElement>) => {
+        event.preventDefault()
+        try {
+            copy(paymentLink).then(response => {
+                setToolTipText('Copied')
+            })
+        } catch (error) {
+            console.error('Error copying link:', error);
+        }
+    }
 
     return (
         <div className="w-full h-full">
@@ -95,24 +129,24 @@ const CollectionActionContent: React.FC<ICollectionActionContentProps> = ({reset
                                     description={overlayDetailContainerDescription}
                                     handleOpen={setOpenOverlay}>
                 <CollectionConfirmation
-                                        transaction={formData}
-                                        handleConfirmation={handleTransactionConfirmation}
-                                        handleCancel={setOpenOverlay}/>
+                    transaction={formData}
+                    handleConfirmation={handleTransactionConfirmation}
+                    handleCancel={setOpenOverlay}/>
             </OverlayDetailContainer>
 
-            <Modal showCloseButton={true} setModalOpen={handleModalOpen} showModal={openModal} customClasses="relative">
+            <Modal showCloseButton={true} setModalOpen={setModalOpen} showModal={openModal} customClasses="relative">
                 {transactionSuccessful && <div>
-                    <div className="absolute">
-                        <Image className="-ml-5 mt-0" src="/assets/images/confetti.svg" alt="confetti" width={765}
+                    <div className="">
+                        <Image className="mt-5" src="/assets/images/confetti.svg" alt="confetti" width={765}
                                height={765}/>
                     </div>
                     <div className="flex justify-center ">
-                        <Image className="mt-[87px]" src="/assets/icons/check-circle.svg" alt="success" width={170}
+                        <Image className="" src="/assets/icons/check-circle.svg" alt="success" width={170}
                                height={171}/>
                     </div>
                 </div>}
 
-                <div className="flex flex-col p-10 mt-10">
+                <div className="flex flex-col p-10">
                     <div className="sm:flex sm:items-start justify-center">
                         <div className="text-center sm:ml-4 sm:mt-0 sm:text-left">
                             <Dialog.Title as="h3"
@@ -125,13 +159,27 @@ const CollectionActionContent: React.FC<ICollectionActionContentProps> = ({reset
                                 </p>
 
                                 {transactionSuccessful &&
-                                    <div className="flex justify-between rounded mt-[20px] truncate overflow-hidden">
+                                    <div
+                                        className="flex items-center justify-between rounded mt-[20px]">
                                         <div
-                                            className="flex items-center p-2 border rounded-lg mr-3 h-[50px] text-sm text-gray-700 text-xs">
+                                            className="flex items-center p-2 border rounded-md mr-3 max-h-[50px] text-gray-700 text-xs">
                                             {paymentLink}
                                         </div>
-                                        <Svg fill="#4F4F4F" path={ShareNetwork}/>
-                                        <Svg fill="#4F4F4F" path={Copy}/>
+                                        <div className="cursor-pointer p-2 group flex relative">
+                                            <Svg fill="#4F4F4F" path={ShareNetwork} customClasses="cursor-pointer"/>
+                                            <span
+                                                className="group-hover:opacity-100 transition-opacity bg-gray-700 px-1 text-sm text-gray-100 rounded absolute top-[-2rem] left-1/2 -translate-x-1/2 opacity-0 m-4 mx-auto z-50 truncate">
+                                                Share
+                                            </span>
+                                        </div>
+                                        <div className="cursor-pointer p-2 group flex relative"
+                                             onClick={handleCopyPaymentLink}>
+                                            <Svg fill="#4F4F4F" path={Copy} customClasses="cursor-pointer"/>
+                                            <span
+                                                className="group-hover:opacity-100 transition-opacity bg-gray-700 px-1 text-sm text-gray-100 rounded absolute top-[-2rem] left-1/2 -translate-x-1/2 opacity-0 m-4 mx-auto z-50 truncate">
+                                                {toolTipText}
+                                            </span>
+                                        </div>
                                     </div>}
                             </div>
                         </div>
@@ -140,15 +188,16 @@ const CollectionActionContent: React.FC<ICollectionActionContentProps> = ({reset
                     {!transactionSuccessful && <div className="bg-gray-100 my-3 rounded border border-gray-10">
                         <div className="flex flex-col justify-center p-5 py-0 divide-y divide-gray-300">
                             <InfoCardItem description={formData?.recipient ?? 'data'} title="Recipients Name"
-                                          customStyles="my-2" customTitleStyles="mt-5"/>
+                                          customStyles="my-2" customTitleStyles="mt-5 text-xs font-semibold"/>
                             <InfoCardItem description={formData?.email} title="Email Address"
-                                          customStyles="my-2" customTitleStyles="mt-5"/>
+                                          customStyles="my-2" customTitleStyles="mt-5 text-xs font-semibold"/>
                             <InfoCardItem description={formData?.reference} title="Reference"
-                                          customStyles="my-2" customTitleStyles="mt-5"/>
+                                          customStyles="my-2" customTitleStyles="mt-5 text-xs font-semibold"/>
                             <InfoCardItem description={formData?.phone} title="Recipient's Contact Number"
-                                          customStyles="my-2" customTitleStyles="mt-5"/>
-                            <InfoCardItem description={formData?.amount} title="Total Amount" customStyles="my-2"
-                                          customTitleStyles="mt-5"/>
+                                          customStyles="my-2" customTitleStyles="mt-5 text-xs font-semibold"/>
+                            <InfoCardItem description={formatAmount(formData?.amount)} title="Total Amount"
+                                          customStyles="my-2"
+                                          customTitleStyles="mt-5 text-xs font-semibold"/>
                         </div>
                     </div>}
 

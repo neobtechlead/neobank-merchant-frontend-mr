@@ -5,7 +5,6 @@ import {useDashboardStore} from "@/store/DashboardStore";
 import Svg from "@/components/Svg";
 import {ArrowLeft} from "@/assets/icons/ArrowLeft";
 import CollectionContent from "@/components/CollectionContent";
-import {TransactionType} from "@/utils/types/TransactionType";
 
 const CollectionPage: React.FC = () => {
     const pageDescription = "Funds Collection is a vital process that involves gathering and consolidating financial contributions or payments from various sources or contributors. Whether you are managing donations for a non-profit organization, collecting payments for goods or services, or coordinating group contributions, efficient funds collection is key to financial success."
@@ -31,8 +30,6 @@ const CollectionPage: React.FC = () => {
     const [hasActivity, setHasActivity] = useState<boolean>(false);
     const [showEmptyState, setShowEmptyState] = useState<boolean>(false);
 
-    const transactions: TransactionType[] = []
-
     const setHeaderDetails = () => {
         setShowLogo(true)
         setShowBackButton(false)
@@ -42,7 +39,6 @@ const CollectionPage: React.FC = () => {
         setNavTitle('')
         setShowSupportButton(true)
         setShowPaymentLinkForm(false)
-        !transactions.length ? setShowEmptyState(true) : setHasActivity(true)
     }
 
     const handleBackButtonClicked = () => {
@@ -65,7 +61,6 @@ const CollectionPage: React.FC = () => {
                     setHasActivity={setHasActivity}
                     showEmptyState={showEmptyState}
                     setShowEmptyState={setShowEmptyState}
-                    transactions={transactions}
                 />
             }}
         </DashboardLayout>

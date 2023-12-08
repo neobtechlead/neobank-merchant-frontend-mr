@@ -7,5 +7,4 @@ export interface ICollectionContentProps {
     setShowPaymentLinkForm: (b: boolean) => void,
     setHasActivity: (b: boolean) => void,
     setShowEmptyState: (b: boolean) => void,
-    transactions: TransactionType[],
 }

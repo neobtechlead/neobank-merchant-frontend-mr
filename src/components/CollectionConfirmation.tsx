@@ -8,6 +8,7 @@ import Alert from "@/components/Alert";
 import InfoCardItem from "@/components/InfoCardItem";
 import {Email} from "@/assets/icons/Email";
 import {ICollectionConfirmationProps} from "@/utils/interfaces/ICollectionConfirmationProps";
+import {formatAmount} from "@/utils/lib";
 
 const CollectionConfirmation: React.FC<ICollectionConfirmationProps> = ({
                                                transaction,
@@ -29,7 +30,7 @@ const CollectionConfirmation: React.FC<ICollectionConfirmationProps> = ({
                                   customStyles="py-5"/>
                     <InfoCardItem description={transaction?.phone} svgPath={Phone} title="Recipient's Contact Number"
                                   customStyles="py-5"/>
-                    <InfoCardItem description={transaction?.amount} svgPath={Tag} title="Amount"
+                    <InfoCardItem description={formatAmount(transaction?.amount)} svgPath={Tag} title="Amount"
                                   customStyles="py-5"/>
                 </div>
             </div>

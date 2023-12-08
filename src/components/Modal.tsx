@@ -1,13 +1,14 @@
-import React, {Fragment, useState} from 'react'
+import React, {Fragment} from 'react'
 import {Dialog, Transition} from '@headlessui/react'
 import {IModalProps} from "@/utils/interfaces/IModalProps";
 import Svg from "@/components/Svg";
-import {XCircle} from "../../public/assets/icons/XCircle";
+import {XCircle} from "@/assets/icons/XCircle";
 
 const Modal: React.FC<IModalProps> = ({showCloseButton, showModal, setModalOpen, children, customClasses}) => {
-    const handleModalClose = (action) => {
-        setModalOpen(action)
-    }
+    const handleModalClose = (event: React.MouseEvent<HTMLDivElement>) => {
+        event.preventDefault();
+        setModalOpen(false);
+    };
 
     return (
         <Transition.Root show={showModal ?? false} as={Fragment}>
@@ -39,8 +40,9 @@ const Modal: React.FC<IModalProps> = ({showCloseButton, showModal, setModalOpen,
                                 className="relative transform overflow-hidden rounded-2xl bg-white px-4 pb-4 pt-5 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:p-6">
                                 {showCloseButton && <div className="absolute right-0 top-0 hidden pr-4 pt-4 sm:block">
                                     <div
-                                        className="rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none cursor-pointer">
-                                        <Svg fill="#000000" path={XCircle} onClick={handleModalClose}/>
+                                        className="rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none cursor-pointer"
+                                        onClick={handleModalClose}>
+                                        <Svg fill="#000000" path={XCircle}/>
                                     </div>
                                 </div>}
                                 {children}

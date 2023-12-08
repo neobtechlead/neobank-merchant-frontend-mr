@@ -162,7 +162,6 @@ const DisbursementActionContent: React.FC<IDisbursementActionContent> = ({
 
     const handleFileUploaded = (files: FileList) => {
         const fileNames = Array.from(files).map((file) => file.name);
-        console.log(fileNames[0])
         setUploadedFileName(fileNames[0])
     }
 

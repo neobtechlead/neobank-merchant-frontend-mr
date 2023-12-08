@@ -15,6 +15,11 @@ import CollectionActionContent from "@/components/CollectionActionContent";
 import {ICollectionContentProps} from "@/utils/interfaces/ICollectionContentProps";
 import {Copy} from "@/assets/icons/Copy";
 import {ShareNetwork} from "@/assets/icons/ShareNetwork";
+import {useTransactionStore} from "@/store/TransactionStore";
+import {listCollections} from "@/api/collection";
+import {useUserStore} from "@/store/UserStore";
+import {useCopyToClipboard} from 'usehooks-ts'
+import {normalizeDate} from "@/utils/lib";
 
 const CollectionContent: React.FC<ICollectionContentProps> = ({
                                                                   showPaymentLinkForm,
@@ -23,7 +28,6 @@ const CollectionContent: React.FC<ICollectionContentProps> = ({
                                                                   setHasActivity,
                                                                   showEmptyState,
                                                                   setShowEmptyState,
-                                                                  transactions
                                                               }) => {
     const {
         setShowLogo,
@@ -35,11 +39,27 @@ const CollectionContent: React.FC<ICollectionContentProps> = ({
         setNavTitle,
         setShowSupportButton
     } = useDashboardStore();
+    const {setCollections, collections} = useTransactionStore()
+    const {merchant} = useUserStore();
 
     useEffect(() => {
+        getCollectionTransactions()
         setDashboardState()
     }, [])
 
+    const getCollectionTransactions = () => {
+        listCollections(merchant?.externalId)
+            .then(async (response) => {
+                if (response.ok) {
+                    const collections = await response.json();
+                    const data = collections.data.transactions ?? []
+                    if (setCollections) setCollections(data);
+                }
+            })
+            .catch((error) => {
+                console.log('error: ', error)
+            })
+    }
 
     const [openTransactionDetail, setOpenTransactionDetail] = useState<boolean>(false);
     const [transaction, setTransaction] = useState<TransactionType>({
@@ -54,6 +74,7 @@ const CollectionContent: React.FC<ICollectionContentProps> = ({
         reference: "",
         time: ""
     });
+    const [toolTipText, setToolTipText] = useState<string>('Copy');
 
     const tableHeading = [
         {label: 'date', classes: ''},
@@ -64,14 +85,20 @@ const CollectionContent: React.FC<ICollectionContentProps> = ({
     ]
     const noActivityDescription = "It seems like there's currently no data available regarding funds collection in your account. This section will display information when funds are collected and any related transactions."
     const TransactionDetailDescription = "You can see the details of this transaction. Lorem Ipsum lawal ........You can see the details of this transaction. Lorem Ipsum lawal ........You can see the details of this transaction. Lorem Ipsum lawal ........You can see the details of this transaction. Lorem Ipsum lawal ........"
-
     const collectionActionDescription = "Generate Payment Link is a valuable feature that empowers businesses and individuals to create customized and convenient payment links for secure and efficient transactions. Whether you are a seller, service provider, or fundraiser, this tool simplifies the payment process and allows you to receive payments seamlessly."
 
     const setDashboardState = () => {
         setShowSupportButton(true)
         setShowPaymentLinkForm(false)
         setNavTitle('')
-        return transactions.length ? setHasActivity(true) : setShowEmptyState(true)
+
+        if (collections && collections.length > 0) {
+            setShowEmptyState(false)
+            setHasActivity(true)
+        } else {
+            setShowEmptyState(true)
+            setHasActivity(false)
+        }
     }
 
     const handlePrevious = () => {
@@ -79,12 +106,22 @@ const CollectionContent: React.FC<ICollectionContentProps> = ({
     const handleNext = () => {
     }
 
-    const handleCopyPaymentLink = (transaction: TransactionType) => {
-        setTransaction(transaction)
+    const [value, copy] = useCopyToClipboard()
+
+    const handleCopyPaymentLink = async (event: React.MouseEvent<HTMLDivElement>) => {
+        event.preventDefault()
+        try {
+            await copy('copied text').then(response => {
+                if (setToolTipText) setToolTipText('Copied')
+            })
+
+        } catch (error) {
+            console.error('Error copying link:', error);
+        }
     }
 
-    const handleSharePaymentLink = (transaction: TransactionType) => {
-        setTransaction(transaction)
+    const handleSharePaymentLink = (event: React.MouseEvent<HTMLDivElement>) => {
+        event.preventDefault()
     }
 
     const handleCollectionActionContent = () => {
@@ -183,7 +220,7 @@ const CollectionContent: React.FC<ICollectionContentProps> = ({
 
                     <div className=" overflow-hidden rounded-lg border border-gray-100 m-5 px-5">
                         <Table title="Payment Links" headers={tableHeading}>
-                            {transactions.map((transaction: TransactionType, key: number) => (
+                            {collections && collections.map((transaction: TransactionType, key: number) => (
                                 <tr key={key} className={`text-center `}>
                                     <td className="relative py-2 pr-3 font-normal text-xs">
                                         <div
@@ -191,26 +228,33 @@ const CollectionContent: React.FC<ICollectionContentProps> = ({
                                         <div className={` ${key === 0 ?
                                             'absolute top-0 right-full h-px w-full bg-gray-100' : ''}`}/>
 
-                                        {transaction.date}
-                                        <div className={` ${key !== transactions.length - 1 ?
+                                        {normalizeDate(transaction.createdAt ?? '')}
+                                        <div className={` ${key !== collections.length - 1 ?
                                             'absolute bottom-0 left-0 right-0 h-px w-screen bg-gray-100' : ''}`}/>
-                                        <div className={` ${key !== transactions.length - 1 ?
+                                        <div className={` ${key !== collections.length - 1 ?
                                             'absolute bottom-0 right-full h-px w-full bg-gray-100' : ''}`}/>
                                     </td>
-                                    <td className="hidden px-3 py-2 sm:table-cell text-xs">{transaction.client}</td>
+                                    <td className="hidden px-3 py-2 sm:table-cell text-xs">{transaction.accountName}</td>
                                     <td className="px-3 py-2 text-xs">GHS {transaction.amount}</td>
                                     <td className="px-3 py-2 text-xs">
                                         <Status customStyles="text-red-500"
                                                 status={transaction.status ?? ''}/>
                                     </td>
-                                    <td className="relative py-2 pl-3 text-right text-xs font-medium flex justify-center gap-6">
-                                        <div onClick={() => handleCopyPaymentLink(transaction)}
-                                             className="cursor-pointer">
-                                            <Svg fill="#4F4F4F" path={Copy}/>
+                                    <td className="relative py-2 pl-3 text-right text-xs font-medium flex justify-center gap-4">
+                                        <div className="cursor-pointer p-2 group flex relative"
+                                             onClick={handleCopyPaymentLink}>
+                                            <Svg fill="#4F4F4F" path={Copy} customClasses="cursor-pointer"/>
+                                            <span
+                                                className="group-hover:opacity-100 transition-opacity bg-gray-700 px-1 text-sm text-gray-100 rounded absolute top-[-2rem] left-1/2 -translate-x-1/2 opacity-0 m-4 mx-auto z-50 truncate">
+                                                {toolTipText}
+                                            </span>
                                         </div>
-                                        <div onClick={() => handleSharePaymentLink(transaction)}
-                                             className="cursor-pointer">
-                                            <Svg fill="#4F4F4F" path={ShareNetwork}/>
+                                        <div className="cursor-pointer p-2 group flex relative">
+                                            <Svg fill="#4F4F4F" path={ShareNetwork} customClasses="cursor-pointer"/>
+                                            <span
+                                                className="group-hover:opacity-100 transition-opacity bg-gray-700 px-1 text-sm text-gray-100 rounded absolute top-[-2rem] left-1/2 -translate-x-1/2 opacity-0 m-4 mx-auto z-50 truncate">
+                                                Share
+                                            </span>
                                         </div>
                                     </td>
                                 </tr>

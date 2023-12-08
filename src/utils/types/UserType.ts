@@ -5,6 +5,6 @@ export type UserType = {
     email?: string,
     verificationToken?: string,
     accessKey?: string,
-    token?: string,
+    authToken?: string,
     roles?: string[],
 }

@@ -14,10 +14,10 @@ import {ITransactionDetailProps} from "@/utils/interfaces/ITransactionProps";
 import Alert from "@/components/Alert";
 import InfoCardItem from "@/components/InfoCardItem";
 
-const TransactionDetail: React.FC<ITransactionDetailProps> = ({transaction, customStyles}) => {
+const TransactionDetail: React.FC<ITransactionDetailProps> = ({transaction, customClasses}) => {
 
     return (
-        <div className={`border-gray-200 p-6 ${customStyles}`}>
+        <div className={`border-gray-200 p-6 ${customClasses}`}>
             <div className="capitalize">
                 <Alert
                     alertType={transaction.status}
@@ -93,7 +93,7 @@ const TransactionDetail: React.FC<ITransactionDetailProps> = ({transaction, cust
                     />
                 </div>
 
-                {transaction.type === 'bulk' && <Button buttonType="primary" styleType="primary"
+                {transaction.type === 'bulk' && <Button buttonType="button" styleType="primary"
                                                         customStyles="mt-10 justify-center p-4 md:p-5 focus:outline-none rounded-lg">
                     <div className="flex items-center justify-center gap-2">
                         <div className="flex"><Svg fill="white" path={Download}/></div>

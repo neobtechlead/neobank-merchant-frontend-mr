@@ -4,6 +4,14 @@ export const formatAmountGHS = (amount: string) => {
     return (parseFloat(amount) / 100).toFixed(2);
 }
 
+export const formatAmount = (amount: number | string = 0, currency: string = 'GHS') => {
+    return `${currency}  ${(new Intl.NumberFormat('en-GH', {
+        style: 'decimal',
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+    }).format(Number(amount)))}`
+}
+
 export const normalizeDate = (date: string) => {
     return DateTime.fromISO(date).toISODate()
 }

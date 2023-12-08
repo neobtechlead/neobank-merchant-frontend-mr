@@ -12,6 +12,7 @@ export type TransactionType = {
     balanceBefore?: number,
     balanceAfter?: number,
     processAt?: string | null,
+    accountName?: string | null,
     accountNumber?: string,
     initiatorName?: string,
     callbackUrl?: string | null,

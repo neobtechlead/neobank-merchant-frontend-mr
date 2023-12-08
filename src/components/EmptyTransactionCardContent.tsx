@@ -20,7 +20,9 @@ const EmptyTransactionCardContent: React.FC<IEmptyTransactionCardContentProps> =
             {iconPath &&
                 <Image src={iconPath} alt="disbursement" className={`flex justify-center ${iconCustomStyle}`}
                        width={iconWidth}
-                       height={iconHeight}/>}
+                       height={iconHeight}
+                       style={{width: 'auto'}}
+                />}
             {showContent && <div className="flex flex-col justify-center items-center">
                 {title && <h5 className="font-semibold">{title ?? "No data available"}</h5>}
                 {description &&

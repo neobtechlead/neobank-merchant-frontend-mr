@@ -9,20 +9,16 @@ export const useTransactionStore = create<TransactionStoreType>()(
             (set) => ({
                 setTransaction: (transaction?: TransactionType) => set((state) => ({transaction: {...state.transaction, ...transaction}})),
                 transaction: {},
-                setTransactions: (transactions) => set((state) => ({...state, transactions})),
+                setTransactions: (transactions) => set((state) => ({transactions})),
                 transactions: [],
-                setCollections: () => set((state) => ({
-                        transactions: state.transactions.filter(
-                            (transaction) => transaction.type?.toLowerCase() === 'collection'),
-                    })
-                ),
+
+                setCollections: (collections) => set((state) => ({collections: collections ?? []})),
+                setCollection: (collection: TransactionType) => set((state) => ({
+                    collections: state.collections ? [...state?.collections, collection] : [collection]
+                })),
                 collections: [],
 
-                setDisbursements: () =>
-                    set((state) => ({
-                        transactions: state.transactions.filter(
-                            (transaction) => transaction.type?.toLowerCase() === 'disbursement'),
-                    })),
+                setDisbursements: (disbursements) => set((state) => ({disbursements: disbursements ?? []})),
                 disbursements: [],
 
                 scheduledPayments: () => set((state) => ({

@@ -2,7 +2,7 @@ import {fetcher} from "@/api/http";
 import {downloadFile} from "@/utils/lib";
 
 export async function listDisbursements(merchant?: string) {
-    return await fetcher(`api/v1/merchants/${merchant}/disbursements`);
+    return await fetcher(`api/v1/merchants/${merchant}/transactions?type=DISBURSEMENT`);
 }
 
 export async function downloadBulkDisbursementTemplate() {
