@@ -23,6 +23,7 @@ const VerificationContent: React.FC = () => {
     const {
         user,
         setUser,
+        setMerchant,
     } = useUserStore();
 
     const {loading, setLoading} = useUtilsStore()
@@ -41,7 +42,10 @@ const VerificationContent: React.FC = () => {
                     if (setLoading) setLoading(false);
                     setVerificationComplete(true);
                     const data = (await response.json()).data
-                    if (setUser) setUser(data)
+                    if (setUser) setUser({
+                        verificationToken: token ?? '',
+                        accessKey: data.accessKey,
+                    })
                 }
             })
             .catch((error) => {
@@ -52,7 +56,6 @@ const VerificationContent: React.FC = () => {
 
     const handleVerifyOtp = async (otp: string) => {
         if (setLoading) setLoading(true);
-
         verifyOtp(user?.accessKey, otp)
             .then(async (response) => {
                 if (response.ok) {
@@ -63,7 +66,16 @@ const VerificationContent: React.FC = () => {
 
                     if (setLoading) setLoading(false);
                     const data = (await response.json()).data
-                    if (setUser) setUser({...data})
+                    if (setUser) setUser({
+                        firstName: data.firstName,
+                        lastName: data.lastName,
+                        email: data.email,
+                        authToken: data.token,
+                    })
+
+                    if (setMerchant) setMerchant({
+                        roles: data.roles
+                    })
                 }
             })
             .catch((error) => {
@@ -76,7 +88,7 @@ const VerificationContent: React.FC = () => {
         if (password.length < 6 || confirmPassword.length < 6)
             return setError('Passwords must be at least 6 characters long.')
 
-        createPassword(password, confirmPassword, user?.token)
+        createPassword(password, confirmPassword, user?.authToken)
             .then(async (response) => {
                 if (response.ok) {
                     setError('')
@@ -125,7 +137,8 @@ const VerificationContent: React.FC = () => {
     return (
         <>
             {loading && (
-                <Loader type="default" customClasses="w-10 h-10 text-purple-200 dark:text-gray-600 fill-purple-900"/>
+                <Loader type="default"
+                        customClasses="w-10 h-10 text-purple-200 dark:text-gray-600 fill-purple-900"/>
             )}
             {verificationComplete && (
                 <div className="relative flex min-h-full flex-col justify-center overflow-hidden bg-transparent">

@@ -59,7 +59,6 @@ const ReportsPage: React.FC = () => {
                     setHasActivity={setHasActivity}
                     showEmptyState={showEmptyState}
                     setShowEmptyState={setShowEmptyState}
-                    transactions={transactions}
                 />
             }}
         </DashboardLayout>

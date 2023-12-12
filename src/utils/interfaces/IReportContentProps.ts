@@ -6,7 +6,6 @@ export interface IReportContentProps {
     setHasActivity: (b: boolean) => void;
     showEmptyState: boolean;
     setShowEmptyState: (b: boolean) => void;
-    transactions: TransactionType[];
     customClasses?: string;
     children?: React.ReactNode
 }

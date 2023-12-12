@@ -18,10 +18,15 @@ import {useTransactionStore} from "@/store/TransactionStore";
 import {useUserStore} from "@/store/UserStore";
 import {listDisbursements} from "@/api/disbursement";
 import {normalizeDate} from "@/utils/lib";
+import {useDisbursementStore} from "@/store/DisbursementStore";
 
 const DisbursementContent: React.FC<IDisbursementContent> = ({
                                                                  showDisbursementActionContent,
-                                                                 setShowDisbursementActionContent
+                                                                 setShowDisbursementActionContent,
+                                                                 showEmptyState,
+                                                                 setHasActivity,
+                                                                 hasActivity,
+                                                                 setShowEmptyState,
                                                              }) => {
     const {
         setShowLogo,
@@ -33,11 +38,12 @@ const DisbursementContent: React.FC<IDisbursementContent> = ({
         setNavTitle,
         setShowSupportButton,
     } = useDashboardStore();
-    const {transactions, setTransactions, disbursements, setDisbursements} = useTransactionStore()
-    const {merchant, setMerchant} = useUserStore()
 
-    const [hasActivity, setHasActivity] = useState<boolean | undefined>(false);
-    const [showEmptyState, setShowEmptyState] = useState<boolean | undefined>(false);
+    const {
+        setActionType
+    } = useDisbursementStore();
+    const {disbursements, setDisbursements} = useTransactionStore()
+    const {merchant, setMerchant} = useUserStore()
 
     useEffect(() => {
         setDashboardState()
@@ -94,11 +100,11 @@ const DisbursementContent: React.FC<IDisbursementContent> = ({
         setNavTitle('')
         if (setShowDisbursementActionContent) setShowDisbursementActionContent(false)
         if (disbursements && disbursements.length > 0) {
-            setShowEmptyState(false)
-            setHasActivity(true)
+            if (setShowEmptyState) setShowEmptyState(false)
+            if (setHasActivity) setHasActivity(true)
         } else {
-            setShowEmptyState(true)
-            setHasActivity(false)
+            if (setShowEmptyState) setShowEmptyState(true)
+            if (setHasActivity) setHasActivity(false)
         }
     }
 
@@ -120,7 +126,7 @@ const DisbursementContent: React.FC<IDisbursementContent> = ({
         setShowBackButton(true)
         setShowSupportButton(false)
 
-        if (!transactions.length) {
+        if (disbursements && !disbursements.length) {
             setNavTitle('single')
             setContentType('initiate')
             if (setShowEmptyState) setShowEmptyState(false)
@@ -132,6 +138,7 @@ const DisbursementContent: React.FC<IDisbursementContent> = ({
             description = disbursementActionDescription
             setNavTitle(actionType)
             setContentType(actionType)
+            setActionType(actionType)
         }
 
         setNavTitle(pageHeading)
@@ -171,7 +178,7 @@ const DisbursementContent: React.FC<IDisbursementContent> = ({
             </EmptyTransactionCardContent>}
 
             <div className="h-full">
-                {disbursements && disbursements.map && <div>
+                {hasActivity && <div>
                     <div className="grid grid-cols-1 mt-4 md:grid-cols-2 lg:grid-cols-2 xl:gap-x-2 gap-4">
                         <EmptyTransactionCardContent
                             iconPath="/assets/images/single-disbursement.svg"
@@ -223,7 +230,7 @@ const DisbursementContent: React.FC<IDisbursementContent> = ({
                     </div>
                     <div className=" overflow-hidden rounded-lg border border-gray-100 m-5 px-5">
                         <Table title="Disbursement Transaction" headers={tableHeading}>
-                            {disbursements.map((transaction, key) => (
+                            {disbursements && disbursements.map((transaction, key) => (
                                 <tr key={key} className={`text-center `}>
                                     <td className="relative py-2 pr-3 font-normal text-xs">
                                         <div
@@ -232,9 +239,9 @@ const DisbursementContent: React.FC<IDisbursementContent> = ({
                                             'absolute top-0 right-full h-px w-full bg-gray-100' : ''}`}/>
 
                                         {normalizeDate(transaction.createdAt ?? '')}
-                                        <div className={` ${key !== transactions.length - 1 ?
+                                        <div className={` ${key !== disbursements.length - 1 ?
                                             'absolute bottom-0 left-0 right-0 h-px w-screen bg-gray-100' : ''}`}/>
-                                        <div className={` ${key !== transactions.length - 1 ?
+                                        <div className={` ${key !== disbursements.length - 1 ?
                                             'absolute bottom-0 right-full h-px w-full bg-gray-100' : ''}`}/>
                                     </td>
                                     <td className="hidden px-3 py-2 sm:table-cell text-xs">{transaction.externalId}</td>

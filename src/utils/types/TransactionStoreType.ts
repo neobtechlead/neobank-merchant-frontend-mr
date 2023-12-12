@@ -11,4 +11,6 @@ export type TransactionStoreType = {
     setCollections?: (collections: TransactionType[]) => void,
     setCollection?: (collection: TransactionType) => void,
     collections?: TransactionType[],
+    setScheduledPayments?: (scheduledPayments: TransactionType[]) => void,
+    scheduledPayments?: TransactionType[],
 }

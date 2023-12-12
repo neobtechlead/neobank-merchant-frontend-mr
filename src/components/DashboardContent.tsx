@@ -18,20 +18,21 @@ import {UserCircleFill} from "@/assets/icons/UserCircleFill";
 import {LineArrowRight} from "@/assets/icons/LineArrowRight";
 import {UsersColorFill} from "@/assets/icons/UsersColorFill";
 import {File} from "@/assets/icons/File";
-import {calculateDateRange} from "@/utils/lib";
+import {calculateDateRange, formatAmount} from "@/utils/lib";
 import {TransactionGraphDataType} from "@/utils/types/TranasctionGraphDataType";
+import {listTransactions} from "@/api/transaction";
 
 const DashboardContent: React.FC = () => {
     const [hasTransaction, setHasTransaction] = useState<boolean | null>(false);
     const [showBalance, setShowBalance] = useState<boolean | null>(true);
-    const {transactions, setTransactions, collections, disbursements} = useTransactionStore()
+    const {transactions, setTransactions} = useTransactionStore()
     const {merchant, setMerchant} = useUserStore()
 
     const getMerchantStats = () => {
         getStats(merchant?.externalId)
             .then(async (response) => {
                 if (response.ok) {
-                    const data = await response.json();
+                    const data = (await response.json()).data;
                     if (setMerchant) setMerchant(data);
                 }
             })
@@ -53,9 +54,8 @@ const DashboardContent: React.FC = () => {
             })
     }
 
-    const getTransactions = () => {
+    const fetchTransactionSummary = () => {
         const {startDate, endDate} = calculateDateRange(6, true);
-
         getTransactionSummary(merchant?.externalId, startDate, endDate)
             .then(async (response) => {
                 if (response.ok) {
@@ -68,8 +68,23 @@ const DashboardContent: React.FC = () => {
             })
     }
 
+    const fetchTransactions = () => {
+        listTransactions(merchant?.externalId)
+            .then(async (response) => {
+                if (response.ok) {
+                    const transactions = (await response.json()).data;
+                    if (setTransactions) setTransactions(transactions);
+                }
+            })
+            .catch((error) => {
+                console.log('error: ', error)
+            })
+    }
+
     useEffect(() => {
         getMerchantStats()
+        fetchTransactionSummary()
+        fetchTransactions()
     }, []);
 
     const handleToggleBalance = () => {
@@ -128,7 +143,7 @@ const DashboardContent: React.FC = () => {
                                     </div>
                                     <div className="w-full flex justify-between gap-x-4">
                                         <h5 className="font-medium leading-6 flex">
-                                            {showBalance ? `GHS ${merchant?.actualBalance}89384787` : asterisks(6)}
+                                            {showBalance ? `${formatAmount(merchant?.actualBalance) ?? 0}` : asterisks(6)}
                                         </h5>
                                         <div className="flex justify-center items-center cursor-pointer"
                                              onClick={handleToggleBalance}>
@@ -166,7 +181,7 @@ const DashboardContent: React.FC = () => {
                                             </div>
                                         </EmptyTransactionCardContent>}
 
-                                        {transactions &&
+                                        {transactions && transactions.length > 0 &&
                                             <div className="flex flex-grow justify-between w-full">
                                                 <ul role="list" className="w-3/4">
                                                     {transactions.map((item, index) => (

@@ -6,6 +6,7 @@ import {useDashboardStore} from "@/store/DashboardStore";
 import Svg from "@/components/Svg";
 import {ArrowLeft} from "@/assets/icons/ArrowLeft";
 import {TransactionType} from "@/utils/types/TransactionType";
+import {useTransactionStore} from "@/store/TransactionStore";
 
 const DisbursementPage: React.FC = () => {
     const pageDescription = "Disburse Funds is a powerful tool that allows you to efficiently transfer allocated funds to their intended recipients. Whether it's sending payments to vendors, distributing salaries to employees, or making withdrawals, this feature streamlines the process for you."
@@ -23,11 +24,17 @@ const DisbursementPage: React.FC = () => {
         setShowSupportButton,
     } = useDashboardStore();
 
+    const {
+        disbursements
+    } = useTransactionStore();
+
     useEffect(() => {
         setHeaderDetails()
     }, [])
 
     const [showDisbursementActionContent, setShowDisbursementActionContent] = useState<boolean>(false);
+    const [hasActivity, setHasActivity] = useState<boolean>(false);
+    const [showEmptyState, setShowEmptyState] = useState<boolean>(false);
 
     const setHeaderDetails = () => {
         setShowLogo(true)
@@ -42,6 +49,7 @@ const DisbursementPage: React.FC = () => {
 
     const handleBackButtonClicked = () => {
         setHeaderDetails()
+        disbursements && disbursements.length > 0 ? setHasActivity(true) : setShowEmptyState(true)
     }
 
     return (
@@ -52,8 +60,14 @@ const DisbursementPage: React.FC = () => {
                         <Svg fill="#4F4F4F" path={ArrowLeft}/> Back
                     </div>),
                 navigationLinks: <span className="font-semibold">{navTitle}</span>,
-                body: <DisbursementContent showDisbursementActionContent={showDisbursementActionContent}
-                                           setShowDisbursementActionContent={setShowDisbursementActionContent}/>
+                body: <DisbursementContent
+                    showDisbursementActionContent={showDisbursementActionContent}
+                    setShowDisbursementActionContent={setShowDisbursementActionContent}
+                    hasActivity={hasActivity}
+                    setHasActivity={setHasActivity}
+                    showEmptyState={showEmptyState}
+                    setShowEmptyState={setShowEmptyState}
+                />
             }}
         </DashboardLayout>
     );

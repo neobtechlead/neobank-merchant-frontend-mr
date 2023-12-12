@@ -27,11 +27,11 @@ export default function Login() {
         event.preventDefault();
 
         if (hasError) return;
-
+        setError('')
         login(formData.email, formData.password)
             .then(async (response) => {
                 if (response.ok) {
-                    const data = await response.json();
+                    const data = (await response.json()).data;
                     if (setUser) setUser({accessKey: data.accessKey});
                     setError('')
                     return router.push('/overview')
@@ -41,6 +41,7 @@ export default function Login() {
             })
             .catch((error) => {
                 console.log('error:', error)
+                console.log('error:', error.message)
                 setError(error.message)
             })
     };

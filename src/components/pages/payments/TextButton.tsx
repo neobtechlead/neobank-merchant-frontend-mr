@@ -6,7 +6,7 @@ interface Props extends ButtonHTMLAttributes<HTMLButtonElement> {
     className?: string; // Additional CSS class for styling (optional)
 }
 
-const TextButton = ({label, onClick, className, ...rest}: Props) => {
+const TextButton: React.FC<Props> = ({label, onClick, className, ...rest}) => {
     const buttonClass = `rounded-[5px] font-semibold ${className}`;
 
     return (

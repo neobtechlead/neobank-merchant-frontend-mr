@@ -13,6 +13,7 @@ import Alert from "@/components/Alert";
 import {WarningTriangle} from "@/assets/icons/WarningTriangle";
 import InfoCardItem from "@/components/InfoCardItem";
 import {ITransactionConfirmation} from "@/utils/interfaces/ITransactionConfirmation";
+import {formatAmount} from "@/utils/lib";
 
 const TransactionConfirmation: React.FC<ITransactionConfirmation> = ({
                                                                          transactionType,
@@ -30,7 +31,7 @@ const TransactionConfirmation: React.FC<ITransactionConfirmation> = ({
                                   customStyles="py-5" customDescriptionStyles="text-sm"/>
                     <InfoCardItem description={transaction.phone} svgPath={Phone} title="Recipient's Phone Number"
                                   customStyles="py-5" customDescriptionStyles="text-sm"/>
-                    <InfoCardItem description={transaction.amount} svgPath={Tag} title="Total Amount"
+                    <InfoCardItem description={formatAmount(transaction.amount)} svgPath={Tag} title="Total Amount"
                                   customStyles="py-5" customDescriptionStyles="text-sm"/>
                     <InfoCardItem description={transaction.description} svgPath={ClipboardText} title="Description"
                                   customStyles="py-5"/>

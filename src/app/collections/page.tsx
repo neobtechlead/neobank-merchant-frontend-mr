@@ -5,6 +5,7 @@ import {useDashboardStore} from "@/store/DashboardStore";
 import Svg from "@/components/Svg";
 import {ArrowLeft} from "@/assets/icons/ArrowLeft";
 import CollectionContent from "@/components/CollectionContent";
+import {useTransactionStore} from "@/store/TransactionStore";
 
 const CollectionPage: React.FC = () => {
     const pageDescription = "Funds Collection is a vital process that involves gathering and consolidating financial contributions or payments from various sources or contributors. Whether you are managing donations for a non-profit organization, collecting payments for goods or services, or coordinating group contributions, efficient funds collection is key to financial success."
@@ -21,6 +22,10 @@ const CollectionPage: React.FC = () => {
         setNavTitle,
         setShowSupportButton
     } = useDashboardStore();
+
+    const {
+        collections
+    } = useTransactionStore();
 
     useEffect(() => {
         setHeaderDetails()
@@ -44,6 +49,7 @@ const CollectionPage: React.FC = () => {
     const handleBackButtonClicked = () => {
         setNavTitle('')
         setHeaderDetails()
+        collections && collections.length > 0 ? setHasActivity(true) : setShowEmptyState(true)
     }
 
     return (

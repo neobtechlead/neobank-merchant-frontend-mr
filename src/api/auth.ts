@@ -15,11 +15,11 @@ export async function verifyOtp(accessKey: string | undefined, otp: string) {
     });
 }
 
-export async function createPassword(password: string, confirmPassword: string, jwtToken: string | undefined) {
-    return await fetcher('api/v1/auth/create-passwords', {
+export async function createPassword(password: string, confirmPassword: string, authToken: string | undefined) {
+    return await fetcher('api/v1/auth/create-password', {
         method: 'POST',
         headers: {
-            'Authorization': `Bearer ${jwtToken}`,
+            'Authorization': `Bearer ${authToken}`,
             'Content-Type': 'application/json'
         },
         body: JSON.stringify({password, confirmPassword})
@@ -54,4 +54,14 @@ export async function logout(jwtToken: string | undefined) {
     });
 }
 
+export async function updatePassword(currentPassword: string, newPassword: string, jwtToken: string | undefined) {
+    return await fetcher('api/v1/auth/update-password', {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${jwtToken}`,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({currentPassword, newPassword})
+    });
+}
 

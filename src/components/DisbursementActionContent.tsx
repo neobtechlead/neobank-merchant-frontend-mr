@@ -23,7 +23,10 @@ import InfoCardItem from "@/components/InfoCardItem";
 import {useDisbursementStore} from "@/store/DisbursementStore";
 import {DateTime} from "luxon";
 import {TransactionType} from "@/utils/types/TransactionType";
-import {downloadBulkDisbursementTemplate} from "@/api/disbursement";
+import {disburse, downloadBulkDisbursementTemplate} from "@/api/disbursement";
+import {formatAmount} from "@/utils/lib";
+import {useUserStore} from "@/store/UserStore";
+import {useTransactionStore} from "@/store/TransactionStore";
 
 const DisbursementActionContent: React.FC<IDisbursementActionContent> = ({
                                                                              contentType,
@@ -45,6 +48,7 @@ const DisbursementActionContent: React.FC<IDisbursementActionContent> = ({
     const [showTransactionDetail, setShowTransactionDetail] = useState<boolean>(false);
     const [overlayDetailContainerDescription, setOverlayDetailContainerDescription] = useState<string>('');
     const [uploadedFileName, setUploadedFileName] = useState<string>('');
+    const [uploadedFile, setUploadedFile] = useState<File | null>(null);
 
     const [formData, setFormData] = useState<TransactionType>({
         recipient: '',
@@ -68,7 +72,6 @@ const DisbursementActionContent: React.FC<IDisbursementActionContent> = ({
         setOverlayDetailContainerDescription('This generated link will be automatically sent to the customer’s email address provided in the form. Please alert customer to make payment within 5 days after link has been generated.')
         setOpenOverlay(true)
         !toggleEnabled ? handleToggle(false) : setFormData({...formData, date: new Date().toLocaleDateString(),})
-        console.log(formData)
     };
 
     const handleToggle = (toggle: boolean) => {
@@ -90,7 +93,7 @@ const DisbursementActionContent: React.FC<IDisbursementActionContent> = ({
 
             if (parsedDate.isValid) {
                 const formattedDate = parsedDate.toFormat('dd/MM/yyyy');
-                setFormData({ ...formData, date: formattedDate });
+                setFormData({...formData, date: formattedDate});
                 setSelectedDate(parsedDate.toJSDate());
             }
         } catch (error) {
@@ -114,9 +117,18 @@ const DisbursementActionContent: React.FC<IDisbursementActionContent> = ({
     } = useDashboardStore();
 
     const {
+        merchant,
+        user,
+    } = useUserStore();
+
+    const {
         actionType,
         setActionType
     } = useDisbursementStore();
+
+    const {
+        setDisbursement,
+    } = useTransactionStore();
 
     const handleTransactionConfirmation = (actionType?: string) => {
         setModalOpen(true)
@@ -125,20 +137,39 @@ const DisbursementActionContent: React.FC<IDisbursementActionContent> = ({
     const handleModalOpen = (openModal: boolean) => {
         setModalOpen(openModal)
     }
-    const handleDisbursementTransaction = () => {
+    const handleDisbursementTransaction = async () => {
         if (!transactionSuccessful) {
-            // Make an api call
-            setModalTitle('Funds Successfully Disbursed')
-            setModalDescription('Payment made to Kwaku Frimpong has been successfully disbursed. They will receive funds in their Neobank wallet and can access it through the Neobank USSD.')
+            let payload = {}
 
-            setTransactionSuccessful((transactionSuccessful) => {
-                return transactionSuccessful = true;
-            })
+            if (actionType === 'single') {
+                payload = {
+                    merchantId: merchant?.externalId,
+                    accountNumber: formData.accountNumber,
+                    accountIssuer: 'NEO',
+                    accountName: formData.accountName,
+                    narration: formData.description,
+                    amount: formData.amount,
+                    processAt: toggleEnabled ? formData.date : null,
+                };
+            } else if (actionType === 'bulk') {
+                payload = {
+                    merchantId: merchant?.externalId,
+                    batchName: formData.description,
+                    file: uploadedFile,
+                };
+            }
 
-            setModalButtonText('Go to disbursement dashboard')
-            return
+            const response = await disburse(actionType, merchant?.externalId, user?.authToken, payload);
+            if (response.ok) {
+                setModalTitle('Funds Successfully Disbursed')
+                setModalDescription('Payment made to Kwaku Frimpong has been successfully disbursed. They will receive funds in their Neobank wallet and can access it through the Neobank USSD.')
+                const disbursement = (await response.json()).data;
+                if (setDisbursement) setDisbursement(disbursement);
+                setTransactionSuccessful(true);
+                setModalButtonText('Go to disbursement dashboard');
+                return
+            }
         }
-
         setModalOpen(false)
         resetDisbursementStore()
     }
@@ -161,6 +192,7 @@ const DisbursementActionContent: React.FC<IDisbursementActionContent> = ({
     }
 
     const handleFileUploaded = (files: FileList) => {
+        setUploadedFile(files[0])
         const fileNames = Array.from(files).map((file) => file.name);
         setUploadedFileName(fileNames[0])
     }
@@ -371,7 +403,8 @@ const DisbursementActionContent: React.FC<IDisbursementActionContent> = ({
                                           customStyles="my-2" customTitleStyles="mt-5 text-xs"/>
                             <InfoCardItem description={formData.phone} title="Recipient's Phone Number"
                                           customStyles="my-2" customTitleStyles="mt-5 text-xs"/>
-                            <InfoCardItem description={formData.amount} title="Total Amount" customStyles="my-2"
+                            <InfoCardItem description={formatAmount(formData.amount)} title="Total Amount"
+                                          customStyles="my-2"
                                           customTitleStyles="mt-5 text-xs"/>
                             <InfoCardItem description={formData.description} title="Description" customStyles="my-2"
                                           customTitleStyles="mt-5 text-xs"/>

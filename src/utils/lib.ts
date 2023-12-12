@@ -13,7 +13,11 @@ export const formatAmount = (amount: number | string = 0, currency: string = 'GH
 }
 
 export const normalizeDate = (date: string) => {
-    return DateTime.fromISO(date).toISODate()
+    return DateTime.fromISO(date).toLocaleString({
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+    });
 }
 
 export const calculateDateRange = (range: number = 6, customStart: boolean = false, whereStart: DateTimeUnit = 'month') => {

@@ -13,13 +13,12 @@ import {TransactionType} from "@/utils/types/TransactionType";
 import Image from "next/image";
 import CollectionActionContent from "@/components/CollectionActionContent";
 import {ICollectionContentProps} from "@/utils/interfaces/ICollectionContentProps";
-import {Copy} from "@/assets/icons/Copy";
 import {ShareNetwork} from "@/assets/icons/ShareNetwork";
 import {useTransactionStore} from "@/store/TransactionStore";
 import {listCollections} from "@/api/collection";
 import {useUserStore} from "@/store/UserStore";
-import {useCopyToClipboard} from 'usehooks-ts'
 import {normalizeDate} from "@/utils/lib";
+import CopyButton from "@/components/CopyButton";
 
 const CollectionContent: React.FC<ICollectionContentProps> = ({
                                                                   showPaymentLinkForm,
@@ -74,7 +73,6 @@ const CollectionContent: React.FC<ICollectionContentProps> = ({
         reference: "",
         time: ""
     });
-    const [toolTipText, setToolTipText] = useState<string>('Copy');
 
     const tableHeading = [
         {label: 'date', classes: ''},
@@ -104,20 +102,6 @@ const CollectionContent: React.FC<ICollectionContentProps> = ({
     const handlePrevious = () => {
     }
     const handleNext = () => {
-    }
-
-    const [value, copy] = useCopyToClipboard()
-
-    const handleCopyPaymentLink = async (event: React.MouseEvent<HTMLDivElement>) => {
-        event.preventDefault()
-        try {
-            await copy('copied text').then(response => {
-                if (setToolTipText) setToolTipText('Copied')
-            })
-
-        } catch (error) {
-            console.error('Error copying link:', error);
-        }
     }
 
     const handleSharePaymentLink = (event: React.MouseEvent<HTMLDivElement>) => {
@@ -191,6 +175,7 @@ const CollectionContent: React.FC<ICollectionContentProps> = ({
                                                height={57}
                                                width={57}
                                                className="absolute -top-5 -right-4"
+                                               style={{width: 'auto'}}
                                         />
                                     </div>
                                 </div>
@@ -241,14 +226,7 @@ const CollectionContent: React.FC<ICollectionContentProps> = ({
                                                 status={transaction.status ?? ''}/>
                                     </td>
                                     <td className="relative py-2 pl-3 text-right text-xs font-medium flex justify-center gap-4">
-                                        <div className="cursor-pointer p-2 group flex relative"
-                                             onClick={handleCopyPaymentLink}>
-                                            <Svg fill="#4F4F4F" path={Copy} customClasses="cursor-pointer"/>
-                                            <span
-                                                className="group-hover:opacity-100 transition-opacity bg-gray-700 px-1 text-sm text-gray-100 rounded absolute top-[-2rem] left-1/2 -translate-x-1/2 opacity-0 m-4 mx-auto z-50 truncate">
-                                                {toolTipText}
-                                            </span>
-                                        </div>
+                                        <CopyButton text={'collection text'}/>
                                         <div className="cursor-pointer p-2 group flex relative">
                                             <Svg fill="#4F4F4F" path={ShareNetwork} customClasses="cursor-pointer"/>
                                             <span

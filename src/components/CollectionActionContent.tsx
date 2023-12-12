@@ -20,6 +20,7 @@ import {useCopyToClipboard} from 'usehooks-ts'
 import {generatePaymentLink} from "@/api/collection";
 import {useUserStore} from "@/store/UserStore";
 import {useTransactionStore} from "@/store/TransactionStore";
+import CopyButton from "@/components/CopyButton";
 
 const CollectionActionContent: React.FC<ICollectionActionContentProps> = ({resetDashboard}) => {
     const [hasError, setHasError] = useState<boolean | null>(null);
@@ -83,7 +84,6 @@ const CollectionActionContent: React.FC<ICollectionActionContentProps> = ({reset
                     setTransactionSuccessful((transactionSuccessful) => transactionSuccessful = true)
                     setModalButtonText('Go to collections dashboard')
                     const collection = await response.json();
-                    console.log(collection.data)
                     if (setCollection) setCollection(collection?.data)
                     return
                 }
@@ -105,18 +105,6 @@ const CollectionActionContent: React.FC<ICollectionActionContentProps> = ({reset
     }
 
     const paymentLink = "https://neobank.completefarmer.com/transactions/new-payment-link"
-    const [value, copy] = useCopyToClipboard()
-
-    const handleCopyPaymentLink = (event: React.MouseEvent<HTMLDivElement>) => {
-        event.preventDefault()
-        try {
-            copy(paymentLink).then(response => {
-                setToolTipText('Copied')
-            })
-        } catch (error) {
-            console.error('Error copying link:', error);
-        }
-    }
 
     return (
         <div className="w-full h-full">
@@ -172,14 +160,7 @@ const CollectionActionContent: React.FC<ICollectionActionContentProps> = ({reset
                                                 Share
                                             </span>
                                         </div>
-                                        <div className="cursor-pointer p-2 group flex relative"
-                                             onClick={handleCopyPaymentLink}>
-                                            <Svg fill="#4F4F4F" path={Copy} customClasses="cursor-pointer"/>
-                                            <span
-                                                className="group-hover:opacity-100 transition-opacity bg-gray-700 px-1 text-sm text-gray-100 rounded absolute top-[-2rem] left-1/2 -translate-x-1/2 opacity-0 m-4 mx-auto z-50 truncate">
-                                                {toolTipText}
-                                            </span>
-                                        </div>
+                                        <CopyButton text={paymentLink}/>
                                     </div>}
                             </div>
                         </div>

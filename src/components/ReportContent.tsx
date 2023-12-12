@@ -8,21 +8,31 @@ import {FileDownload} from "@/assets/icons/FileDownload";
 import {IReportContentProps} from "@/utils/interfaces/IReportContentProps";
 import ReportFilter from "@/components/ReportFilter";
 import {ReportFilterFormDataType} from "@/utils/types/ReportFilterFormDataType";
+import {useTransactionStore} from "@/store/TransactionStore";
+import {listTransactions} from "@/api/transaction";
+import {useUserStore} from "@/store/UserStore";
 
 const ReportContent: React.FC<IReportContentProps> = ({
                                                           hasActivity,
                                                           setHasActivity,
                                                           showEmptyState,
                                                           setShowEmptyState,
-                                                          transactions
                                                       }) => {
     const {
         setShowSupportButton,
         setNavTitle,
     } = useDashboardStore();
 
+    const {
+        transactions,
+        setTransactions
+    } = useTransactionStore();
+
+    const {merchant, user} = useUserStore();
+
     useEffect(() => {
         setDashboardState()
+        fetchTransactions()
     }, [])
 
     const tableHeading = [
@@ -38,11 +48,22 @@ const ReportContent: React.FC<IReportContentProps> = ({
         {label: 'pre balance', classes: ''}
     ]
     const noActivityDescription = "We regret to inform you that the data required to generate reports is currently unavailable. This may be due to various reasons, including system maintenance, data processing delays, or temporary disruptions."
+
+    const fetchTransactions = () => {
+        listTransactions(merchant?.externalId, user?.authToken).then(async (response) => {
+            if (response.ok) {
+                const transactions = (await response.json()).data;
+                if (setTransactions) setTransactions(transactions);
+            }
+        }).catch((error) => {
+            console.log(error)
+        })
+    }
+
     const setDashboardState = () => {
         setShowSupportButton(true)
         setNavTitle('')
         return transactions.length ? setHasActivity(true) : setShowEmptyState(true)
-
     }
 
     const handlePrevious = () => {

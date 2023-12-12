@@ -13,6 +13,7 @@ import {Download} from "@/assets/icons/Download";
 import {ITransactionDetailProps} from "@/utils/interfaces/ITransactionProps";
 import Alert from "@/components/Alert";
 import InfoCardItem from "@/components/InfoCardItem";
+import {formatAmount, normalizeDate} from "@/utils/lib";
 
 const TransactionDetail: React.FC<ITransactionDetailProps> = ({transaction, customClasses}) => {
 
@@ -21,13 +22,13 @@ const TransactionDetail: React.FC<ITransactionDetailProps> = ({transaction, cust
             <div className="capitalize">
                 <Alert
                     alertType={transaction.status}
-                    description={`${transaction.status} Transaction`}
+                    description={`${transaction.status?.toLowerCase()} Transaction`}
                     descriptionClasses=""
                 />
             </div>
 
             <div className="mt-4">
-                <h5 className="font-bold text-2xl">GHS {transaction.amount}</h5>
+                <h5 className="font-bold text-2xl">{formatAmount(transaction.amount)}</h5>
                 <div className="relative flex flex-col min-w-0 flex-1 my-2 mx-4">
                     {transaction.type === 'bulk' && <div className="grid grid-cols-2">
                         <InfoCardItem description={"250/270"}
@@ -48,10 +49,10 @@ const TransactionDetail: React.FC<ITransactionDetailProps> = ({transaction, cust
                         />
                     </div>}
 
-                    <InfoCardItem description={transaction.id}
+                    <InfoCardItem description={transaction.externalId}
                                   title="Transaction ID"
                                   customStyles="my-2"
-                                  customTitleStyles="mt-5"
+                                  customTitleStyles="mt-5 text-sx"
                                   svgPath={IdentificationCard}
                     />
 
@@ -59,7 +60,7 @@ const TransactionDetail: React.FC<ITransactionDetailProps> = ({transaction, cust
                         <InfoCardItem description={transaction.batchNumber}
                                       title="Batch Name"
                                       customStyles="my-2"
-                                      customTitleStyles="mt-5"
+                                      customTitleStyles="mt-5 text-sx"
                                       svgPath={UserCircle}
                         />}
 
@@ -67,28 +68,28 @@ const TransactionDetail: React.FC<ITransactionDetailProps> = ({transaction, cust
                         <InfoCardItem description={transaction.recipient}
                                       title="Recipient's Name"
                                       customStyles="my-2"
-                                      customTitleStyles="mt-5"
+                                      customTitleStyles="mt-5 text-sx"
                                       svgPath={Info}
                         />}
 
-                    <InfoCardItem description={transaction.phone}
+                    <InfoCardItem description={transaction.accountNumber}
                                   title="Phone Number"
                                   customStyles="my-2"
-                                  customTitleStyles="mt-5"
+                                  customTitleStyles="mt-5 text-sx"
                                   svgPath={Phone}
                     />
 
-                    <InfoCardItem description={transaction.date}
+                    <InfoCardItem description={normalizeDate(transaction.createdAt ?? '') ?? ''}
                                   title="Schedule Date"
                                   customStyles="my-2"
-                                  customTitleStyles="mt-5"
+                                  customTitleStyles="mt-5 text-sx"
                                   svgPath={Calendar}
                     />
 
-                    <InfoCardItem description={transaction.reference}
+                    <InfoCardItem description={transaction.narration}
                                   title="Reference"
                                   customStyles="my-2"
-                                  customTitleStyles="mt-5"
+                                  customTitleStyles="mt-5 text-sx"
                                   svgPath={ClipboardText}
                     />
                 </div>

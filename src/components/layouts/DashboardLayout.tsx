@@ -1,4 +1,3 @@
-'use client'
 import React, {useEffect, useState} from 'react';
 import NavigationLinks from "@/components/navigation/NavigationLinks";
 import Logo from "@/assets/images/logo.png";
