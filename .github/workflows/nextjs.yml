@@ -28,8 +28,11 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Create assets dir
+        run: mkdir ./.next/server/app/_next
+
       - name: Copy assets to publish dir
-        run: cp -r ./.next/static ./.next/server/app/_next/static
+        run: cp -r ./.next/static ./.next/server/app/_next/
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
