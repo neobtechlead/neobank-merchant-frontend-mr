@@ -27,4 +27,6 @@ const RejectedPaymentPage = async ({searchParams: {id}}: Props) => {
     );
 };
 
+export const dynamic = 'dynamic force';
+
 export default RejectedPaymentPage;
