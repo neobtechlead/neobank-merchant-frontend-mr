@@ -33,7 +33,6 @@ const DisbursementActionContent: React.FC<IDisbursementActionContent> = ({
                                                                              resetDashboard
                                                                          }) => {
     const [hasError, setHasError] = useState<boolean | undefined>(true);
-    const [error, setError] = useState<string | null>(null);
     const [toggleEnabled, setToggleEnabled] = useState<boolean>(false);
     const [selectedTime, setSelectedTime] = useState<string>();
     const [selectedDate, setSelectedDate] = useState<Date>();
@@ -44,8 +43,6 @@ const DisbursementActionContent: React.FC<IDisbursementActionContent> = ({
     const [modalDescription, setModalDescription] = useState<string>('Please confirm the information below before disbursing.');
     const [modalButtonText, setModalButtonText] = useState<string>('Confirm');
     const [transactionSuccessful, setTransactionSuccessful] = useState<boolean>(false);
-    const [confirmTransaction, setConfirmTransaction] = useState<boolean>(false);
-    const [showTransactionDetail, setShowTransactionDetail] = useState<boolean>(false);
     const [overlayDetailContainerDescription, setOverlayDetailContainerDescription] = useState<string>('');
     const [uploadedFileName, setUploadedFileName] = useState<string>('');
     const [uploadedFile, setUploadedFile] = useState<File | null>(null);
@@ -130,7 +127,7 @@ const DisbursementActionContent: React.FC<IDisbursementActionContent> = ({
         setDisbursement,
     } = useTransactionStore();
 
-    const handleTransactionConfirmation = (actionType?: string) => {
+    const handleTransactionConfirmation = () => {
         setModalOpen(true)
     }
 

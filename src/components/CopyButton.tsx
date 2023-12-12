@@ -14,7 +14,7 @@ const CopyButton: React.FC<ICopyProps> = ({
     const handleCopyPaymentLink = async (event: React.MouseEvent<HTMLDivElement>) => {
         event.preventDefault()
         try {
-            await copy(text).then(response => {
+            await copy(text).then(() => {
                 setTooltipText('Copied')
                 if (getCopiedValue) getCopiedValue(value ?? '')
                 if (getTooltipText) getTooltipText(value ?? '')

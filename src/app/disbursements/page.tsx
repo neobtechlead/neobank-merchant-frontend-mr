@@ -1,12 +1,13 @@
 'use client'
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import DashboardLayout from "@/components/layouts/DashboardLayout";
 import DisbursementContent from "@/components/DisbursementContent";
 import {useDashboardStore} from "@/store/DashboardStore";
 import Svg from "@/components/Svg";
 import {ArrowLeft} from "@/assets/icons/ArrowLeft";
-import {TransactionType} from "@/utils/types/TransactionType";
 import {useTransactionStore} from "@/store/TransactionStore";
+import {useUserStore} from "@/store/UserStore";
+import {useAuthHelper} from "@/hooks/useAuthEffect";
 
 const DisbursementPage: React.FC = () => {
     const pageDescription = "Disburse Funds is a powerful tool that allows you to efficiently transfer allocated funds to their intended recipients. Whether it's sending payments to vendors, distributing salaries to employees, or making withdrawals, this feature streamlines the process for you."
@@ -24,13 +25,11 @@ const DisbursementPage: React.FC = () => {
         setShowSupportButton,
     } = useDashboardStore();
 
+    const {disbursements} = useTransactionStore();
     const {
-        disbursements
-    } = useTransactionStore();
-
-    useEffect(() => {
-        setHeaderDetails()
-    }, [])
+        isAuthenticated,
+        setIsAuthenticated,
+    } = useUserStore();
 
     const [showDisbursementActionContent, setShowDisbursementActionContent] = useState<boolean>(false);
     const [hasActivity, setHasActivity] = useState<boolean>(false);
@@ -46,6 +45,12 @@ const DisbursementPage: React.FC = () => {
         setShowDisbursementActionContent(false)
         setShowSupportButton(true)
     }
+
+    useAuthHelper({
+        isAuthenticated,
+        setHeaderDetails,
+        setIsAuthenticated
+    })
 
     const handleBackButtonClicked = () => {
         setHeaderDetails()

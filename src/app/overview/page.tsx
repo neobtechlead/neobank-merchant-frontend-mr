@@ -1,16 +1,14 @@
 'use client'
-import React, {useEffect, useState} from 'react';
+import React from 'react';
 import DashboardLayout from "@/components/layouts/DashboardLayout";
-import DashboardContent from "@/components/DashboardContent";
 import {useDashboardStore} from "@/store/DashboardStore";
-import {usePathname} from "next/navigation";
 import {useUserStore} from "@/store/UserStore";
 import Svg from "@/components/Svg";
 import {ArrowLeft} from "@/assets/icons/ArrowLeft";
+import OverviewContent from "@/components/OverviewContent";
+import {useAuthHelper} from "@/hooks/useAuthEffect";
 
 const Overview: React.FC = () => {
-    const path = usePathname();
-
     const {
         showBackButton,
         navTitle,
@@ -23,6 +21,7 @@ const Overview: React.FC = () => {
         setNavTitle,
         setShowSupportButton,
     } = useDashboardStore();
+    const {isAuthenticated, setIsAuthenticated} = useUserStore();
 
     const {user} = useUserStore();
     const pageTitle = `Hello ${user?.firstName} ${user?.lastName}`;
@@ -39,9 +38,11 @@ const Overview: React.FC = () => {
         setShowSupportButton(true)
     }
 
-    useEffect(() => {
-        if (path === '/overview') setHeaderDetails()
-    }, [path])
+    useAuthHelper({
+        isAuthenticated,
+        setHeaderDetails,
+        setIsAuthenticated
+    })
 
     const handleBackButtonClicked = () => {
         setHeaderDetails()
@@ -55,7 +56,8 @@ const Overview: React.FC = () => {
                         <Svg fill="#4F4F4F" path={ArrowLeft}/> Back
                     </div>),
                 navigationLinks: <span className="font-semibold">{navTitle}</span>,
-                body: <DashboardContent/>}}
+                body: <OverviewContent/>
+            }}
         </DashboardLayout>
     );
 };

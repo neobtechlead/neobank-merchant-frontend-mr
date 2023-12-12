@@ -38,7 +38,7 @@ const CollectionContent: React.FC<ICollectionContentProps> = ({
         setNavTitle,
         setShowSupportButton
     } = useDashboardStore();
-    const {setCollections, collections} = useTransactionStore()
+    const {setCollections, collections, transaction} = useTransactionStore()
     const {merchant} = useUserStore();
 
     useEffect(() => {
@@ -61,18 +61,6 @@ const CollectionContent: React.FC<ICollectionContentProps> = ({
     }
 
     const [openTransactionDetail, setOpenTransactionDetail] = useState<boolean>(false);
-    const [transaction, setTransaction] = useState<TransactionType>({
-        date: "",
-        id: "",
-        batchNumber: "",
-        type: "",
-        amount: "0",
-        status: "",
-        recipient: "",
-        phone: "",
-        reference: "",
-        time: ""
-    });
 
     const tableHeading = [
         {label: 'date', classes: ''},
@@ -227,7 +215,7 @@ const CollectionContent: React.FC<ICollectionContentProps> = ({
                                     </td>
                                     <td className="relative py-2 pl-3 text-right text-xs font-medium flex justify-center gap-4">
                                         <CopyButton text={'collection text'}/>
-                                        <div className="cursor-pointer p-2 group flex relative">
+                                        <div className="cursor-pointer p-2 group flex relative" onClick={handleSharePaymentLink}>
                                             <Svg fill="#4F4F4F" path={ShareNetwork} customClasses="cursor-pointer"/>
                                             <span
                                                 className="group-hover:opacity-100 transition-opacity bg-gray-700 px-1 text-sm text-gray-100 rounded absolute top-[-2rem] left-1/2 -translate-x-1/2 opacity-0 m-4 mx-auto z-50 truncate">
