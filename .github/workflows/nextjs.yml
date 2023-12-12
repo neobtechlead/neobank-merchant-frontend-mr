@@ -31,11 +31,11 @@ jobs:
       - name: Create deployment dir
         run: mkdir docs
 
-      - name: Copy Build files to deployment dir
+      - name: Copy build files to deployment dir
         run: cp -r .next/* ./docs/
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./.next # or the directory where your Next.js app is built
+          publish_dir: ./docs # or the directory where your Next.js app is built
