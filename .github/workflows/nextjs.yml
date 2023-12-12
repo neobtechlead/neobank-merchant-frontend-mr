@@ -28,6 +28,12 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Create deployment dir
+        run: mkdir docs
+
+      - name: Copy Build files to deployment dir
+        run: cp .next/* ./docs/
+
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
