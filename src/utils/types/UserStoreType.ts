@@ -6,4 +6,6 @@ export type UserStoreType = {
     user?: UserType,
     setMerchant?: (merchant?: MerchantType) => void,
     merchant?: MerchantType,
+    isAuthenticated?: boolean,
+    setIsAuthenticated?: (isAuthenticated: boolean) => void,
 }

@@ -1,4 +1,5 @@
 import {DateTime, DateTimeUnit} from "luxon";
+import {ErrorResponse} from "@/utils/interfaces/IErrorResponse";
 
 export const formatAmountGHS = (amount: string) => {
     return (parseFloat(amount) / 100).toFixed(2);
@@ -50,3 +51,17 @@ export const downloadFile = async (response: Response | Blob, fileName: string =
         console.error('Error downloading file:', error);
     }
 };
+
+export const getError = (error: ErrorResponse) => {
+    if (error.data) {
+        const {violations} = error.data;
+        if (violations) {
+            const {field, message} = violations[0];
+            return `${field} ${message}`
+        }
+
+    }
+
+    return error.message;
+};
+

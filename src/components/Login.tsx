@@ -1,5 +1,5 @@
 "use client"
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import {useRouter} from 'next/navigation';
@@ -8,15 +8,32 @@ import CheckboxInput from '@/components/forms/CheckboxInput';
 import Carousel from '@/components/Carousel';
 import Alert from '@/components/Alert';
 import Button from '@/components/forms/Button';
-import {login} from "@/api/auth";
+import {login, logout} from "@/api/auth";
 import {useUserStore} from "@/store/UserStore";
+import {getError} from "@/utils/lib";
 
 export default function Login() {
     const router = useRouter();
     const [formData, setFormData] = useState({email: '', password: ''});
     const [hasError, setHasError] = useState<boolean | undefined>(false);
     const [error, setError] = useState<string | null>(null);
-    const {setUser} = useUserStore();
+    const {user, setUser, isAuthenticated, setIsAuthenticated} = useUserStore();
+
+    useEffect(() => {
+        if (!isAuthenticated) {
+            if (setIsAuthenticated) setIsAuthenticated(false)
+            if (setUser) setUser({})
+        }
+        logout(user?.authToken).then(async (response) => {
+            const feedback = await response.json()
+            console.log('feedback: ', feedback)
+            if (response.ok) {
+                if (setUser) setUser({})
+            }
+        }).catch(error => {
+            console.log(error)
+        })
+    }, [isAuthenticated])
 
     const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const {name, value} = event.target;
@@ -30,18 +47,18 @@ export default function Login() {
         setError('')
         login(formData.email, formData.password)
             .then(async (response) => {
+                const feedback = (await response.json())
                 if (response.ok) {
-                    const data = (await response.json()).data;
-                    if (setUser) setUser({accessKey: data.accessKey});
-                    setError('')
+                    const data = feedback.data;
+                    if (setUser) setUser({accessKey: data.accessKey})
+                    if (setIsAuthenticated) setIsAuthenticated(true)
                     return router.push('/overview')
                 }
 
-                if (response.status === 401) setError('Unauthorized!')
+                return setError(getError(feedback))
             })
             .catch((error) => {
                 console.log('error:', error)
-                console.log('error:', error.message)
                 setError(error.message)
             })
     };

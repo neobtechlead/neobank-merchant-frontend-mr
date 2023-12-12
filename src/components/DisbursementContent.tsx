@@ -43,7 +43,7 @@ const DisbursementContent: React.FC<IDisbursementContent> = ({
         setActionType
     } = useDisbursementStore();
     const {disbursements, setDisbursements} = useTransactionStore()
-    const {merchant, setMerchant} = useUserStore()
+    const {merchant} = useUserStore()
 
     useEffect(() => {
         setDashboardState()
@@ -88,8 +88,6 @@ const DisbursementContent: React.FC<IDisbursementContent> = ({
         {label: ' ', classes: ''}
     ]
     const noActivityDescription = "It seems like there's currently no data available regarding funds disbursement in your account. This section will display information about how funds are distributed and any related transactions."
-    const title = "No recent activity"
-    const description = "It seems like there's currently no data available regarding funds disbursement in your account. This section will display information about how funds are distributed and any related transactions."
     const singleDisbursementDescription = "Transfer funds or make a payment in a one-time transaction. It is a straightforward and efficient way to send money."
     const bulkDisbursementDescription = "Efficiently distribute funds to multiple recipients in a single operation. This method ensures prompt and accurate disbursements."
     const TransactionDetailDescription = "You can see the details of this transaction. Lorem Ipsum lawal ........You can see the details of this transaction. Lorem Ipsum lawal ........You can see the details of this transaction. Lorem Ipsum lawal ........You can see the details of this transaction. Lorem Ipsum lawal ........"

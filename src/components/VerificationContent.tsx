@@ -1,5 +1,4 @@
 'use client'
-
 import React, {useEffect, useState} from 'react';
 import {useRouter, useSearchParams} from "next/navigation";
 import VerifyOtp from "@/components/VerifyOtp";
@@ -9,6 +8,7 @@ import {useUserStore} from "@/store/UserStore";
 import CreatePassword from "@/components/CreatePassword";
 import {useUtilsStore} from "@/store/UtilsStore";
 import Loader from "@/components/Loader";
+import {getError} from "@/utils/lib";
 
 const VerificationContent: React.FC = () => {
     const [title, setTitle] = useState<string | null>('Enter OTP');
@@ -16,14 +16,12 @@ const VerificationContent: React.FC = () => {
     const [error, setError] = useState<string | null>(null);
     const [otpVerified, setOtpVerified] = useState<boolean | null>(false);
     const router = useRouter();
-    const handleResend = () => {
-        setError('')
-    };
     const [verificationComplete, setVerificationComplete] = useState(false);
     const {
         user,
         setUser,
         setMerchant,
+        setIsAuthenticated
     } = useUserStore();
 
     const {loading, setLoading} = useUtilsStore()
@@ -38,15 +36,18 @@ const VerificationContent: React.FC = () => {
     const handleEmailLinkVerification = () => {
         verifyEmailLink(token)
             .then(async (response) => {
+                const feedback = await response.json()
+                if (setLoading) setLoading(false);
+                setVerificationComplete(true);
+
                 if (response.ok) {
-                    if (setLoading) setLoading(false);
-                    setVerificationComplete(true);
-                    const data = (await response.json()).data
+                    const data = feedback.data
                     if (setUser) setUser({
                         verificationToken: token ?? '',
                         accessKey: data.accessKey,
                     })
-                }
+                } else
+                    return setError(getError(feedback))
             })
             .catch((error) => {
                 setVerificationComplete(false);
@@ -58,14 +59,15 @@ const VerificationContent: React.FC = () => {
         if (setLoading) setLoading(true);
         verifyOtp(user?.accessKey, otp)
             .then(async (response) => {
+                const feedback = await response.json()
+                if (setLoading) setLoading(false);
                 if (response.ok) {
                     setError('')
                     setOtpVerified(true)
                     setTitle('Create a Password')
                     setDescription('Create a password to sign in to your account')
 
-                    if (setLoading) setLoading(false);
-                    const data = (await response.json()).data
+                    const data = feedback.data
                     if (setUser) setUser({
                         firstName: data.firstName,
                         lastName: data.lastName,
@@ -73,10 +75,9 @@ const VerificationContent: React.FC = () => {
                         authToken: data.token,
                     })
 
-                    if (setMerchant) setMerchant({
-                        roles: data.roles
-                    })
-                }
+                    if (setMerchant) setMerchant({roles: data.roles})
+                } else
+                    return setError(getError(feedback))
             })
             .catch((error) => {
                 if (setLoading) setLoading(false);
@@ -85,15 +86,19 @@ const VerificationContent: React.FC = () => {
     };
 
     const handlePasswordChange = (password: string, confirmPassword: string) => {
-        if (password.length < 6 || confirmPassword.length < 6)
-            return setError('Passwords must be at least 6 characters long.')
-
+        if (setLoading) setLoading(true);
         createPassword(password, confirmPassword, user?.authToken)
             .then(async (response) => {
+                const feedback = await response.json()
+                console.log(feedback, feedback)
+                if (setLoading) setLoading(false);
+
                 if (response.ok) {
+                    if (setIsAuthenticated) setIsAuthenticated(true)
                     setError('')
                     return router.push('/overview')
-                }
+                } else
+                    return setError(getError(feedback))
             })
             .catch((error) => {
                 if (setLoading) setLoading(false);
@@ -115,24 +120,7 @@ const VerificationContent: React.FC = () => {
                 setError(error.message)
             })
     };
-
-    const handleVerificationComplete = (value: boolean, callback: { (): void; (): void; }) => {
-        setVerificationComplete(value)
-
-        if (typeof callback === 'function') callback();
-    };
-
     const handleError = (error: string) => setError(error)
-    const handleRefresh = () => {
-        if (setLoading) setLoading(true)
-
-        setTimeout(() => {
-            handleVerificationComplete(true, () => {
-                if (verificationComplete) handleEmailLinkVerification();
-                if (setLoading) setLoading(false)
-            });
-        }, 3000);
-    }
 
     return (
         <>

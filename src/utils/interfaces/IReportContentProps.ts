@@ -1,5 +1,4 @@
 import React from "react";
-import {TransactionType} from "@/utils/types/TransactionType";
 
 export interface IReportContentProps {
     hasActivity: boolean;

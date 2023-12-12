@@ -8,7 +8,7 @@ export const useUserStore = create<UserStoreType>()(
     devtools(
         persist(
             (set) => ({
-                setUser: (user?: UserType) => set((state) => ({user: user})),
+                setUser: (user?: UserType) => set({user}),
                 user: {
                     externalId: '',
                     firstName: '',
@@ -18,7 +18,7 @@ export const useUserStore = create<UserStoreType>()(
                     accessKey: '',
                     authToken: '',
                 },
-                setMerchant: (merchant?: MerchantType) => set((state) => ({merchant: merchant})),
+                setMerchant: (merchant?: MerchantType) => set({merchant}),
                 merchant: {
                     externalId: '',
                     email: '',
@@ -32,7 +32,9 @@ export const useUserStore = create<UserStoreType>()(
                     transactionCount: 0,
                     roles: [],
                     scheduledPayments: []
-                }
+                },
+                isAuthenticated: false,
+                setIsAuthenticated: (isAuthenticated) => set({isAuthenticated}),
             }),
             {name: 'user'},
         ),

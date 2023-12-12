@@ -22,10 +22,10 @@ import {calculateDateRange, formatAmount} from "@/utils/lib";
 import {TransactionGraphDataType} from "@/utils/types/TranasctionGraphDataType";
 import {listTransactions} from "@/api/transaction";
 
-const DashboardContent: React.FC = () => {
+const OverviewContent: React.FC = () => {
     const [hasTransaction, setHasTransaction] = useState<boolean | null>(false);
     const [showBalance, setShowBalance] = useState<boolean | null>(true);
-    const {transactions, setTransactions} = useTransactionStore()
+    const {transactions, setTransactions, setCollections, setDisbursements} = useTransactionStore()
     const {merchant, setMerchant} = useUserStore()
 
     const getMerchantStats = () => {
@@ -33,19 +33,6 @@ const DashboardContent: React.FC = () => {
             .then(async (response) => {
                 if (response.ok) {
                     const data = (await response.json()).data;
-                    if (setMerchant) setMerchant(data);
-                }
-            })
-            .catch((error) => {
-                console.log('error: ', error)
-            })
-    }
-
-    const getScheduledPayments = () => {
-        getStats(merchant?.externalId)
-            .then(async (response) => {
-                if (response.ok) {
-                    const data = await response.json();
                     if (setMerchant) setMerchant(data);
                 }
             })
@@ -73,7 +60,18 @@ const DashboardContent: React.FC = () => {
             .then(async (response) => {
                 if (response.ok) {
                     const transactions = (await response.json()).data;
-                    if (setTransactions) setTransactions(transactions);
+                    setHasTransaction(true)
+                    if (transactions.length > 0) {
+                        const collections = transactions.filter((transaction: {
+                            type: string
+                        }) => transaction.type.toLowerCase() === 'collection');
+                        const disbursements = transactions.filter((transaction: {
+                            type: string
+                        }) => transaction.type.toLowerCase() === 'disbursement');
+                        if (setCollections) setCollections(collections)
+                        if (setDisbursements) setDisbursements(disbursements)
+                        if (setTransactions) setTransactions(transactions);
+                    }
                 }
             })
             .catch((error) => {
@@ -124,6 +122,7 @@ const DashboardContent: React.FC = () => {
     const transactionDescription = "Perform a transaction to see your total counts"
 
     const handleNavClick = (nav: string) => {
+        console.log(nav)
     }
 
     return (
@@ -402,5 +401,5 @@ const DashboardContent: React.FC = () => {
     );
 };
 
-export default DashboardContent;
+export default OverviewContent;
 

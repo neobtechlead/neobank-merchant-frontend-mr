@@ -1,11 +1,13 @@
 'use client'
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import DashboardLayout from "@/components/layouts/DashboardLayout";
 import {useDashboardStore} from "@/store/DashboardStore";
 import Svg from "@/components/Svg";
 import {ArrowLeft} from "@/assets/icons/ArrowLeft";
 import CollectionContent from "@/components/CollectionContent";
 import {useTransactionStore} from "@/store/TransactionStore";
+import {useAuthHelper} from "@/hooks/useAuthEffect";
+import {useUserStore} from "@/store/UserStore";
 
 const CollectionPage: React.FC = () => {
     const pageDescription = "Funds Collection is a vital process that involves gathering and consolidating financial contributions or payments from various sources or contributors. Whether you are managing donations for a non-profit organization, collecting payments for goods or services, or coordinating group contributions, efficient funds collection is key to financial success."
@@ -27,9 +29,9 @@ const CollectionPage: React.FC = () => {
         collections
     } = useTransactionStore();
 
-    useEffect(() => {
-        setHeaderDetails()
-    }, [])
+    const {
+        isAuthenticated, setIsAuthenticated
+    } = useUserStore();
 
     const [showPaymentLinkForm, setShowPaymentLinkForm] = useState<boolean>(false);
     const [hasActivity, setHasActivity] = useState<boolean>(false);
@@ -45,6 +47,12 @@ const CollectionPage: React.FC = () => {
         setShowSupportButton(true)
         setShowPaymentLinkForm(false)
     }
+
+    useAuthHelper({
+        isAuthenticated,
+        setHeaderDetails,
+        setIsAuthenticated
+    })
 
     const handleBackButtonClicked = () => {
         setNavTitle('')

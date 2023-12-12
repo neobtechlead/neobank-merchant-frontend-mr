@@ -2,7 +2,7 @@ import React, {Fragment, useEffect, useState} from 'react';
 import {Listbox, Transition} from '@headlessui/react';
 import Svg from '@/components/Svg';
 import {ITimePickerProps} from "@/utils/interfaces/ITimePickerProps";
-import {Clock} from "../../../public/assets/icons/Clock";
+import {Clock} from "@/assets/icons/Clock";
 
 const TimePicker: React.FC<ITimePickerProps> = ({
                                                     selectedTime,
@@ -10,7 +10,7 @@ const TimePicker: React.FC<ITimePickerProps> = ({
                                                     onTimeSelected,
                                                 }) => {
 
-    const formatTime = (time) => {
+    const formatTime = (time: string) => {
         const [hours, minutes] = time.split(':').map(Number);
         const period = hours < 12 ? 'AM' : 'PM';
         const formattedHours = hours === 0 ? 12 : hours > 12 ? hours - 12 : hours;

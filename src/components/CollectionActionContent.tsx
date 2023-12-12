@@ -8,29 +8,23 @@ import {ArrowCircleRight} from "@/assets/icons/ArrowCircle";
 import Svg from "@/components/Svg";
 import Image from 'next/image';
 import InfoCardItem from "@/components/InfoCardItem";
-import {useCollectionStore} from "@/store/CollectionStore";
 import CollectionConfirmation from "@/components/CollectionConfirmation";
 import {ShareNetwork} from "@/assets/icons/ShareNetwork";
-import {Copy} from "@/assets/icons/Copy";
 import CollectionForm from "@/components/CollectionForm";
 import {CollectionFormDataType} from "@/utils/types/CollectionFormDataType";
 import {TransactionType} from "@/utils/types/TransactionType";
 import {formatAmount} from "@/utils/lib";
-import {useCopyToClipboard} from 'usehooks-ts'
 import {generatePaymentLink} from "@/api/collection";
 import {useUserStore} from "@/store/UserStore";
 import {useTransactionStore} from "@/store/TransactionStore";
 import CopyButton from "@/components/CopyButton";
 
 const CollectionActionContent: React.FC<ICollectionActionContentProps> = ({resetDashboard}) => {
-    const [hasError, setHasError] = useState<boolean | null>(null);
-    const [error, setError] = useState<string | null>(null);
     const [openOverlay, setOpenOverlay] = useState<boolean>(false);
     const [openModal, setModalOpen] = useState<boolean>(false);
     const [modalTitle, setModalTitle] = useState<string>('Confirm Collection Details');
     const [modalDescription, setModalDescription] = useState<string>('Please confirm the information below before proceeding.');
     const [modalButtonText, setModalButtonText] = useState<string>('Confirm');
-    const [toolTipText, setToolTipText] = useState<string>('Copy');
     const [transactionSuccessful, setTransactionSuccessful] = useState<boolean>(false);
     const [overlayDetailContainerDescription, setOverlayDetailContainerDescription] = useState<string>('');
     const [formData, setFormData] = useState<TransactionType | undefined>();
@@ -63,10 +57,6 @@ const CollectionActionContent: React.FC<ICollectionActionContentProps> = ({reset
         setModalOpen(true)
     }
 
-    const handleModalOpen = (boole: React.MouseEvent<HTMLDivElement>) => {
-
-    };
-
     const handlePaymentLinkGeneration = () => {
         if (!transactionSuccessful) {
             generatePaymentLink('b615555a-f190-4d03-a20b-0e5648efcb23', user?.authToken, {
@@ -81,7 +71,7 @@ const CollectionActionContent: React.FC<ICollectionActionContentProps> = ({reset
                 if (response.ok) {
                     setModalTitle('Link Generated Successfully')
                     setModalDescription('You have successfully created a payment link. You can share this link by either copying or through social media platforms.')
-                    setTransactionSuccessful((transactionSuccessful) => transactionSuccessful = true)
+                    setTransactionSuccessful(true)
                     setModalButtonText('Go to collections dashboard')
                     const collection = await response.json();
                     if (setCollection) setCollection(collection?.data)

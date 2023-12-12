@@ -7,24 +7,24 @@ export const useTransactionStore = create<TransactionStoreType>()(
     devtools(
         persist(
             (set) => ({
-                setTransaction: (transaction?: TransactionType) => set((state) => ({transaction: transaction})),
+                setTransaction: (transaction?: TransactionType) => set({transaction}),
                 transaction: {},
-                setTransactions: (transactions) => set((state) => ({transactions: transactions ?? []})),
+                setTransactions: (transactions) => set({transactions: transactions ?? []}),
                 transactions: [],
 
-                setCollections: (collections) => set((state) => ({collections: collections ?? []})),
+                setCollections: (collections) => set({collections: collections ?? []}),
                 setCollection: (collection: TransactionType) => set((state) => ({
                     collections: state.collections ? [...state?.collections, collection] : [collection]
                 })),
                 collections: [],
 
-                setDisbursements: (disbursements) => set((state) => ({disbursements: disbursements ?? []})),
+                setDisbursements: (disbursements) => set({disbursements: disbursements ?? []}),
                 setDisbursement: (disbursement: TransactionType) => set((state) => ({
                     disbursements: state.disbursements ? [...state?.disbursements, disbursement] : [disbursement]
                 })),
                 disbursements: [],
 
-                setScheduledPayments: (scheduledPayments) => set((state) => ({scheduledPayments: scheduledPayments ?? []})),
+                setScheduledPayments: (scheduledPayments) => set({scheduledPayments: scheduledPayments ?? []}),
                 scheduledPayments: [],
             }),
             {name: 'transaction'},

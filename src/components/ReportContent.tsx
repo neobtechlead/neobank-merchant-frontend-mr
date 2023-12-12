@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect} from 'react';
 import EmptyTransactionCardContent from "@/components/EmptyTransactionCardContent";
 import Table from "@/components/tables/Table";
 import Status from "@/components/Status";
@@ -75,6 +75,7 @@ const ReportContent: React.FC<IReportContentProps> = ({
     }
 
     const handleSubmitFilter = (data: ReportFilterFormDataType) => {
+        console.log(data)
     }
 
     return (
