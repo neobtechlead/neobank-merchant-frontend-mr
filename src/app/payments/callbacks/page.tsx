@@ -73,5 +73,5 @@ const PaymentCallbacksPage = ({searchParams: {status, clientReference}}: Props) 
     );
 };
 
-export const dynamic = 'dynamic force';
+export const dynamic = 'force-dynamic';
 export default PaymentCallbacksPage;

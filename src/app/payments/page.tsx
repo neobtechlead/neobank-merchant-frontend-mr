@@ -37,6 +37,6 @@ const PaymentPage = ({searchParams: {id, confirm, reject, clientReference}}: Pro
 
 };
 
-export const dynamic = 'dynamic force';
+export const dynamic = 'force-dynamic';
 
 export default PaymentPage;
