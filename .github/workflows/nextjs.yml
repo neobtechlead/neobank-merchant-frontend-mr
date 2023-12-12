@@ -32,7 +32,7 @@ jobs:
         run: mkdir docs
 
       - name: Copy Build files to deployment dir
-        run: cp .next/* ./docs/
+        run: cp -r .next/* ./docs/
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
