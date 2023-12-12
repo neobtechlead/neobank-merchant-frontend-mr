@@ -3,7 +3,7 @@ require('dotenv').config();
 
 const nextConfig = {
     trailingSlash: true,
-    output: 'standalone'
+    output: 'export'
 }
 
 module.exports = nextConfig
