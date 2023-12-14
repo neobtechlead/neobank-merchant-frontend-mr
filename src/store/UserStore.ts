@@ -11,7 +11,9 @@ export const useUserStore = create<UserStoreType>()(
                 setUser: (user?: UserType) => set({user}),
                 user: {},
                 setMerchant: (merchant?: MerchantType) => set((state) => ({merchant: {...state.merchant, ...merchant}})),
-                merchant: {},
+                merchant: {
+                    availableBalance: 0
+                },
                 isAuthenticated: false,
                 setIsAuthenticated: (isAuthenticated) => set({isAuthenticated}),
             }),

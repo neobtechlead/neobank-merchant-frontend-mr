@@ -11,13 +11,13 @@ import InfoCardItem from "@/components/InfoCardItem";
 import CollectionConfirmation from "@/components/CollectionConfirmation";
 import {ShareNetwork} from "@/assets/icons/ShareNetwork";
 import CollectionForm from "@/components/CollectionForm";
-import {CollectionFormDataType} from "@/utils/types/CollectionFormDataType";
 import {TransactionType} from "@/utils/types/TransactionType";
 import {formatAmount, toMinorDigits} from "@/utils/lib";
 import {generatePaymentLink} from "@/api/collection";
 import {useUserStore} from "@/store/UserStore";
 import {useTransactionStore} from "@/store/TransactionStore";
 import CopyButton from "@/components/CopyButton";
+import Alert from "@/components/Alert";
 
 const CollectionActionContent: React.FC<ICollectionActionContentProps> = ({resetDashboard}) => {
     const [openOverlay, setOpenOverlay] = useState<boolean>(false);
@@ -30,9 +30,8 @@ const CollectionActionContent: React.FC<ICollectionActionContentProps> = ({reset
     const [formData, setFormData] = useState<TransactionType | undefined>();
     const [paymentLink, setPaymentLink] = useState<string>('');
 
-    const handleCollectionConfirmation = (formData: CollectionFormDataType) => {
-        const data = {...formData}
-        setFormData(data)
+    const handleCollectionConfirmation = (formData: TransactionType) => {
+        setFormData(formData)
         setOverlayDetailContainerDescription('This generated link will be automatically sent to the customer’s email address provided in the form. Please alert customer to make payment within 5 days after link has been generated.')
         setOpenOverlay(true)
     };
@@ -160,13 +159,13 @@ const CollectionActionContent: React.FC<ICollectionActionContentProps> = ({reset
 
                     {!transactionSuccessful && <div className="bg-gray-100 my-3 rounded border border-gray-10">
                         <div className="flex flex-col justify-center p-5 py-0 divide-y divide-gray-300">
-                            <InfoCardItem description={formData?.recipient ?? 'data'} title="Recipients Name"
+                            <InfoCardItem description={formData?.recipient?.toString()} title="Recipients Name"
                                           customStyles="my-2" customTitleStyles="mt-5 text-xs font-semibold"/>
-                            <InfoCardItem description={formData?.email} title="Email Address"
+                            <InfoCardItem description={formData?.email?.toString()} title="Email Address"
                                           customStyles="my-2" customTitleStyles="mt-5 text-xs font-semibold"/>
-                            <InfoCardItem description={formData?.reference} title="Reference"
+                            <InfoCardItem description={formData?.reference?.toString()} title="Reference"
                                           customStyles="my-2" customTitleStyles="mt-5 text-xs font-semibold"/>
-                            <InfoCardItem description={formData?.phone} title="Recipient's Contact Number"
+                            <InfoCardItem description={formData?.phone?.toString()} title="Recipient's Contact Number"
                                           customStyles="my-2" customTitleStyles="mt-5 text-xs font-semibold"/>
                             <InfoCardItem description={formatAmount(formData?.amount)} title="Total Amount"
                                           customStyles="my-2"

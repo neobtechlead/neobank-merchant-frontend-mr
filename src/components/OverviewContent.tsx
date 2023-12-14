@@ -17,23 +17,28 @@ import RecentTransactionCard from "@/components/RecentTransactionCard";
 import {UserCircleFill} from "@/assets/icons/UserCircleFill";
 import {LineArrowRight} from "@/assets/icons/LineArrowRight";
 import {UsersColorFill} from "@/assets/icons/UsersColorFill";
-import {File} from "@/assets/icons/File";
-import {calculateDateRange, formatAmount, normalizeDate, plotGraphData} from "@/utils/lib";
+import {calculateDateRange, formatAmount, formatAmountGHS, normalizeDate, plotGraphData} from "@/utils/lib";
 import {TransactionGraphDataType} from "@/utils/types/TranasctionGraphDataType";
 import {listTransactions} from "@/api/transaction";
-import {act} from "react-dom/test-utils";
+import {TransactionType} from "@/utils/types/TransactionType";
+import {listScheduledPayments} from "@/api/disbursement";
+import {File} from "@/assets/icons/File";
 
 const OverviewContent: React.FC = () => {
     const [hasTransaction, setHasTransaction] = useState<boolean | null>(false);
     const [showBalance, setShowBalance] = useState<boolean | null>(true);
     const [activeNav, setActiveNav] = useState<string>('collections');
+    const [recentScheduledPayment, setRecentScheduledPayment] = useState<TransactionType>();
     const {
         transactions,
+        disbursements,
         setTransactions,
         setCollections,
         setDisbursements,
         transactionSummary,
-        setTransactionSummary
+        setTransactionSummary,
+        scheduledPayments,
+        setScheduledPayments
     } = useTransactionStore()
     const {merchant, setMerchant, user} = useUserStore()
 
@@ -92,10 +97,39 @@ const OverviewContent: React.FC = () => {
             })
     }
 
+    const fetchScheduledPayments = () => {
+        listScheduledPayments(merchant?.externalId, user?.authToken)
+            .then(async (response) => {
+                const feedback = (await response.json());
+                if (response.ok) {
+                    const {transactions} = feedback.data
+                    if (transactions.length > 0) {
+                        setRecentScheduledPayment(transactions[0])
+                        if (setScheduledPayments) setScheduledPayments(transactions);
+                    }
+                }
+            })
+            .catch((error) => {
+                console.log('error: ', error)
+            })
+        getRecentScheduledBulkPayment()
+    }
+
+    const getRecentScheduledBulkPayment = () => {
+        if (disbursements) {
+            const transactions = disbursements.filter((disbursement) => {
+                return disbursement.processAt !== null;
+            });
+
+            if (transactions.length > 0) return setRecentScheduledPayment(transactions[0])
+        }
+    }
+
     useEffect(() => {
         getMerchantStats()
         fetchTransactionSummary()
         fetchTransactions()
+        fetchScheduledPayments()
     }, []);
 
     const handleToggleBalance = () => {
@@ -112,9 +146,11 @@ const OverviewContent: React.FC = () => {
         {key: 'disbursements', color: '#59D3D4'}
     ];
 
-    const barGraphData: TransactionGraphDataType[] = plotGraphData(transactionSummary).volume
-    const areaGraphData: TransactionGraphDataType[] = plotGraphData(transactionSummary).value
-    const disbursementDescription = "Perform disbursements to view recent disbursement"
+    const {volume, value} = plotGraphData(transactionSummary)
+    const barGraphData: TransactionGraphDataType[] = volume
+    const areaGraphData: TransactionGraphDataType[] = value
+    const emptyDisbursementDescription = "Perform disbursements to view recent disbursement"
+    const emptyTransactionDescription = "Perform a transaction to view recent transactions"
     const transactionDescription = "Perform a transaction to see your total counts"
 
     const handleNavClick = (activeTab: string) => {
@@ -138,7 +174,7 @@ const OverviewContent: React.FC = () => {
                                     </div>
                                     <div className="w-full flex justify-between gap-x-4">
                                         <h5 className="font-medium leading-6 flex">
-                                            {showBalance ? `${formatAmount(merchant?.availableBalance) ?? 0}` : asterisks(6)}
+                                            {showBalance ? `${formatAmount(formatAmountGHS(merchant?.availableBalance?.toString()))}` : asterisks(6)}
                                         </h5>
                                         <div className="flex justify-center items-center cursor-pointer"
                                              onClick={handleToggleBalance}>
@@ -172,7 +208,7 @@ const OverviewContent: React.FC = () => {
                                             </div>
                                             <div className="flex flex-col justify-center items-center">
                                                 <h5 className="font-semibold">No data available</h5>
-                                                <p className="font-normal text-xs text-center mt-1 lg:w-2/3 md:w-2/3 sm:w-1/3 sm:mx-6">{disbursementDescription}</p>
+                                                <p className="font-normal text-xs text-center mt-1 lg:w-2/3 md:w-2/3 sm:w-1/3 sm:mx-6">{emptyTransactionDescription}</p>
                                             </div>
                                         </EmptyTransactionCardContent>}
 
@@ -180,7 +216,7 @@ const OverviewContent: React.FC = () => {
                                             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                                 {transactions.map((transaction) => (
                                                     <RecentTransactionCard transaction={transaction}
-                                                                           customStyles="space-x-3 rounded-lg bg-white px-6 shadow-sm hover:border-gray-400"/>
+                                                                           customStyles="space-x-3 rounded-lg hover:border-gray-400"/>
                                                 ))}
                                             </div>
                                         </div>
@@ -189,7 +225,7 @@ const OverviewContent: React.FC = () => {
                                 <Card
                                     customStyles={`lg:w-1/3 flex flex-col border-t border-r border-b border-purple-900 w-full rounded-r-2xl h-[197px]`}>
                                     <h5 className="text-sm md:font-medium leading-6 p-3">Scheduled Payments</h5>
-                                    {hasTransaction && <EmptyTransactionCardContent showContent={false}>
+                                    {!recentScheduledPayment && <EmptyTransactionCardContent showContent={false}>
                                         <div className="">
                                             <div
                                                 className="flex flex-col justify-center items-center h-full w-full">
@@ -203,16 +239,17 @@ const OverviewContent: React.FC = () => {
                                                 </div>
                                                 <div className="flex flex-col justify-center items-center w-full">
                                                     <h5 className="font-semibold">No data available</h5>
-                                                    <p className="font-normal text-xs text-center mt-1 lg:w-full md:w-2/3 sm:w-1/3 sm:mx-6 lg:px-2">{disbursementDescription}</p>
+                                                    <p className="font-normal text-xs text-center mt-1 lg:w-full md:w-2/3 sm:w-1/3 sm:mx-6 lg:px-2">{emptyDisbursementDescription}</p>
                                                 </div>
                                             </div>
                                         </div>
                                     </EmptyTransactionCardContent>}
 
-                                    {!hasTransaction && <div className="flex flex-col h-full">
+                                    {scheduledPayments && <div className="flex flex-col h-full">
                                         <div className="flex flex-grow justify-between items-center p-3">
                                             <InfoCardItem
-                                                title="200" customTitleStyles="font-bold text-md text-gray-900"
+                                                title={recentScheduledPayment?.amount?.toString() ?? '0'}
+                                                customTitleStyles="font-bold text-md text-gray-900"
                                                 description="Individuals"
                                                 customDescriptionStyles="text-xs"/>
                                             <div className="flex items-center">
@@ -221,7 +258,7 @@ const OverviewContent: React.FC = () => {
                                                 />
                                             </div>
                                             <InfoCardItem
-                                                title={`GHS 280000`}
+                                                title={recentScheduledPayment?.amount?.toString() ?? '0'}
                                                 customTitleStyles="font-bold text-md text-gray-900 truncate"
                                                 description="Total Amount"
                                                 customDescriptionStyles="text-xs"/>
@@ -233,13 +270,14 @@ const OverviewContent: React.FC = () => {
                                                 />
                                                 <div
                                                     className="flex justify-between items-center ml-3 text-white w-full">
-                                                    <div className="flex flex-col">
-                                                        <p className="text-sm">Batch No. 1</p>
-                                                        <p className="text-xs leading-3 ">Scheduled payments</p>
-                                                    </div>
-                                                    <div className="flex text-xs items-center justify-end">
-                                                        <h5 className="">15/09/2023</h5>
-                                                    </div>
+                                                    <InfoCardItem
+                                                        title={recentScheduledPayment?.amount?.toString() ?? '0'}
+                                                        customTitleStyles="font-bold text-md text-gray-900 truncate text-white"
+                                                        description="Scheduled payments"
+                                                        customDescriptionStyles="text-xs leading-3 text-white"/>
+                                                    <InfoCardItem
+                                                        title={recentScheduledPayment?.createdAt?.toString()}
+                                                        customTitleStyles="text-xs text-gray-900 truncate text-white"/>
                                                 </div>
                                             </div>
                                         </div>
@@ -284,7 +322,7 @@ const OverviewContent: React.FC = () => {
 
                                     <div className="flex flex-col h-full">
                                         <div className="flex flex-grow justify-between items-center p-3">
-                                            <InfoCardItem title={'180'} customTitleStyles="font-bold"
+                                            <InfoCardItem title={recentScheduledPayment?.amount?.toString() ?? '0'} customTitleStyles="font-bold"
                                                           description="Individuals"
                                                           customDescriptionStyles="text-xs truncate"/>
                                             <div className="flex items-center">
@@ -292,7 +330,7 @@ const OverviewContent: React.FC = () => {
                                                        className="flex text-white" width={24} height={24}
                                                 />
                                             </div>
-                                            <InfoCardItem title={`GHS 280000`} customTitleStyles="font-bold"
+                                            <InfoCardItem title={recentScheduledPayment?.amount?.toString() ?? '0'} customTitleStyles="font-bold"
                                                           description="Total Amount"
                                                           customDescriptionStyles="text-xs truncate"/>
                                         </div>
@@ -302,12 +340,13 @@ const OverviewContent: React.FC = () => {
                                                     className="flex justify-between items-center ml-3 text-white w-full">
                                                     <InfoCardItem
                                                         svgFill="white" svgPath={File}
-                                                        title="Batch No. 1" customTitleStyles="text-xs"
-                                                        description="Scheduled payment"
-                                                        customDescriptionStyles="text-xs sm:truncate"/>
-                                                    <div className="flex text-xs items-center justify-end">
-                                                        <h5 className="">15/09/2023</h5>
-                                                    </div>
+                                                        title={recentScheduledPayment?.amount?.toString() ?? '0'}
+                                                        customTitleStyles="font-bold text-md text-gray-900 truncate text-white"
+                                                        description="Scheduled payments"
+                                                        customDescriptionStyles="text-xs leading-3 text-white"/>
+                                                    <InfoCardItem
+                                                        title={normalizeDate(recentScheduledPayment?.createdAt?.toString() ?? '')}
+                                                        customTitleStyles="text-xs text-gray-900 truncate text-white"/>
                                                 </div>
                                             </div>
                                         </div>
@@ -324,7 +363,7 @@ const OverviewContent: React.FC = () => {
                     customStyles={`lg:w-2/3 flex flex-col border border-gray-200 w-full rounded-2xl h-[417px] px-[40px] p-3 my-5`}>
                     <div className="flex justify-between w-full items-center">
                         <h5 className="flex text-md md:font-medium leading-6 my-5">Total Counts</h5>
-                        {hasTransaction && <div className="flex justify-end items-center">
+                        {transactions.length > 0 && <div className="flex justify-end items-center">
                             <div className="flex items-center text-purple-800">
                                 <div className="w-2 h-2 bg-purple-800 mx-2 rounded-full"/>
                                 Collections
@@ -336,7 +375,7 @@ const OverviewContent: React.FC = () => {
                         </div>}
                     </div>
 
-                    {!barGraphData && <EmptyTransactionCardContent showContent={false}>
+                    {!transactions && <EmptyTransactionCardContent showContent={false}>
                         <div
                             className="flex flex-col justify-center items-center h-full w-full">
                             <div className="flex justify-between my-4">
@@ -351,7 +390,7 @@ const OverviewContent: React.FC = () => {
                         </div>
                     </EmptyTransactionCardContent>}
 
-                    {barGraphData && <div className="flex flex-col h-full">
+                    {transactions && <div className="flex flex-col h-full">
                         <ReBarGraph data={barGraphData} dataOptionSet={getDataOptions} options={{tooltip: true}}/>
                     </div>}
                 </Card>
@@ -362,7 +401,7 @@ const OverviewContent: React.FC = () => {
                             <h5 className="flex text-md md:font-medium leading-6 m-3">Total Values</h5>
                         </div>
 
-                        {!areaGraphData && (
+                        {!transactions && (
                             <EmptyTransactionCardContent showContent={false}>
                                 <div className="flex flex-col justify-center items-center h-full w-full">
                                     <div className="flex justify-between my-5">
@@ -377,7 +416,7 @@ const OverviewContent: React.FC = () => {
                             </EmptyTransactionCardContent>
                         )}
 
-                        {areaGraphData && (
+                        {transactions && (
                             <div className="flex flex-col justify-between p-3">
                                 <div className="flex justify-between border border-gray-100 rounded-lg text-center">
                                     <TabsNav tabs={[

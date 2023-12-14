@@ -17,7 +17,7 @@ import {ShareNetwork} from "@/assets/icons/ShareNetwork";
 import {useTransactionStore} from "@/store/TransactionStore";
 import {listCollections} from "@/api/collection";
 import {useUserStore} from "@/store/UserStore";
-import {normalizeDate} from "@/utils/lib";
+import {formatAmount, formatAmountGHS, normalizeDate} from "@/utils/lib";
 import CopyButton from "@/components/CopyButton";
 
 const CollectionContent: React.FC<ICollectionContentProps> = ({
@@ -201,17 +201,17 @@ const CollectionContent: React.FC<ICollectionContentProps> = ({
                                         <div className={` ${key === 0 ?
                                             'absolute top-0 right-full h-px w-full bg-gray-100' : ''}`}/>
 
-                                        {normalizeDate(transaction.createdAt ?? '')}
+                                        {normalizeDate(transaction.createdAt ?? '', true)}
                                         <div className={` ${key !== collections.length - 1 ?
                                             'absolute bottom-0 left-0 right-0 h-px w-screen bg-gray-100' : ''}`}/>
                                         <div className={` ${key !== collections.length - 1 ?
                                             'absolute bottom-0 right-full h-px w-full bg-gray-100' : ''}`}/>
                                     </td>
                                     <td className="hidden px-3 py-2 sm:table-cell text-xs">{transaction.accountName}</td>
-                                    <td className="px-3 py-2 text-xs">GHS {transaction.amount}</td>
+                                    <td className="px-3 py-2 text-xs">{formatAmount(formatAmountGHS(transaction.amount?.toString()))}</td>
                                     <td className="px-3 py-2 text-xs">
                                         <Status customStyles="text-red-500"
-                                                status={transaction.status ?? ''}/>
+                                                status={transaction.status?.toLowerCase() ?? ''}/>
                                     </td>
                                     <td className="relative py-2 pl-3 text-right text-xs font-medium flex justify-center gap-4">
                                         <CopyButton text={'collection text'}/>

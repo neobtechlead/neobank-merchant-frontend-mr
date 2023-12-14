@@ -10,6 +10,15 @@ export async function listDisbursements(merchant?: string, authToken: string = '
     });
 }
 
+export async function listScheduledPayments(merchant?: string, authToken: string = '') {
+    return await fetcher(`api/v1/merchants/${merchant}/transactions?scheduled=true`, {
+        headers: {
+            'Authorization': `Bearer ${authToken}`,
+            'Content-Type': 'application/json',
+        },
+    });
+}
+
 export async function disburse(type: string = 'single', authToken?: string, data?: object) {
     return await fetcher(`api/v1/merchants/${type}-disbursements`, {
         method: 'POST',

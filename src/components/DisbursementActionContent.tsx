@@ -52,7 +52,7 @@ const DisbursementActionContent: React.FC<IDisbursementActionContent> = ({
     const [formData, setFormData] = useState<TransactionType>({
         recipient: '',
         phone: '',
-        amount: '',
+        amount: 0,
         description: '',
         scheduled: false,
         date: new Date().toLocaleDateString(),
@@ -76,11 +76,10 @@ const DisbursementActionContent: React.FC<IDisbursementActionContent> = ({
     const handleToggle = (toggle: boolean) => {
         setToggleEnabled(toggle);
         setFormData((formData) => {
-            // To be removed when scenario is clarified
-            // if (!toggle) {
-            //     const {date, time, ...formDataWithoutDateAndTime} = formData;
-            //     return {...formDataWithoutDateAndTime, scheduled: toggle};
-            // }
+            if (!toggle) {
+                const {date, time, ...formDataWithoutDateAndTime} = formData;
+                return {...formDataWithoutDateAndTime, scheduled: toggle};
+            }
             return {...formData, scheduled: toggle};
         });
     };
@@ -145,7 +144,7 @@ const DisbursementActionContent: React.FC<IDisbursementActionContent> = ({
                 payload = {
                     merchantId: merchant?.externalId,
                     accountNumber: formData.phone,
-                    accountIssuer: 'NEO',
+                    accountIssuer: 'MTN',
                     accountName: formData.recipient,
                     narration: formData.description,
                     amount: toMinorDigits(formData.amount),

@@ -72,6 +72,7 @@ const TextInput: React.FC<ITextInput> = ({
                             id={id}
                             name={name}
                             type={showPassword ? 'text' : type}
+                            step="any"
                             autoComplete={autoComplete}
                             placeholder={placeholder}
                             onBlur={handleBlur}

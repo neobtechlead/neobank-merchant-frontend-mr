@@ -11,7 +11,7 @@ import {ReportFilterFormDataType} from "@/utils/types/ReportFilterFormDataType";
 import {useTransactionStore} from "@/store/TransactionStore";
 import {listTransactions} from "@/api/transaction";
 import {useUserStore} from "@/store/UserStore";
-import {formatAmountGHS, normalizeDate} from "@/utils/lib";
+import {formatAmount, formatAmountGHS, normalizeDate} from "@/utils/lib";
 
 const ReportContent: React.FC<IReportContentProps> = ({
                                                           hasActivity,
@@ -126,11 +126,11 @@ const ReportContent: React.FC<IReportContentProps> = ({
                                     <td className="hidden px-3 py-2 sm:table-cell text-xs">{transaction.initiatorName}</td>
                                     <td className="hidden px-3 py-2 sm:table-cell text-xs">{transaction.accountName}</td>
                                     <td className="hidden px-3 py-2 sm:table-cell text-xs">{transaction.accountNumber}</td>
-                                    <td className="px-3 py-2 text-xs">GHS {formatAmountGHS(transaction.amount ?? '')}</td>
+                                    <td className="px-3 py-2 text-xs">{formatAmount(formatAmountGHS(transaction.amount?.toString()))}</td>
                                     <td className="px-3 py-2 text-xs">
-                                        <Status customStyles="text-red-500" status={transaction.status ?? ''}/>
+                                        <Status customStyles="text-red-500" status={transaction.status?.toLowerCase() ?? ''}/>
                                     </td>
-                                    <td className="px-3 py-2 text-xs">GHS {transaction.balanceBefore}</td>
+                                    <td className="px-3 py-2 text-xs">{formatAmount(formatAmountGHS(transaction.balanceBefore?.toString()))}</td>
                                 </tr>
                             ))}
                         </Table>

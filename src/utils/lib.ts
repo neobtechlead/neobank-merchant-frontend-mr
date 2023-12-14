@@ -1,8 +1,8 @@
-import {DateTime, DateTimeUnit} from "luxon";
+import {DateTime, DateTimeFormatOptions, DateTimeUnit} from "luxon";
 import {ErrorResponse} from "@/utils/interfaces/IErrorResponse";
 import {MonthlyTransactionSummaryType} from "@/utils/types/MonthlyTransactionSummaryType";
 
-export const formatAmountGHS = (amount: string) => {
+export const formatAmountGHS = (amount: string = ''): string => {
     return (parseFloat(amount) / 100).toFixed(2);
 }
 
@@ -18,13 +18,25 @@ export const toMinorDigits = (amount: number | string = 0): number => {
     return parseFloat(String(amount)) * 100;
 };
 
-export const normalizeDate = (date: string) => {
-    return DateTime.fromISO(date).toLocaleString({
+export const normalizeDate = (date: string, includeTime: boolean = false) => {
+    const dateOptions: DateTimeFormatOptions = {
         day: '2-digit',
         month: '2-digit',
         year: 'numeric',
-    });
-}
+    };
+
+    const timeOptions: DateTimeFormatOptions = {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+    };
+
+    const dateTimeOptions: DateTimeFormatOptions = includeTime
+        ? {...dateOptions, ...timeOptions}
+        : dateOptions;
+
+    return DateTime.fromISO(date).toLocaleString(dateTimeOptions);
+};
 
 export const calculateDateRange = (range: number = 6, customStart: boolean = false, whereStart: DateTimeUnit = 'month') => {
     const endDate = DateTime.local();
@@ -83,27 +95,53 @@ export const capitalizeFirstLetter = (text: string = ''): string => {
 };
 
 export const plotGraphData = (data: MonthlyTransactionSummaryType = {}) => {
-    return Object.entries(data).reduce(
+    const graphTemplate = getGraphTemplate();
+
+    return Object.entries(graphTemplate).reduce(
         (accumulator, [month, values]) => {
-            const period = capitalizeFirstLetter(month.slice(0, 3))
+            const {collectionCount, collectionValue, disbursementCount, disbursementValue} = values;
+            const period = capitalizeFirstLetter(month.slice(0, 3));
+
             const volumeEntry = {
                 name: period,
-                collections: values.collectionCount,
-                disbursements: values.disbursementCount,
+                collections: data[month]?.collectionCount || collectionCount,
+                disbursements: data[month]?.disbursementCount || disbursementCount,
             };
-            accumulator.volume.push(volumeEntry);
 
             const valueEntry = {
                 name: period,
-                collections: formatAmountGHS(String(values.collectionValue)),
-                disbursements: formatAmountGHS(String(values.disbursementValue)),
+                collections: data[month]?.collectionValue ? formatAmountGHS(String(data[month].collectionValue)) : collectionValue,
+                disbursements: data[month]?.disbursementValue ? formatAmountGHS(String(data[month].disbursementValue)) : disbursementValue,
             };
-            accumulator.value.push(valueEntry);
 
+            accumulator.volume.push(volumeEntry);
+            accumulator.value.push(valueEntry);
             return accumulator;
         },
         {volume: [], value: []} as { volume: any[]; value: any[] }
     );
+};
+
+export const getGraphTemplate = () => {
+    const {startDate, endDate} = calculateDateRange()
+
+    const template: MonthlyTransactionSummaryType = {};
+
+    let currentDate = DateTime.fromFormat(startDate ?? '', 'yyyy-MM-dd').toJSDate();
+    let endPeriod = DateTime.fromFormat(endDate ?? '', 'yyyy-MM-dd').toJSDate();
+    while (currentDate <= endPeriod) {
+        const monthName = new Intl.DateTimeFormat('en-US', {month: 'long'}).format(currentDate);
+
+        template[monthName.toLowerCase()] = {
+            disbursementCount: 0,
+            collectionCount: 0,
+            collectionValue: 0,
+            disbursementValue: 0,
+        };
+
+        currentDate.setMonth(currentDate.getMonth() + 1);
+    }
+    return template;
 };
 
 

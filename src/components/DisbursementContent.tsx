@@ -17,7 +17,7 @@ import {IDisbursementContent} from "@/utils/interfaces/IDisbursementContent";
 import {useTransactionStore} from "@/store/TransactionStore";
 import {useUserStore} from "@/store/UserStore";
 import {listDisbursements} from "@/api/disbursement";
-import {normalizeDate} from "@/utils/lib";
+import {formatAmount, formatAmountGHS, normalizeDate} from "@/utils/lib";
 import {useDisbursementStore} from "@/store/DisbursementStore";
 
 const DisbursementContent: React.FC<IDisbursementContent> = ({
@@ -71,7 +71,7 @@ const DisbursementContent: React.FC<IDisbursementContent> = ({
         id: "",
         batchNumber: "",
         type: "",
-        amount: '0',
+        amount: 0,
         status: "",
         recipient: "",
         phone: "",
@@ -235,8 +235,7 @@ const DisbursementContent: React.FC<IDisbursementContent> = ({
                                             className={` ${key === 0 ? 'absolute top-0 left-0 right-0 h-px w-screen bg-gray-100' : ''}`}/>
                                         <div className={` ${key === 0 ?
                                             'absolute top-0 right-full h-px w-full bg-gray-100' : ''}`}/>
-
-                                        {normalizeDate(transaction.createdAt ?? '')}
+                                        {normalizeDate(transaction.createdAt ?? '', true)}
                                         <div className={` ${key !== disbursements.length - 1 ?
                                             'absolute bottom-0 left-0 right-0 h-px w-screen bg-gray-100' : ''}`}/>
                                         <div className={` ${key !== disbursements.length - 1 ?
@@ -244,9 +243,10 @@ const DisbursementContent: React.FC<IDisbursementContent> = ({
                                     </td>
                                     <td className="hidden px-3 py-2 sm:table-cell text-xs">{transaction.externalId}</td>
                                     <td className="hidden px-3 py-2 md:table-cell text-xs capitalize">{transaction.type}</td>
-                                    <td className="px-3 py-2 text-xs">GHS {transaction.amount}</td>
+                                    <td className="px-3 py-2 text-xs">{formatAmount(formatAmountGHS(transaction.amount?.toString()))}</td>
                                     <td className="px-3 py-2 text-xs">
-                                        <Status customStyles="text-red-500" status={transaction.status ?? ''}/>
+                                        <Status customStyles="text-red-500"
+                                                status={transaction.status?.toLowerCase() ?? ''}/>
                                     </td>
                                     <td className="relative py-2 pl-3 text-right text-xs font-medium flex justify-end col-end-2">
                                         <div onClick={() => handleTransactionDetails(transaction)}

@@ -11,24 +11,28 @@ import {ICollectionConfirmationProps} from "@/utils/interfaces/ICollectionConfir
 import {formatAmount} from "@/utils/lib";
 
 const CollectionConfirmation: React.FC<ICollectionConfirmationProps> = ({
-                                               transaction,
-                                               customStyles,
-                                               handleConfirmation,
-                                               handleCancel
-                                           }) => {
+                                                                            transaction,
+                                                                            customStyles,
+                                                                            handleConfirmation,
+                                                                            handleCancel
+                                                                        }) => {
     return (
         <div className="m-6 flex flex-col h-full">
-            <Alert customClasses="rounded bg-orange-400 my-5 text-white" alertType="warning" description="Expires after 5 days"/>
+            <Alert customClasses="rounded bg-orange-400 my-5 text-white" alertType="warning"
+                   description="Expires after 5 days"/>
 
             <div className={`flex flex-2 ${customStyles}`}>
                 <div className={`relative flex flex-col min-w-0 flex-1 rounded-lg border px-4 mb-10 ${customStyles}`}>
-                    <InfoCardItem description={transaction?.recipient} svgPath={UserCircle} title="Recipients Name"
+                    <InfoCardItem description={transaction?.recipient?.toString()} svgPath={UserCircle}
+                                  title="Recipients Name"
                                   customStyles="py-5"/>
-                    <InfoCardItem description={transaction?.email} svgPath={Email} title="Email Address"
+                    <InfoCardItem description={transaction?.email?.toString()} svgPath={Email} title="Email Address"
                                   customStyles="py-5"/>
-                    <InfoCardItem description={transaction?.reference} svgPath={ClipboardText} title="Reference"
+                    <InfoCardItem description={transaction?.reference?.toString()} svgPath={ClipboardText}
+                                  title="Reference"
                                   customStyles="py-5"/>
-                    <InfoCardItem description={transaction?.phone} svgPath={Phone} title="Recipient's Contact Number"
+                    <InfoCardItem description={transaction?.phone?.toString()} svgPath={Phone}
+                                  title="Recipient's Contact Number"
                                   customStyles="py-5"/>
                     <InfoCardItem description={formatAmount(transaction?.amount)} svgPath={Tag} title="Amount"
                                   customStyles="py-5"/>
@@ -42,7 +46,6 @@ const CollectionConfirmation: React.FC<ICollectionConfirmationProps> = ({
                 >
                     <div className="flex items-center justify-center gap-2">Generate link</div>
                 </Button>
-
                 <Button buttonType="button" styleType="tertiary"
                         customStyles="mt-4 justify-center p-4 md:p-5 border border-red-500 rounded-lg"
                         onClick={() => handleCancel(false)}

@@ -10,6 +10,7 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({status, background, customStyl
     const statusColors: { [key: string]: string; } = {
         success: '#008000',
         info: '#06b6d4',
+        initiated: '#06b6d4',
         pending: '#F29339',
         error: '#EB2F2F',
         failed: '#EB2F2F',
@@ -20,9 +21,9 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({status, background, customStyl
         success: '#0080001A',
         info: '#ECFEFF',
         warning: '#F293391A',
+        initiated: '#ECFEFF',
         error: '#EB2F2F1A',
         completed: '#0000001A'
-
     };
 
     const formattedStatuses: { [key: string]: string; } = {
@@ -30,8 +31,10 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({status, background, customStyl
         success: 'success',
         failed: 'failed',
         'in progress': 'pending',
-        'pending': 'pending',
-        completed: 'completed'
+        pending: 'pending',
+        completed: 'completed',
+        initiated: 'info',
+        queued: 'info',
     };
 
     return (

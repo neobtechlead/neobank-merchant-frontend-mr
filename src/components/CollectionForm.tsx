@@ -4,20 +4,27 @@ import Button from "@/components/forms/Button";
 import Svg from "@/components/Svg";
 import {CaretDown} from "@/assets/icons/Caret";
 import {ICollectionForm} from "@/utils/interfaces/ICollectionForm";
-import {CollectionFormDataType} from "@/utils/types/CollectionFormDataType";
 import Image from "next/image";
+import {TransactionType} from "@/utils/types/TransactionType";
 
 const CollectionForm: React.FC<ICollectionForm> = ({onSubmit}) => {
-    const [hasError, setHasError] = useState<boolean | undefined>(false);
-    const [error, setError] = useState<string | null>(null);
-    const [formData, setFormData] = useState<CollectionFormDataType>({
+    const [hasError, setHasError] = useState<boolean>(false);
+    const [formData, setFormData] = useState<TransactionType>({
         recipient: '',
         phone: '',
         email: '',
-        amount: '',
+        amount: 0,
         reference: '',
         type: '',
     });
+
+    const isFormValid = () => {
+        return formData.recipient?.trim() !== '' &&
+            formData.email?.trim() !== '' &&
+            formData.reference?.trim() !== '' &&
+            formData.phone?.trim() !== '' &&
+            ![undefined, null, 0].includes(formData.amount)
+    };
 
     const handleInputChange: React.ChangeEventHandler<HTMLInputElement> = (event) => {
         const {name, value} = event.target;
@@ -26,7 +33,12 @@ const CollectionForm: React.FC<ICollectionForm> = ({onSubmit}) => {
 
     const handleSubmit: React.FormEventHandler<HTMLFormElement> = (event) => {
         event.preventDefault();
-        if (onSubmit) onSubmit(formData)
+
+        if (isFormValid()) {
+            if (onSubmit) onSubmit(formData);
+        } else {
+            return setHasError(true);
+        }
     };
 
     return (

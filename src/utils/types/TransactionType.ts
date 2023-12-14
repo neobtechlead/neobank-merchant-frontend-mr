@@ -2,7 +2,7 @@ export type TransactionType = {
     externalId?: string,
     accountIssuer?: string,
     type?: string,
-    amount?: string, // change type to number later
+    amount?: number,
     status?: string,
     clientReference?: string,
     narration?: string,
