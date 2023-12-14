@@ -17,23 +17,24 @@ export default function Login() {
     const [formData, setFormData] = useState({email: '', password: ''});
     const [hasError, setHasError] = useState<boolean | undefined>(false);
     const [error, setError] = useState<string | null>(null);
-    const {user, setUser, isAuthenticated, setIsAuthenticated} = useUserStore();
+    const {
+        user,
+        setUser,
+        setMerchant,
+        setIsAuthenticated
+    } = useUserStore();
 
     useEffect(() => {
-        if (!isAuthenticated) {
-            if (setIsAuthenticated) setIsAuthenticated(false)
-            if (setUser) setUser({})
-        }
         logout(user?.authToken).then(async (response) => {
-            const feedback = await response.json()
-            console.log('feedback: ', feedback)
             if (response.ok) {
                 if (setUser) setUser({})
+                if (setMerchant) setMerchant({})
+                if (setIsAuthenticated) setIsAuthenticated(false)
             }
         }).catch(error => {
             console.log(error)
         })
-    }, [isAuthenticated])
+    }, [])
 
     const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const {name, value} = event.target;
@@ -49,9 +50,17 @@ export default function Login() {
             .then(async (response) => {
                 const feedback = (await response.json())
                 if (response.ok) {
-                    const data = feedback.data;
-                    if (setUser) setUser({accessKey: data.accessKey})
+                    const {data} = feedback;
+                    if (setUser) setUser({
+                        externalId: data.id,
+                        email: data.email,
+                        firstName: data.firstName,
+                        lastName: data.lastName,
+                        authToken: data.token,
+                        roles: data.roles
+                    })
                     if (setIsAuthenticated) setIsAuthenticated(true)
+                    if (setMerchant) setMerchant(data.merchant)
                     return router.push('/overview')
                 }
 

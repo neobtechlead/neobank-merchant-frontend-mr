@@ -43,7 +43,7 @@ const DisbursementContent: React.FC<IDisbursementContent> = ({
         setActionType
     } = useDisbursementStore();
     const {disbursements, setDisbursements} = useTransactionStore()
-    const {merchant} = useUserStore()
+    const {merchant, user} = useUserStore()
 
     useEffect(() => {
         setDashboardState()
@@ -51,7 +51,7 @@ const DisbursementContent: React.FC<IDisbursementContent> = ({
     }, [])
 
     const getDisbursementTransactions = () => {
-        listDisbursements(merchant?.externalId)
+        listDisbursements(merchant?.externalId, user?.authToken)
             .then(async (response) => {
                 if (response.ok) {
                     const disbursements = await response.json();

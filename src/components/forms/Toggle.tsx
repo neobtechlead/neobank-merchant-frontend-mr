@@ -1,4 +1,4 @@
-import React, {useState} from 'react'
+import React from 'react'
 import {Switch} from '@headlessui/react'
 import {IToggle} from "@/utils/interfaces/IToggle";
 

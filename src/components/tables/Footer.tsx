@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 import Svg from "@/components/Svg";
-import {CaretLeft, CaretRight} from "../../../public/assets/icons/Caret";
+import {CaretLeft, CaretRight} from "@/assets/icons/Caret";
 import ListBox from "@/components/forms/ListBox";
 import {IListBoxItem} from "@/utils/interfaces/IDropdownProps";
 

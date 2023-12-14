@@ -1,10 +1,7 @@
 import {Disclosure} from '@headlessui/react'
-import {MinusSmallIcon, PlusSmallIcon} from '@heroicons/react/24/outline'
 import Svg from "@/components/Svg";
 import {CaretDown, CaretUp} from "@/assets/icons/Caret";
-import {QuestionFill} from "@/assets/icons/QuestionFill";
 import {Question} from "@/assets/icons/Question";
-import InfoCardItem from "@/components/InfoCardItem";
 import React, {useState} from "react";
 
 const FAQs = () => {

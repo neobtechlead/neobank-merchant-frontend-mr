@@ -1,10 +1,15 @@
 import React, {FormEventHandler, useEffect, useState} from "react";
 import TextInput from "@/components/forms/TextInput";
 import InfoCardItem from "@/components/InfoCardItem";
+import {useUserStore} from "@/store/UserStore";
 
-const ProfileMerchantDetailsForm: React.FC<IProfileMerchantProps> = () => {
+const ProfileMerchantDetailsForm: React.FC = () => {
     const [formData, setFormData] = useState({password: "", confirmPassword: ""});
     const [hasError, setHasError] = useState<boolean>(false);
+    const {
+        merchant,
+        user
+    } = useUserStore();
 
     useEffect(() => {
         if (Object.values(formData).every((field) => field === '')) setHasError(true)
@@ -12,12 +17,6 @@ const ProfileMerchantDetailsForm: React.FC<IProfileMerchantProps> = () => {
 
     const handleFormSubmitted: FormEventHandler<HTMLFormElement> = (event) => {
         event.preventDefault()
-    }
-
-    const merchant = {
-        name: 'Complete Farmer',
-        phone: '+233 55 555 5555',
-        email: 'completefarmer@email.com',
     }
 
     return (
@@ -39,7 +38,7 @@ const ProfileMerchantDetailsForm: React.FC<IProfileMerchantProps> = () => {
                             id="merchant"
                             name="merchant"
                             type="text"
-                            placeholder={merchant.name}
+                            placeholder={merchant?.businessName}
                             required={false}
                             disabled={true}
                             customClasses="w-full col-span-2"
@@ -51,7 +50,7 @@ const ProfileMerchantDetailsForm: React.FC<IProfileMerchantProps> = () => {
                             id="phone"
                             name="phone"
                             type="text"
-                            placeholder={merchant.phone}
+                            placeholder={merchant?.phoneNumber}
                             required={false}
                             disabled={true}
                             customClasses="w-full col-span-2"
@@ -63,7 +62,7 @@ const ProfileMerchantDetailsForm: React.FC<IProfileMerchantProps> = () => {
                             id="email"
                             name="email"
                             type="email"
-                            placeholder={merchant.email}
+                            placeholder={user?.email}
                             required={false}
                             disabled={true}
                             customClasses="w-full col-span-2"

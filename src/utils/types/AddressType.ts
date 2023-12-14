@@ -1,10 +1,10 @@
 export type AddressType = {
-    externalId?: string;
-    zipCode?: string;
     city?: string;
     country?: string;
+    digitalAddress?: string;
+    externalId?: string;
     poBox?: string;
     state?: string;
     streetAddress?: string;
-    digitalAddress?: string;
+    zipCode?: string;
 }

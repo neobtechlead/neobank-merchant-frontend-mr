@@ -39,7 +39,7 @@ const CollectionContent: React.FC<ICollectionContentProps> = ({
         setShowSupportButton
     } = useDashboardStore();
     const {setCollections, collections, transaction} = useTransactionStore()
-    const {merchant} = useUserStore();
+    const {merchant, user} = useUserStore();
 
     useEffect(() => {
         getCollectionTransactions()
@@ -47,7 +47,7 @@ const CollectionContent: React.FC<ICollectionContentProps> = ({
     }, [])
 
     const getCollectionTransactions = () => {
-        listCollections(merchant?.externalId)
+        listCollections(merchant?.externalId, user?.authToken)
             .then(async (response) => {
                 if (response.ok) {
                     const collections = await response.json();
@@ -215,7 +215,8 @@ const CollectionContent: React.FC<ICollectionContentProps> = ({
                                     </td>
                                     <td className="relative py-2 pl-3 text-right text-xs font-medium flex justify-center gap-4">
                                         <CopyButton text={'collection text'}/>
-                                        <div className="cursor-pointer p-2 group flex relative" onClick={handleSharePaymentLink}>
+                                        <div className="cursor-pointer p-2 group flex relative"
+                                             onClick={handleSharePaymentLink}>
                                             <Svg fill="#4F4F4F" path={ShareNetwork} customClasses="cursor-pointer"/>
                                             <span
                                                 className="group-hover:opacity-100 transition-opacity bg-gray-700 px-1 text-sm text-gray-100 rounded absolute top-[-2rem] left-1/2 -translate-x-1/2 opacity-0 m-4 mx-auto z-50 truncate">

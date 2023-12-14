@@ -13,7 +13,7 @@ import {ShareNetwork} from "@/assets/icons/ShareNetwork";
 import CollectionForm from "@/components/CollectionForm";
 import {CollectionFormDataType} from "@/utils/types/CollectionFormDataType";
 import {TransactionType} from "@/utils/types/TransactionType";
-import {formatAmount} from "@/utils/lib";
+import {formatAmount, toMinorDigits} from "@/utils/lib";
 import {generatePaymentLink} from "@/api/collection";
 import {useUserStore} from "@/store/UserStore";
 import {useTransactionStore} from "@/store/TransactionStore";
@@ -28,6 +28,7 @@ const CollectionActionContent: React.FC<ICollectionActionContentProps> = ({reset
     const [transactionSuccessful, setTransactionSuccessful] = useState<boolean>(false);
     const [overlayDetailContainerDescription, setOverlayDetailContainerDescription] = useState<string>('');
     const [formData, setFormData] = useState<TransactionType | undefined>();
+    const [paymentLink, setPaymentLink] = useState<string>('');
 
     const handleCollectionConfirmation = (formData: CollectionFormDataType) => {
         const data = {...formData}
@@ -47,6 +48,7 @@ const CollectionActionContent: React.FC<ICollectionActionContentProps> = ({reset
 
     const {
         user,
+        merchant
     } = useUserStore();
 
     const {
@@ -59,23 +61,25 @@ const CollectionActionContent: React.FC<ICollectionActionContentProps> = ({reset
 
     const handlePaymentLinkGeneration = () => {
         if (!transactionSuccessful) {
-            generatePaymentLink('b615555a-f190-4d03-a20b-0e5648efcb23', user?.authToken, {
-                accountNumber: formData?.accountNumber,
+            console.log(formData)
+            generatePaymentLink(merchant?.externalId, user?.authToken, {
+                accountNumber: formData?.phone,
                 accountIssuer: "NEO",
-                accountName: formData?.description,
-                narration: formData?.narration,
+                accountName: formData?.recipient,
+                narration: formData?.reference,
                 email: formData?.email,
-                amount: formData?.amount,
+                amount: toMinorDigits(formData?.amount),
                 processAt: formData?.processAt
             }).then(async response => {
+                const feedback = await response.json();
+
                 if (response.ok) {
                     setModalTitle('Link Generated Successfully')
                     setModalDescription('You have successfully created a payment link. You can share this link by either copying or through social media platforms.')
                     setTransactionSuccessful(true)
                     setModalButtonText('Go to collections dashboard')
-                    const collection = await response.json();
-                    if (setCollection) setCollection(collection?.data)
-                    return
+                    if (setCollection) setCollection(feedback?.data)
+                    return setPaymentLink(feedback?.data?.emailPaymentLink)
                 }
             })
         }
@@ -93,8 +97,6 @@ const CollectionActionContent: React.FC<ICollectionActionContentProps> = ({reset
         setHeaderDescription("Funds Collection is a vital process that involves gathering and consolidating financial contributions or payments from various sources or contributors. Whether you are managing donations for a non-profit organization, collecting payments for goods or services, or coordinating group contributions, efficient funds collection is key to financial success.")
         resetDashboard()
     }
-
-    const paymentLink = "https://neobank.completefarmer.com/transactions/new-payment-link"
 
     return (
         <div className="w-full h-full">

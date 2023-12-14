@@ -1,8 +1,13 @@
-import React, {FormEventHandler, useEffect, useState} from "react";
+import React, {FormEventHandler, useEffect} from "react";
 import TextInput from "@/components/forms/TextInput";
 import InfoCardItem from "@/components/InfoCardItem";
+import {useUserStore} from "@/store/UserStore";
 
-const ProfileUserDetailsForm: React.FC<IProfileUserDetailsProps> = ({user}) => {
+const ProfileUserDetailsForm: React.FC = () => {
+    const {
+        merchant,
+        user
+    } = useUserStore();
 
     useEffect(() => {
     }, []);
@@ -31,7 +36,7 @@ const ProfileUserDetailsForm: React.FC<IProfileUserDetailsProps> = ({user}) => {
                             id="user"
                             name="user"
                             type="text"
-                            placeholder={user.name}
+                            placeholder={user?.firstName + ' ' + user?.lastName}
                             required={false}
                             disabled={true}
                             customClasses="w-full col-span-2"
@@ -43,7 +48,7 @@ const ProfileUserDetailsForm: React.FC<IProfileUserDetailsProps> = ({user}) => {
                             id="contact"
                             name="contact"
                             type="text"
-                            placeholder={user.phone}
+                            placeholder={merchant?.phoneNumber}
                             required={false}
                             disabled={true}
                             customClasses="w-full col-span-2"
@@ -55,7 +60,7 @@ const ProfileUserDetailsForm: React.FC<IProfileUserDetailsProps> = ({user}) => {
                             id="email"
                             name="email"
                             type="email"
-                            placeholder={user.email}
+                            placeholder={user?.email}
                             required={false}
                             disabled={true}
                             customClasses="w-full col-span-2"

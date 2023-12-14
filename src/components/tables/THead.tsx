@@ -2,10 +2,10 @@ import React, {ReactNode} from 'react';
 
 type TableHeadProps = {
     heading: string[];
-    children: ReactNode;
+    children?: ReactNode;
 };
 
-const TableHead: React.FC<TableHeadProps> = ({heading, children}) => {
+const TableHead: React.FC<TableHeadProps> = ({heading}) => {
     return (
         <thead className="bg-white">
         <tr>

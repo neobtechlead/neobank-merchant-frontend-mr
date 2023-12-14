@@ -14,7 +14,7 @@ const handleErrorResponse = async (response: Response) => {
 
 
 export const getPaymentData = async (id: string): Promise<PaymentData> => {
-    const URL = `${process.env.MERCHANT_BASE_URL}/api/v1/merchants/payments/${id}`
+    const URL = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/merchants/payments/${id}`
     const response = await fetch(URL)
     if (!response.ok) {
         const errorMessage = await handleErrorResponse(response)
@@ -26,7 +26,7 @@ export const getPaymentData = async (id: string): Promise<PaymentData> => {
 }
 
 export const sendRejectionNotification = async (clientReference: string): Promise<void> => {
-    const URL = `${process.env.MERCHANT_BASE_URL}/api/v1/merchants/payment-reject/${clientReference}`
+    const URL = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/merchants/payment-reject/${clientReference}`
     const response = await fetch(URL, {cache: "no-cache"})
     if (!response.ok) {
         const errorMessage = await handleErrorResponse(response)
@@ -38,7 +38,7 @@ export const sendRejectionNotification = async (clientReference: string): Promis
 
 //Client Side Fetching
 export const getPaymentLink = async (clientReference: string): Promise<PaymentLinkData> => {
-    const URL = `${process.env.NEXT_PUBLIC_MERCHANT_BASE_URL}/api/v1/merchants/payment-link/${clientReference}`
+    const URL = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/merchants/payment-link/${clientReference}`
     const response = await fetch(URL, {cache: "no-cache"})
     if (!response.ok) {
         const errorMessage = await handleErrorResponse(response)
@@ -52,7 +52,7 @@ export const getPaymentLink = async (clientReference: string): Promise<PaymentLi
 
 //Client Side Fetching
 export const getPaymentDataClient = async (id: string, status = ""): Promise<PaymentData> => {
-    const URL = `${process.env.NEXT_PUBLIC_MERCHANT_BASE_URL}/api/v1/merchants/payments/${id}?status=${status}`
+    const URL = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/merchants/payments/${id}?status=${status}`
     const response = await fetch(URL)
     if (!response.ok) {
         const errorMessage = await handleErrorResponse(response)

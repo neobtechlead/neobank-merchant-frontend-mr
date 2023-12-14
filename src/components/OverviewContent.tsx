@@ -18,22 +18,34 @@ import {UserCircleFill} from "@/assets/icons/UserCircleFill";
 import {LineArrowRight} from "@/assets/icons/LineArrowRight";
 import {UsersColorFill} from "@/assets/icons/UsersColorFill";
 import {File} from "@/assets/icons/File";
-import {calculateDateRange, formatAmount} from "@/utils/lib";
+import {calculateDateRange, formatAmount, normalizeDate, plotGraphData} from "@/utils/lib";
 import {TransactionGraphDataType} from "@/utils/types/TranasctionGraphDataType";
 import {listTransactions} from "@/api/transaction";
+import {act} from "react-dom/test-utils";
 
 const OverviewContent: React.FC = () => {
     const [hasTransaction, setHasTransaction] = useState<boolean | null>(false);
     const [showBalance, setShowBalance] = useState<boolean | null>(true);
-    const {transactions, setTransactions, setCollections, setDisbursements} = useTransactionStore()
-    const {merchant, setMerchant} = useUserStore()
+    const [activeNav, setActiveNav] = useState<string>('collections');
+    const {
+        transactions,
+        setTransactions,
+        setCollections,
+        setDisbursements,
+        transactionSummary,
+        setTransactionSummary
+    } = useTransactionStore()
+    const {merchant, setMerchant, user} = useUserStore()
 
     const getMerchantStats = () => {
-        getStats(merchant?.externalId)
+        getStats(merchant?.externalId, user?.authToken)
             .then(async (response) => {
+                const statistics = (await response.json()).data
                 if (response.ok) {
-                    const data = (await response.json()).data;
-                    if (setMerchant) setMerchant(data);
+                    if (setMerchant) return setMerchant({
+                        actualBalance: statistics.actualBalance,
+                        availableBalance: statistics.availableBalance,
+                    });
                 }
             })
             .catch((error) => {
@@ -43,25 +55,26 @@ const OverviewContent: React.FC = () => {
 
     const fetchTransactionSummary = () => {
         const {startDate, endDate} = calculateDateRange(6, true);
-        getTransactionSummary(merchant?.externalId, startDate, endDate)
+        getTransactionSummary(merchant?.externalId, user?.authToken, startDate ?? '', endDate ?? '')
             .then(async (response) => {
-                if (response.ok) {
-                    const data = await response.json();
-                    if (setMerchant) setMerchant(data);
+                const summary = await response.json()
+
+                if (response.ok && typeof summary.data === 'object' && summary.data !== null) {
+                    if (setTransactionSummary) return setTransactionSummary(summary.data)
                 }
             })
             .catch((error) => {
-                console.log('error: ', error)
+                console.log(error)
             })
     }
 
     const fetchTransactions = () => {
-        listTransactions(merchant?.externalId)
+        listTransactions(merchant?.externalId, user?.authToken)
             .then(async (response) => {
                 if (response.ok) {
-                    const transactions = (await response.json()).data;
-                    setHasTransaction(true)
+                    const transactions = (await response.json()).data.transactions;
                     if (transactions.length > 0) {
+                        setHasTransaction(true)
                         const collections = transactions.filter((transaction: {
                             type: string
                         }) => transaction.type.toLowerCase() === 'collection');
@@ -99,30 +112,13 @@ const OverviewContent: React.FC = () => {
         {key: 'disbursements', color: '#59D3D4'}
     ];
 
-    const barGraphData: TransactionGraphDataType[] = [
-        {name: 'Jan', collections: 100, disbursements: 200},
-        {name: 'Feb', collections: 340, disbursements: 98},
-        {name: 'Mar', collections: 200, disbursements: 350},
-        {name: 'Apr', collections: 280, disbursements: 308},
-        {name: 'May', collections: 190, disbursements: 270},
-        {name: 'Jun', collections: 90, disbursements: 300},
-    ];
-    const areaGraphData: TransactionGraphDataType[] = [
-        {name: 'Jan', collections: 5, disbursements: 2400},
-        {name: 'Feb', collections: 10, disbursements: 1398},
-        {name: 'Mar', collections: 30, disbursements: 9800},
-        {name: 'Apr', collections: 30, disbursements: 3908},
-        {name: 'May', collections: 50, disbursements: 4800},
-        {name: 'Jun', collections: 50, disbursements: 3800},
-        {name: 'Jul', collections: 55, disbursements: 4300},
-        {name: 'Aug', collections: 50, disbursements: 4300},
-        {name: 'Sep', collections: 58, disbursements: 4300},
-    ];
+    const barGraphData: TransactionGraphDataType[] = plotGraphData(transactionSummary).volume
+    const areaGraphData: TransactionGraphDataType[] = plotGraphData(transactionSummary).value
     const disbursementDescription = "Perform disbursements to view recent disbursement"
     const transactionDescription = "Perform a transaction to see your total counts"
 
-    const handleNavClick = (nav: string) => {
-        console.log(nav)
+    const handleNavClick = (activeTab: string) => {
+        setActiveNav(activeTab)
     }
 
     return (
@@ -142,7 +138,7 @@ const OverviewContent: React.FC = () => {
                                     </div>
                                     <div className="w-full flex justify-between gap-x-4">
                                         <h5 className="font-medium leading-6 flex">
-                                            {showBalance ? `${formatAmount(merchant?.actualBalance) ?? 0}` : asterisks(6)}
+                                            {showBalance ? `${formatAmount(merchant?.availableBalance) ?? 0}` : asterisks(6)}
                                         </h5>
                                         <div className="flex justify-center items-center cursor-pointer"
                                              onClick={handleToggleBalance}>
@@ -180,14 +176,14 @@ const OverviewContent: React.FC = () => {
                                             </div>
                                         </EmptyTransactionCardContent>}
 
-                                        {transactions && transactions.length > 0 &&
-                                            <div className="flex flex-grow justify-between w-full">
-                                                <ul role="list" className="w-3/4">
-                                                    {transactions.map((item, index) => (
-                                                        <RecentTransactionCard key={index} transaction={item}/>
-                                                    ))}
-                                                </ul>
-                                            </div>}
+                                        <div className="flex">
+                                            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                                                {transactions.map((transaction) => (
+                                                    <RecentTransactionCard transaction={transaction}
+                                                                           customStyles="space-x-3 rounded-lg bg-white px-6 shadow-sm hover:border-gray-400"/>
+                                                ))}
+                                            </div>
+                                        </div>
                                     </div>
                                 </Card>
                                 <Card
@@ -260,7 +256,7 @@ const OverviewContent: React.FC = () => {
                                             Disbursements</h5>
                                         <div className="flex flex-grow justify-between w-full">
                                             <ul role="list" className="w-full">
-                                                {transactions.map((item, index) => (
+                                                {transactions && transactions.map((item, index) => (
                                                     <li key={index} className="flex justify-between gap-x-6 mb-2">
                                                         <div className="flex min-w-0 gap-x-4">
                                                             <Image src="/assets/icons/file-dark.svg" alt="file"
@@ -329,8 +325,8 @@ const OverviewContent: React.FC = () => {
                     <div className="flex justify-between w-full items-center">
                         <h5 className="flex text-md md:font-medium leading-6 my-5">Total Counts</h5>
                         {hasTransaction && <div className="flex justify-end items-center">
-                            <div className="flex items-center text-yellow-300">
-                                <div className="w-2 h-2 bg-yellow-400 mx-2 rounded-full"/>
+                            <div className="flex items-center text-purple-800">
+                                <div className="w-2 h-2 bg-purple-800 mx-2 rounded-full"/>
                                 Collections
                             </div>
                             <div className="flex items-center text-teal-300">
@@ -340,7 +336,7 @@ const OverviewContent: React.FC = () => {
                         </div>}
                     </div>
 
-                    {!hasTransaction && <EmptyTransactionCardContent showContent={false}>
+                    {!barGraphData && <EmptyTransactionCardContent showContent={false}>
                         <div
                             className="flex flex-col justify-center items-center h-full w-full">
                             <div className="flex justify-between my-4">
@@ -355,7 +351,7 @@ const OverviewContent: React.FC = () => {
                         </div>
                     </EmptyTransactionCardContent>}
 
-                    {hasTransaction && <div className="flex flex-col h-full">
+                    {barGraphData && <div className="flex flex-col h-full">
                         <ReBarGraph data={barGraphData} dataOptionSet={getDataOptions} options={{tooltip: true}}/>
                     </div>}
                 </Card>
@@ -366,7 +362,7 @@ const OverviewContent: React.FC = () => {
                             <h5 className="flex text-md md:font-medium leading-6 m-3">Total Values</h5>
                         </div>
 
-                        {!hasTransaction && (
+                        {!areaGraphData && (
                             <EmptyTransactionCardContent showContent={false}>
                                 <div className="flex flex-col justify-center items-center h-full w-full">
                                     <div className="flex justify-between my-5">
@@ -381,16 +377,16 @@ const OverviewContent: React.FC = () => {
                             </EmptyTransactionCardContent>
                         )}
 
-                        {hasTransaction && (
+                        {areaGraphData && (
                             <div className="flex flex-col justify-between p-3">
                                 <div className="flex justify-between border border-gray-100 rounded-lg text-center">
                                     <TabsNav tabs={[
                                         {item: 'collections', label: 'collections'},
                                         {item: 'disbursements', label: 'disbursements'}
-                                    ]} handleClick={handleNavClick}/>
+                                    ]} handleClick={handleNavClick} activeTab={activeNav}/>
                                 </div>
                                 <div className="flex flex-grow flex-col">
-                                    <ReAreaGraph data={areaGraphData}/>
+                                    <ReAreaGraph data={areaGraphData} dataKey={activeNav}/>
                                 </div>
                             </div>
                         )}

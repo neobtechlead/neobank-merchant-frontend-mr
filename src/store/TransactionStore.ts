@@ -26,6 +26,9 @@ export const useTransactionStore = create<TransactionStoreType>()(
 
                 setScheduledPayments: (scheduledPayments) => set({scheduledPayments: scheduledPayments ?? []}),
                 scheduledPayments: [],
+
+                setTransactionSummary: (summary) => set({transactionSummary: summary ?? []}),
+                transactionSummary: {},
             }),
             {name: 'transaction'},
         ),

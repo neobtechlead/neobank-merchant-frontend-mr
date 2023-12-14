@@ -1,4 +1,5 @@
 import {TransactionType} from "@/utils/types/TransactionType";
+import {MonthlyTransactionSummaryType} from "@/utils/types/MonthlyTransactionSummaryType";
 
 export type TransactionStoreType = {
     setTransaction: (transaction: TransactionType) => void,
@@ -13,4 +14,6 @@ export type TransactionStoreType = {
     collections?: TransactionType[],
     setScheduledPayments?: (scheduledPayments: TransactionType[]) => void,
     scheduledPayments?: TransactionType[],
+    setTransactionSummary?: (summary: MonthlyTransactionSummaryType) => void,
+    transactionSummary?: MonthlyTransactionSummaryType,
 }

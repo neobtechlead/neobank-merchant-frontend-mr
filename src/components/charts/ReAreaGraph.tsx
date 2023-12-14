@@ -10,8 +10,7 @@ import {
 } from 'recharts';
 import {IAreaGraphProps} from "@/utils/interfaces/IReGraphProps";
 
-
-const ReAreaGraph: React.FC<IAreaGraphProps> = ({data}) => {
+const ReAreaGraph: React.FC<IAreaGraphProps> = ({data, dataKey}) => {
     return (
         <ResponsiveContainer width="99%" height={250}>
             <AreaChart data={data} margin={{top: 30}}>
@@ -26,7 +25,7 @@ const ReAreaGraph: React.FC<IAreaGraphProps> = ({data}) => {
                 <CartesianGrid stroke={'transparent'}/>
 
                 <Tooltip cursor={false} separator=""/>
-                <Area dataKey="collections" stroke="#652D90" fillOpacity={1} fill="url(#colorCollections)"/>
+                <Area dataKey={dataKey} stroke="#652D90" fillOpacity={1} fill="url(#colorCollections)"/>
             </AreaChart>
         </ResponsiveContainer>
     );

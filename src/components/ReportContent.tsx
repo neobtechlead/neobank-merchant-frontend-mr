@@ -11,6 +11,7 @@ import {ReportFilterFormDataType} from "@/utils/types/ReportFilterFormDataType";
 import {useTransactionStore} from "@/store/TransactionStore";
 import {listTransactions} from "@/api/transaction";
 import {useUserStore} from "@/store/UserStore";
+import {formatAmountGHS, normalizeDate} from "@/utils/lib";
 
 const ReportContent: React.FC<IReportContentProps> = ({
                                                           hasActivity,
@@ -51,8 +52,9 @@ const ReportContent: React.FC<IReportContentProps> = ({
 
     const fetchTransactions = () => {
         listTransactions(merchant?.externalId, user?.authToken).then(async (response) => {
+            const feedback = await response.json()
             if (response.ok) {
-                const transactions = (await response.json()).data;
+                const {transactions} = feedback.data;
                 if (setTransactions) setTransactions(transactions);
             }
         }).catch((error) => {
@@ -112,23 +114,23 @@ const ReportContent: React.FC<IReportContentProps> = ({
                                             className={` ${key === 0 ? 'absolute top-0 left-0 right-0 h-px w-screen bg-gray-100' : ''}`}/>
                                         <div className={` ${key === 0 ?
                                             'absolute top-0 right-full h-px w-full bg-gray-100' : ''}`}/>
-                                        {transaction.date}
+                                        {normalizeDate(transaction.createdAt ?? 's')}
                                         <div className={`${key !== transactions.length - 1 ?
                                             'absolute bottom-0 left-0 right-0 h-px w-screen bg-gray-100' : ''}`}/>
                                         <div className={`${key !== transactions.length - 1 ?
                                             'absolute bottom-0 right-full h-px w-full bg-gray-100' : ''}`}/>
                                     </td>
-                                    <td className="hidden px-3 py-2 sm:table-cell text-xs">{transaction.id}</td>
+                                    <td className="hidden px-3 py-2 sm:table-cell text-xs">{transaction.externalId}</td>
                                     <td className="hidden px-3 py-2 sm:table-cell text-xs">{transaction.type}</td>
-                                    <td className="hidden px-3 py-2 sm:table-cell text-xs">{transaction.channel}</td>
-                                    <td className="hidden px-3 py-2 sm:table-cell text-xs">{transaction.sender}</td>
-                                    <td className="hidden px-3 py-2 sm:table-cell text-xs">{transaction.recipient}</td>
-                                    <td className="hidden px-3 py-2 sm:table-cell text-xs">{transaction.phone}</td>
-                                    <td className="px-3 py-2 text-xs">GHS {transaction.amount}</td>
+                                    <td className="hidden px-3 py-2 sm:table-cell text-xs">{transaction.accountIssuer}</td>
+                                    <td className="hidden px-3 py-2 sm:table-cell text-xs">{transaction.initiatorName}</td>
+                                    <td className="hidden px-3 py-2 sm:table-cell text-xs">{transaction.accountName}</td>
+                                    <td className="hidden px-3 py-2 sm:table-cell text-xs">{transaction.accountNumber}</td>
+                                    <td className="px-3 py-2 text-xs">GHS {formatAmountGHS(transaction.amount ?? '')}</td>
                                     <td className="px-3 py-2 text-xs">
                                         <Status customStyles="text-red-500" status={transaction.status ?? ''}/>
                                     </td>
-                                    <td className="px-3 py-2 text-xs">GHS {transaction.balance}</td>
+                                    <td className="px-3 py-2 text-xs">GHS {transaction.balanceBefore}</td>
                                 </tr>
                             ))}
                         </Table>

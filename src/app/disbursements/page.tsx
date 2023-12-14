@@ -28,7 +28,7 @@ const DisbursementPage: React.FC = () => {
     const {disbursements} = useTransactionStore();
     const {
         isAuthenticated,
-        setIsAuthenticated,
+        setIsAuthenticated
     } = useUserStore();
 
     const [showDisbursementActionContent, setShowDisbursementActionContent] = useState<boolean>(false);

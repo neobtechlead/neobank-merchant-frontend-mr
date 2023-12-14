@@ -24,15 +24,17 @@ import {useDisbursementStore} from "@/store/DisbursementStore";
 import {DateTime} from "luxon";
 import {TransactionType} from "@/utils/types/TransactionType";
 import {disburse, downloadBulkDisbursementTemplate} from "@/api/disbursement";
-import {formatAmount} from "@/utils/lib";
+import {formatAmount, getError, toMinorDigits} from "@/utils/lib";
 import {useUserStore} from "@/store/UserStore";
 import {useTransactionStore} from "@/store/TransactionStore";
+import Alert from "@/components/Alert";
 
 const DisbursementActionContent: React.FC<IDisbursementActionContent> = ({
                                                                              contentType,
                                                                              resetDashboard
                                                                          }) => {
-    const [hasError, setHasError] = useState<boolean | undefined>(true);
+    const [hasError, setHasError] = useState<boolean>(true);
+    const [error, setError] = useState<string>('');
     const [toggleEnabled, setToggleEnabled] = useState<boolean>(false);
     const [selectedTime, setSelectedTime] = useState<string>();
     const [selectedDate, setSelectedDate] = useState<Date>();
@@ -133,6 +135,7 @@ const DisbursementActionContent: React.FC<IDisbursementActionContent> = ({
 
     const handleModalOpen = (openModal: boolean) => {
         setModalOpen(openModal)
+        setError('')
     }
     const handleDisbursementTransaction = async () => {
         if (!transactionSuccessful) {
@@ -141,11 +144,11 @@ const DisbursementActionContent: React.FC<IDisbursementActionContent> = ({
             if (actionType === 'single') {
                 payload = {
                     merchantId: merchant?.externalId,
-                    accountNumber: formData.accountNumber,
+                    accountNumber: formData.phone,
                     accountIssuer: 'NEO',
-                    accountName: formData.accountName,
+                    accountName: formData.recipient,
                     narration: formData.description,
-                    amount: formData.amount,
+                    amount: toMinorDigits(formData.amount),
                     processAt: toggleEnabled ? formData.date : null,
                 };
             } else if (actionType === 'bulk') {
@@ -156,16 +159,20 @@ const DisbursementActionContent: React.FC<IDisbursementActionContent> = ({
                 };
             }
 
-            const response = await disburse(actionType, merchant?.externalId, user?.authToken, payload);
+            const response = await disburse(actionType, user?.authToken, payload);
+            const feedback = await response.json();
+
             if (response.ok) {
                 setModalTitle('Funds Successfully Disbursed')
                 setModalDescription('Payment made to Kwaku Frimpong has been successfully disbursed. They will receive funds in their Neobank wallet and can access it through the Neobank USSD.')
-                const disbursement = (await response.json()).data;
-                if (setDisbursement) setDisbursement(disbursement);
+                if (setDisbursement) setDisbursement(feedback.data);
                 setTransactionSuccessful(true);
                 setModalButtonText('Go to disbursement dashboard');
                 return
             }
+
+            setHasError(true)
+            return setError(getError(feedback))
         }
         setModalOpen(false)
         resetDisbursementStore()
@@ -394,16 +401,19 @@ const DisbursementActionContent: React.FC<IDisbursementActionContent> = ({
                         </div>
                     </div>
 
+                    {error && <Alert alertType="error" description={error} customClasses="rounded p-2 mt-3 mb-1"/>}
+
+
                     {!transactionSuccessful && <div className="bg-gray-100 my-3 rounded border border-gray-10">
                         <div className="flex flex-col justify-center p-5 py-0 divide-y divide-gray-300">
                             <InfoCardItem description={formData.recipient ?? 'data'} title="Recipients Name"
                                           customStyles="my-2" customTitleStyles="mt-5 text-xs"/>
-                            <InfoCardItem description={formData.phone} title="Recipient's Phone Number"
+                            <InfoCardItem description={formData.phone ?? ''} title="Recipient's Phone Number"
                                           customStyles="my-2" customTitleStyles="mt-5 text-xs"/>
                             <InfoCardItem description={formatAmount(formData.amount)} title="Total Amount"
                                           customStyles="my-2"
                                           customTitleStyles="mt-5 text-xs"/>
-                            <InfoCardItem description={formData.description} title="Description" customStyles="my-2"
+                            <InfoCardItem description={formData.description ?? ''} title="Description" customStyles="my-2"
                                           customTitleStyles="mt-5 text-xs"/>
                             {formData.date &&
                                 <InfoCardItem description={formData.date} title="Scheduled Date" customStyles="my-2"

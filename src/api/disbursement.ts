@@ -1,12 +1,17 @@
 import {fetcher} from "@/api/http";
 import {downloadFile} from "@/utils/lib";
 
-export async function listDisbursements(merchant?: string) {
-    return await fetcher(`api/v1/merchants/${merchant}/transactions?type=DISBURSEMENT`);
+export async function listDisbursements(merchant?: string, authToken: string = '') {
+    return await fetcher(`api/v1/merchants/${merchant}/transactions?type=DISBURSEMENT`, {
+        headers: {
+            'Authorization': `Bearer ${authToken}`,
+            'Content-Type': 'application/json',
+        },
+    });
 }
 
-export async function disburse(type: string = 'single', merchant?: string, authToken?: string, data?: object) {
-    return await fetcher(`api/v1/merchants/${merchant}/${type}-disbursements`, {
+export async function disburse(type: string = 'single', authToken?: string, data?: object) {
+    return await fetcher(`api/v1/merchants/${type}-disbursements`, {
         method: 'POST',
         headers: {
             'Authorization': `Bearer ${authToken}`,

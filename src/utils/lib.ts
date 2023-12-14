@@ -1,5 +1,6 @@
 import {DateTime, DateTimeUnit} from "luxon";
 import {ErrorResponse} from "@/utils/interfaces/IErrorResponse";
+import {MonthlyTransactionSummaryType} from "@/utils/types/MonthlyTransactionSummaryType";
 
 export const formatAmountGHS = (amount: string) => {
     return (parseFloat(amount) / 100).toFixed(2);
@@ -13,6 +14,10 @@ export const formatAmount = (amount: number | string = 0, currency: string = 'GH
     }).format(Number(amount)))}`
 }
 
+export const toMinorDigits = (amount: number | string = 0): number => {
+    return parseFloat(String(amount)) * 100;
+};
+
 export const normalizeDate = (date: string) => {
     return DateTime.fromISO(date).toLocaleString({
         day: '2-digit',
@@ -25,10 +30,9 @@ export const calculateDateRange = (range: number = 6, customStart: boolean = fal
     const endDate = DateTime.local();
     const dateDifference = endDate.minus({months: range})
     const startDate = customStart ? dateDifference.startOf(whereStart) : dateDifference
-
     return {
-        startDate: startDate.toJSDate(),
-        endDate: endDate.toJSDate(),
+        startDate: startDate.toISODate(),
+        endDate: endDate.toISODate(),
     };
 }
 
@@ -55,13 +59,56 @@ export const downloadFile = async (response: Response | Blob, fileName: string =
 export const getError = (error: ErrorResponse) => {
     if (error.data) {
         const {violations} = error.data;
-        if (violations) {
-            const {field, message} = violations[0];
-            return `${field} ${message}`
-        }
-
+        if (violations) return violations[0].message;
     }
 
     return error.message;
 };
+
+export const getInitials = (name: string = ''): string => {
+    const words = name.split(' ');
+
+    if (words.length === 0) {
+        return 'CF'
+    } else if (words.length === 1) {
+        return words.map(word => word.substring(0, 2).toUpperCase()).join('')
+    } else {
+        return words.map(word => word.charAt(0).toUpperCase()).slice(0, 2).join('');
+    }
+};
+
+
+export const capitalizeFirstLetter = (text: string = ''): string => {
+    return text.charAt(0).toUpperCase() + text.slice(1)
+};
+
+export const plotGraphData = (data: MonthlyTransactionSummaryType = {}) => {
+    return Object.entries(data).reduce(
+        (accumulator, [month, values]) => {
+            const period = capitalizeFirstLetter(month.slice(0, 3))
+            const volumeEntry = {
+                name: period,
+                collections: values.collectionCount,
+                disbursements: values.disbursementCount,
+            };
+            accumulator.volume.push(volumeEntry);
+
+            const valueEntry = {
+                name: period,
+                collections: formatAmountGHS(String(values.collectionValue)),
+                disbursements: formatAmountGHS(String(values.disbursementValue)),
+            };
+            accumulator.value.push(valueEntry);
+
+            return accumulator;
+        },
+        {volume: [], value: []} as { volume: any[]; value: any[] }
+    );
+};
+
+
+
+
+
+
 
