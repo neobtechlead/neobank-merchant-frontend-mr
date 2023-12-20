@@ -17,7 +17,6 @@ import {generatePaymentLink} from "@/api/collection";
 import {useUserStore} from "@/store/UserStore";
 import {useTransactionStore} from "@/store/TransactionStore";
 import CopyButton from "@/components/CopyButton";
-import Alert from "@/components/Alert";
 
 const CollectionActionContent: React.FC<ICollectionActionContentProps> = ({resetDashboard}) => {
     const [openOverlay, setOpenOverlay] = useState<boolean>(false);
@@ -60,7 +59,6 @@ const CollectionActionContent: React.FC<ICollectionActionContentProps> = ({reset
 
     const handlePaymentLinkGeneration = () => {
         if (!transactionSuccessful) {
-            console.log(formData)
             generatePaymentLink(merchant?.externalId, user?.authToken, {
                 accountNumber: formData?.phone,
                 accountIssuer: "NEO",
@@ -74,7 +72,7 @@ const CollectionActionContent: React.FC<ICollectionActionContentProps> = ({reset
 
                 if (response.ok) {
                     setModalTitle('Link Generated Successfully')
-                    setModalDescription('You have successfully created a payment link. You can share this link by either copying or through social media platforms.')
+                    setModalDescription('Your payment link was successfully generated. Copy this link to share with your desired recipient.')
                     setTransactionSuccessful(true)
                     setModalButtonText('Go to collections dashboard')
                     if (setCollection) setCollection(feedback?.data)
@@ -93,7 +91,7 @@ const CollectionActionContent: React.FC<ICollectionActionContentProps> = ({reset
         setShowProfileDropdown(true)
         setShowBackButton(false)
         setHeaderTitle('Funds Collection')
-        setHeaderDescription("Funds Collection is a vital process that involves gathering and consolidating financial contributions or payments from various sources or contributors. Whether you are managing donations for a non-profit organization, collecting payments for goods or services, or coordinating group contributions, efficient funds collection is key to financial success.")
+        setHeaderDescription("Collect payments seamlessly from single or multiple sources.")
         resetDashboard()
     }
 

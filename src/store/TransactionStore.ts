@@ -14,13 +14,13 @@ export const useTransactionStore = create<TransactionStoreType>()(
 
                 setCollections: (collections) => set({collections: collections ?? []}),
                 setCollection: (collection: TransactionType) => set((state) => ({
-                    collections: state.collections ? [...state?.collections, collection] : [collection]
+                    collections: state.collections ? [collection, ...state?.collections] : [collection]
                 })),
                 collections: [],
 
                 setDisbursements: (disbursements) => set({disbursements: disbursements ?? []}),
                 setDisbursement: (disbursement: TransactionType) => set((state) => ({
-                    disbursements: state.disbursements ? [...state?.disbursements, disbursement] : [disbursement]
+                    disbursements: state.disbursements ? [disbursement, ...state?.disbursements] : [disbursement]
                 })),
                 disbursements: [],
 
@@ -29,6 +29,9 @@ export const useTransactionStore = create<TransactionStoreType>()(
 
                 setTransactionSummary: (summary) => set({transactionSummary: summary ?? []}),
                 transactionSummary: {},
+
+                setLoading: (loading) => set({loading}),
+                loading: false,
             }),
             {name: 'transaction'},
         ),

@@ -17,7 +17,7 @@ import {IDisbursementContent} from "@/utils/interfaces/IDisbursementContent";
 import {useTransactionStore} from "@/store/TransactionStore";
 import {useUserStore} from "@/store/UserStore";
 import {listDisbursements} from "@/api/disbursement";
-import {formatAmount, formatAmountGHS, normalizeDate} from "@/utils/lib";
+import {formatAmount, formatAmountGHS, getDisbursementType, normalizeDate} from "@/utils/lib";
 import {useDisbursementStore} from "@/store/DisbursementStore";
 
 const DisbursementContent: React.FC<IDisbursementContent> = ({
@@ -87,12 +87,10 @@ const DisbursementContent: React.FC<IDisbursementContent> = ({
         {label: 'status', classes: ''},
         {label: ' ', classes: ''}
     ]
-    const noActivityDescription = "It seems like there's currently no data available regarding funds disbursement in your account. This section will display information about how funds are distributed and any related transactions."
-    const singleDisbursementDescription = "Transfer funds or make a payment in a one-time transaction. It is a straightforward and efficient way to send money."
-    const bulkDisbursementDescription = "Efficiently distribute funds to multiple recipients in a single operation. This method ensures prompt and accurate disbursements."
     const TransactionDetailDescription = "You can see the details of this transaction. Lorem Ipsum lawal ........You can see the details of this transaction. Lorem Ipsum lawal ........You can see the details of this transaction. Lorem Ipsum lawal ........You can see the details of this transaction. Lorem Ipsum lawal ........"
 
-    const disbursementActionDescription = "Transferring funds or making a payment in a one-time transaction. It is a straightforward and efficient way to send money, whether it's for a specific purchase, a salary payment, or any other singular financial transaction."
+    const singleDisbursementActionDescription = "Send funds to a single recipient here."
+    const bulkDisbursementActionDescription = "Send funds to multiple recipients at once."
 
     const setDashboardState = () => {
         setNavTitle('')
@@ -117,9 +115,8 @@ const DisbursementContent: React.FC<IDisbursementContent> = ({
     }
 
     const handleDisbursementActionContent = (actionType = '') => {
-        let title = ''
         let pageHeading = ''
-        let description = ''
+        let pageDescription = ''
         setShowLogo(false)
         setShowBackButton(true)
         setShowSupportButton(false)
@@ -128,12 +125,11 @@ const DisbursementContent: React.FC<IDisbursementContent> = ({
             setNavTitle('single')
             setContentType('initiate')
             if (setShowEmptyState) setShowEmptyState(false)
-            title = 'Initiate Disbursement'
             pageHeading = 'Disburse Funds'
-            description = 'A crucial step in ensuring the smooth, seamless and efficient transfer of funds or assets from one source to another.'
+            pageDescription = 'A crucial step in ensuring the smooth, seamless and efficient transfer of funds or assets from one source to another.'
         } else {
             pageHeading = actionType.charAt(0).toUpperCase() + actionType.slice(1) + " Disbursement";
-            description = disbursementActionDescription
+            pageDescription = actionType === 'single' ? singleDisbursementActionDescription : bulkDisbursementActionDescription
             setNavTitle(actionType)
             setContentType(actionType)
             setActionType(actionType)
@@ -143,8 +139,8 @@ const DisbursementContent: React.FC<IDisbursementContent> = ({
         if (setHasActivity) setHasActivity(false)
         if (setShowDisbursementActionContent) setShowDisbursementActionContent(true)
 
-        setHeaderTitle(title)
-        setHeaderDescription(description)
+        setHeaderTitle(pageHeading)
+        setHeaderDescription(pageDescription)
         setShowNavigation(false)
         setShowProfileDropdown(false)
     }
@@ -158,8 +154,8 @@ const DisbursementContent: React.FC<IDisbursementContent> = ({
                 iconCustomStyle="mt-[83px] mb-[38px]"
                 customStyles="border rounded-lg m-5"
                 showContent
-                title="No recent activity"
-                description={noActivityDescription}
+                title="No transactions to display"
+                description="You haven't made any transactions yet. Your transactions will be displayed here."
             >
                 <div className="text-center">
                     <div className="flex flex-col mt-10 mb-20">
@@ -186,7 +182,7 @@ const DisbursementContent: React.FC<IDisbursementContent> = ({
                             customStyles="h-full border rounded-lg ml-5 py-[40px]"
                             showContent
                             title="SINGLE DISBURSEMENT"
-                            description={singleDisbursementDescription}
+                            description="Send funds to a single recipient."
                         >
                             <div className="text-center">
                                 <div className="flex flex-col mt-5 mx-2"
@@ -196,7 +192,7 @@ const DisbursementContent: React.FC<IDisbursementContent> = ({
                                             buttonType="button">
                                         <div className="flex items-center font-semibold">
                                             <Svg customClasses="mr-1 flex items-center" fill="#652D90" path={Plus}/>
-                                            <span className="uppercase flex text-sm">initiate single disbursement</span>
+                                            <span className="uppercase flex text-sm">make a single disbursement</span>
                                         </div>
                                     </Button>
                                 </div>
@@ -210,7 +206,7 @@ const DisbursementContent: React.FC<IDisbursementContent> = ({
                             customStyles="h-full border rounded-lg mr-5 py-[40px]"
                             showContent
                             title="BULK DISBURSEMENT"
-                            description={bulkDisbursementDescription}
+                            description="Send funds to multiple recipients at once."
                         >
                             <div className="text-center">
                                 <div className="flex flex-col mt-5"
@@ -219,7 +215,7 @@ const DisbursementContent: React.FC<IDisbursementContent> = ({
                                             buttonType="button">
                                         <div className="flex items-center font-semibold">
                                             <Svg customClasses="mr-1 flex items-center" fill="#652D90" path={Plus}/>
-                                            <span className="uppercase flex text-sm">initiate bulk disbursement</span>
+                                            <span className="uppercase flex text-sm">make a bulk disbursement</span>
                                         </div>
                                     </Button>
                                 </div>
@@ -235,14 +231,14 @@ const DisbursementContent: React.FC<IDisbursementContent> = ({
                                             className={` ${key === 0 ? 'absolute top-0 left-0 right-0 h-px w-screen bg-gray-100' : ''}`}/>
                                         <div className={` ${key === 0 ?
                                             'absolute top-0 right-full h-px w-full bg-gray-100' : ''}`}/>
-                                        {normalizeDate(transaction.createdAt ?? '', true)}
+                                        {normalizeDate(transaction.createdAt, true)}
                                         <div className={` ${key !== disbursements.length - 1 ?
                                             'absolute bottom-0 left-0 right-0 h-px w-screen bg-gray-100' : ''}`}/>
                                         <div className={` ${key !== disbursements.length - 1 ?
                                             'absolute bottom-0 right-full h-px w-full bg-gray-100' : ''}`}/>
                                     </td>
                                     <td className="hidden px-3 py-2 sm:table-cell text-xs">{transaction.externalId}</td>
-                                    <td className="hidden px-3 py-2 md:table-cell text-xs capitalize">{transaction.type}</td>
+                                    <td className="hidden px-3 py-2 md:table-cell text-xs capitalize">{getDisbursementType(transaction)}</td>
                                     <td className="px-3 py-2 text-xs">{formatAmount(formatAmountGHS(transaction.amount?.toString()))}</td>
                                     <td className="px-3 py-2 text-xs">
                                         <Status customStyles="text-red-500"

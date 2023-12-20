@@ -21,7 +21,7 @@ const SettingsChangePasswordForm: React.FC = () => {
     }, []);
 
     const [hasError, setHasError] = useState<boolean>(false);
-    const [error, setError] = useState<string>('');
+    const [error, setError] = useState<string | null>('');
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const {name, value} = e.target;

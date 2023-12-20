@@ -10,8 +10,6 @@ import {useUserStore} from "@/store/UserStore";
 import {useTransactionStore} from "@/store/TransactionStore";
 
 const ReportsPage: React.FC = () => {
-    const pageDescription = "Comprehensive and data-driven documents that provide valuable insights and analytics to businesses and merchants. These reports are instrumental in tracking, analysing, and optimizing various aspects of financial transactions and operations, helping businesses make informed decisions and achieve their goals."
-    const pageTitle = "Merchant Reports"
     const {
         showBackButton,
         navTitle,
@@ -36,8 +34,8 @@ const ReportsPage: React.FC = () => {
         setShowLogo(true)
         setShowBackButton(false)
         setShowNavigation(true)
-        setHeaderTitle(pageTitle)
-        setHeaderDescription(pageDescription)
+        setHeaderTitle("Merchant Reports")
+        setHeaderDescription("Explore detailed analytics of your transactions with our Merchant Reports.")
         setNavTitle('')
         setShowSupportButton(true)
         !transactions.length ? setShowEmptyState(true) : setHasActivity(true)

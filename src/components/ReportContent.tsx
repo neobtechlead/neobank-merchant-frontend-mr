@@ -48,7 +48,6 @@ const ReportContent: React.FC<IReportContentProps> = ({
         {label: 'status', classes: ''},
         {label: 'pre balance', classes: ''}
     ]
-    const noActivityDescription = "We regret to inform you that the data required to generate reports is currently unavailable. This may be due to various reasons, including system maintenance, data processing delays, or temporary disruptions."
 
     const fetchTransactions = () => {
         listTransactions(merchant?.externalId, user?.authToken).then(async (response) => {
@@ -89,8 +88,8 @@ const ReportContent: React.FC<IReportContentProps> = ({
                 iconCustomStyle="mt-[50px] mb-[14px]"
                 customStyles="border rounded-lg m-5"
                 showContent
-                title="Data for reports not available"
-                description={noActivityDescription}
+                title="No data available"
+                description="We regret to inform you that the data required to generate reports is currently unavailable. This may be due to various reasons, including system maintenance, data processing delays, or temporary disruptions."
             >
                 <div className="mb-20"/>
             </EmptyTransactionCardContent>}
@@ -128,7 +127,8 @@ const ReportContent: React.FC<IReportContentProps> = ({
                                     <td className="hidden px-3 py-2 sm:table-cell text-xs">{transaction.accountNumber}</td>
                                     <td className="px-3 py-2 text-xs">{formatAmount(formatAmountGHS(transaction.amount?.toString()))}</td>
                                     <td className="px-3 py-2 text-xs">
-                                        <Status customStyles="text-red-500" status={transaction.status?.toLowerCase() ?? ''}/>
+                                        <Status customStyles="text-red-500"
+                                                status={transaction.status?.toLowerCase() ?? ''}/>
                                     </td>
                                     <td className="px-3 py-2 text-xs">{formatAmount(formatAmountGHS(transaction.balanceBefore?.toString()))}</td>
                                 </tr>

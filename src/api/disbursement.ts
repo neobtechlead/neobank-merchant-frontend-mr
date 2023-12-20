@@ -20,23 +20,29 @@ export async function listScheduledPayments(merchant?: string, authToken: string
 }
 
 export async function disburse(type: string = 'single', authToken?: string, data?: object) {
+    const formData = new FormData();
+
+    if (data && typeof data === 'object') {
+        Object.entries(data).forEach(([key, value]) => {
+            formData.append(key, value as string | Blob);
+        });
+    }
+
     return await fetcher(`api/v1/merchants/${type}-disbursements`, {
         method: 'POST',
-        headers: {
-            'Authorization': `Bearer ${authToken}`,
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data)
+        headers: {'Authorization': `Bearer ${authToken}`},
+        body: formData
     });
 }
 
-export async function downloadBulkDisbursementTemplate() {
-    const response = await fetcher('api/v1/downloads/bulk-disbursement-template', {
+export async function downloadBulkDisbursementTemplate(authToken: string = '') {
+    const response = await fetcher('api/v1/files/download/bulk-disbursement-template', {
         headers: {
+            'Authorization': `Bearer ${authToken}`,
             'Content-Disposition': 'attachment; filename=bulkDisbursementTemplate.xlsx',
             'Content-Type': 'application/octet-stream',
         },
     });
 
-    await downloadFile(response, 'bulkDisbursementTemplate.csv')
+    await downloadFile(response, 'bulk-disbursement-template.csv')
 }

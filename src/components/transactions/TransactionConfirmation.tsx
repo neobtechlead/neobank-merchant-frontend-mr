@@ -27,19 +27,20 @@ const TransactionConfirmation: React.FC<ITransactionConfirmation> = ({
         <div className="m-6 flex flex-col h-full">
             {transactionType === 'single' && <div className={`flex flex-2 ${customStyles}`}>
                 <div className={`relative flex flex-col min-w-0 flex-1 rounded-lg border px-4 mb-10 ${customStyles}`}>
-                    <InfoCardItem description={transaction.recipient} svgPath={UserCircle} title="Recipients Name"
+                    <InfoCardItem description={transaction.recipient ?? ''} svgPath={UserCircle} title="Recipients Name"
                                   customStyles="py-5" customDescriptionStyles="text-sm"/>
-                    <InfoCardItem description={transaction.phone} svgPath={Phone} title="Recipient's Phone Number"
+                    <InfoCardItem description={transaction.phone ?? ''} svgPath={Phone} title="Recipient's Phone Number"
                                   customStyles="py-5" customDescriptionStyles="text-sm"/>
                     <InfoCardItem description={formatAmount(transaction.amount)} svgPath={Tag} title="Total Amount"
                                   customStyles="py-5" customDescriptionStyles="text-sm"/>
-                    <InfoCardItem description={transaction.description} svgPath={ClipboardText} title="Description"
+                    <InfoCardItem description={transaction.description ?? ''} svgPath={ClipboardText}
+                                  title="Description"
                                   customStyles="py-5"/>
                     {transaction.scheduled &&
-                        <InfoCardItem description={transaction.date} svgPath={Calendar} title="Scheduled Date"
+                        <InfoCardItem description={transaction.date ?? ''} svgPath={Calendar} title="Scheduled Date"
                                       customStyles="py-5" customDescriptionStyles="text-sm"/>}
                     {transaction.scheduled &&
-                        <InfoCardItem description={transaction.time} svgPath={Clock} title="Scheduled Time"
+                        <InfoCardItem description={transaction.time ?? ''} svgPath={Clock} title="Scheduled Time"
                                       customStyles="py-5" customDescriptionStyles="text-sm"/>}
                 </div>
             </div>}
@@ -49,18 +50,22 @@ const TransactionConfirmation: React.FC<ITransactionConfirmation> = ({
 
                 <div className={`relative flex justify-between min-w-0 flex-1 rounded-lg border px-4 ${customStyles}`}>
                     <div className="flex flex-shrink-0 gap-3 my-5">
-                        <Svg fill="black" path={Sigma}/>
-                        <div className="truncate">
-                            <p className="truncate text-xs font-bold text-gray-600">Total Count</p>
-                            <p className="truncate text-gray-950">{summary?.count} 250</p>
-                        </div>
+                        <InfoCardItem
+                            description={summary?.totalCount.toString() ?? '0'}
+                            svgPath={Sigma} title="Total Count"
+                            customStyles="py-5"
+                            customTitleStyles="text-xs font-semibold text-gray-950"
+                        />
                     </div>
-                    <div className="flex flex-shrink-0 gap-3 my-5">
-                        <Svg fill="#F29339" path={Copy}/>
-                        <div className="truncate text-orange-400">
-                            <p className="truncate text-xs font-semibold">Duplicates</p>
-                            <p className="truncate font-sans">{summary?.duplicates} 0</p>
-                        </div>
+                    <div className="flex flex-shrink-0 gap-3 my-5 text-orange-400">
+                        <InfoCardItem
+                            description={summary?.duplicates.toString() ?? '0'}
+                            svgFill="#F29339"
+                            svgPath={Copy} title="Total Count"
+                            customStyles="py-5"
+                            customTitleStyles="text-xs font-semibold text-orange-400"
+                            customDescriptionStyles="text-orange-400"
+                        />
                     </div>
                 </div>
 
@@ -73,10 +78,9 @@ const TransactionConfirmation: React.FC<ITransactionConfirmation> = ({
                             <div className="ml-3">
                                 <h3 className="text-sm font-medium">ALERT!</h3>
                                 <div className="mt-2 text-xs">
-                                    <p>
-                                        If you continue with this transaction, you will transfer a sum of GHS 59,000.00
+                                    <p>{`If you continue with this transaction, you will transfer a sum of ${formatAmount(summary?.totalAmount)}
                                         including 20 duplicates
-                                    </p>
+                                    `}</p>
                                 </div>
                             </div>
                         </div>
@@ -84,20 +88,23 @@ const TransactionConfirmation: React.FC<ITransactionConfirmation> = ({
                 </Alert>
 
                 <div className={`relative flex flex-col min-w-0 flex-1 rounded-lg border px-4 mb-10`}>
-                    <div className="flex flex-shrink-0 gap-3 my-5">
-                        <Svg fill="#4F4F4F" path={ClipboardText}/>
-                        <div className="truncate">
-                            <p className="truncate text-xs text-gray-600">Description</p>
-                            <p className="truncate text-gray-950">{summary?.description}</p>
-                        </div>
+                    <div className="flex flex-shrink-0 mt-1">
+                        <InfoCardItem
+                            description={transaction?.description ?? ''}
+                            svgPath={ClipboardText} title="Description"
+                            customStyles="py-5"
+                            customTitleStyles="text-xs font-semibold"
+                            customDescriptionStyles="text-sm"
+                        />
                     </div>
-
-                    <div className="flex flex-shrink-0 gap-3 my-5">
-                        <Svg fill="#4F4F4F" path={Tag}/>
-                        <div className="truncate">
-                            <p className="truncate text-xs text-gray-600">Total Amount</p>
-                            <p className="truncate text-gray-950">GHS {summary?.amount}</p>
-                        </div>
+                    <div className="flex flex-shrink-0 gap-3 mb-1">
+                        <InfoCardItem
+                            description={formatAmount(summary?.totalAmount ?? '0')}
+                            svgPath={Tag} title="Total Amount"
+                            customStyles="py-5"
+                            customTitleStyles="text-xs font-semibold"
+                            customDescriptionStyles="text-sm"
+                        />
                     </div>
                 </div>
             </div>}
@@ -107,7 +114,7 @@ const TransactionConfirmation: React.FC<ITransactionConfirmation> = ({
                         customStyles="mt-10 justify-center p-4 md:p-5 rounded-lg"
                         onClick={() => handleConfirmation(transactionType)}
                 >
-                    <div className="flex items-center justify-center gap-2">Disburse Funds</div>
+                    <div className="flex items-center justify-center gap-2">Proceed</div>
                 </Button>
 
                 <Button buttonType="button" styleType="tertiary"

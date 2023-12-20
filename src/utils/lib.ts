@@ -1,6 +1,8 @@
 import {DateTime, DateTimeFormatOptions, DateTimeUnit} from "luxon";
 import {ErrorResponse} from "@/utils/interfaces/IErrorResponse";
 import {MonthlyTransactionSummaryType} from "@/utils/types/MonthlyTransactionSummaryType";
+import {now} from "d3-timer";
+import {TransactionType} from "@/utils/types/TransactionType";
 
 export const formatAmountGHS = (amount: string = ''): string => {
     return (parseFloat(amount) / 100).toFixed(2);
@@ -18,7 +20,7 @@ export const toMinorDigits = (amount: number | string = 0): number => {
     return parseFloat(String(amount)) * 100;
 };
 
-export const normalizeDate = (date: string, includeTime: boolean = false) => {
+export const normalizeDate = (date: string = now().toString(), includeTime: boolean = false) => {
     const dateOptions: DateTimeFormatOptions = {
         day: '2-digit',
         month: '2-digit',
@@ -36,6 +38,10 @@ export const normalizeDate = (date: string, includeTime: boolean = false) => {
         : dateOptions;
 
     return DateTime.fromISO(date).toLocaleString(dateTimeOptions);
+};
+
+export const getCurrentDateTimeString = () => {
+    return DateTime.local().toFormat('yyyyMMddHHmmss');
 };
 
 export const calculateDateRange = (range: number = 6, customStart: boolean = false, whereStart: DateTimeUnit = 'month') => {
@@ -68,13 +74,33 @@ export const downloadFile = async (response: Response | Blob, fileName: string =
     }
 };
 
+const isErrorStringFormat = (message: string = '') => {
+    const formatRegex = /^\{data=[^,]+, success=[^,]+, message=[^,]+, httpStatusCode=\d+\}$/;
+    return formatRegex.test(message);
+};
+
 export const getError = (error: ErrorResponse) => {
     if (error.data) {
         const {violations} = error.data;
-        if (violations) return violations[0].message;
+        if (violations) return `${violations[0].field} ${violations[0].message}`;
     }
 
-    return error.message;
+
+    if (isErrorStringFormat(error.message)) {
+        const dataRegex = /data=([^,]*)/;
+        const messageRegex = /message=([^,}]*)/;
+
+        const dataMatch = error.message.match(dataRegex);
+        const messageMatch = error.message.match(messageRegex);
+
+        const extractedData = {
+            data: dataMatch ? dataMatch[1].trim() : null,
+            message: messageMatch ? messageMatch[1].trim() : null,
+        };
+
+        return extractedData.message
+    } else
+        return error.message
 };
 
 export const getInitials = (name: string = ''): string => {
@@ -142,6 +168,27 @@ export const getGraphTemplate = () => {
         currentDate.setMonth(currentDate.getMonth() + 1);
     }
     return template;
+};
+
+export const getRSwitch = (phoneNumber: string = 'NEO'): string => {
+    const firstThreeDigits = phoneNumber.slice(0, 3);
+
+    const rSwitches = [
+        {prefixes: ['024', '055', '053', '059', '054'], value: 'MTN'},
+        {prefixes: ['027', '026', '056', '057'], value: 'ATL'},
+        {prefixes: ['020', '050'], value: 'VOD'}
+    ];
+
+    const matchedRSwitch = rSwitches.find((rSwitch) =>
+        rSwitch.prefixes.includes(firstThreeDigits)
+    );
+
+    return matchedRSwitch ? matchedRSwitch.value : 'NEO';
+};
+
+
+export const getDisbursementType = (transaction: TransactionType): string => {
+    return transaction.batchId ? 'bulk' : 'single';
 };
 
 

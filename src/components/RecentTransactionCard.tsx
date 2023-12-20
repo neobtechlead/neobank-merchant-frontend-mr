@@ -7,10 +7,10 @@ import {capitalizeFirstLetter, formatAmount, formatAmountGHS, normalizeDate} fro
 
 const RecentTransactionCard: React.FC<IRecentTransactionCardProps> = ({transaction, customStyles}) => {
     return (
-        <div key={transaction?.externalId} className={`relative flex items-center ${customStyles}`}>
-            <div className="min-w-0 flex-grow">
+        <div key={transaction?.externalId} className={`relative flex items-center flex-grow ${customStyles}`}>
+            <div className="min-w-0">
                 <div className="flex min-w-0 gap-x-3">
-                    <Image src="/assets/icons/file-dark.svg" alt="file"
+                    <Image src="/assets/icons/file-dark.svg" alt="file" className="hidden md:flex md:flex-col md:items-end"
                            width={0} height={24} style={{width: "auto"}}/>
 
                     <div className="min-w-0">
@@ -29,7 +29,7 @@ const RecentTransactionCard: React.FC<IRecentTransactionCardProps> = ({transacti
                                           customTitleStyles="font-semibold text-xs"
                             />
                             <div
-                                className="hidden shrink-0 sm:flex sm:flex-col sm:items-end">
+                                className="hidden lg:flex lg:flex-col lg:items-end">
                                 <p className="text-xs leading-5 text-gray-500">
                                     {normalizeDate(transaction?.createdAt ?? '')}
                                 </p>

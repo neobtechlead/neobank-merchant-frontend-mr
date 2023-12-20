@@ -16,4 +16,6 @@ export type TransactionStoreType = {
     scheduledPayments?: TransactionType[],
     setTransactionSummary?: (summary: MonthlyTransactionSummaryType) => void,
     transactionSummary?: MonthlyTransactionSummaryType,
+    setLoading?: (loading: boolean) => void,
+    loading?: boolean,
 }

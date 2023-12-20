@@ -69,9 +69,6 @@ const CollectionContent: React.FC<ICollectionContentProps> = ({
         {label: 'status', classes: ''},
         {label: 'action', classes: ''}
     ]
-    const noActivityDescription = "It seems like there's currently no data available regarding funds collection in your account. This section will display information when funds are collected and any related transactions."
-    const TransactionDetailDescription = "You can see the details of this transaction. Lorem Ipsum lawal ........You can see the details of this transaction. Lorem Ipsum lawal ........You can see the details of this transaction. Lorem Ipsum lawal ........You can see the details of this transaction. Lorem Ipsum lawal ........"
-    const collectionActionDescription = "Generate Payment Link is a valuable feature that empowers businesses and individuals to create customized and convenient payment links for secure and efficient transactions. Whether you are a seller, service provider, or fundraiser, this tool simplifies the payment process and allows you to receive payments seamlessly."
 
     const setDashboardState = () => {
         setShowSupportButton(true)
@@ -101,7 +98,7 @@ const CollectionContent: React.FC<ICollectionContentProps> = ({
         setShowLogo(false)
         setShowBackButton(true)
         setHeaderTitle("Generate Payment Link")
-        setHeaderDescription(collectionActionDescription)
+        setHeaderDescription("Generate links instantly to collect payments from various parties.")
         setShowNavigation(false)
         setShowProfileDropdown(false)
         setHasActivity(false)
@@ -119,8 +116,8 @@ const CollectionContent: React.FC<ICollectionContentProps> = ({
                 iconCustomStyle="mt-[58px] mb-[38px]"
                 customStyles="border rounded-lg m-5"
                 showContent
-                title="No recent activity"
-                description={noActivityDescription}
+                title="No collections to display"
+                description={"You haven't made any collections yet. Your collection activity will be displayed here."}
             >
                 <div className="text-center">
                     <div className="flex flex-col my-10">
@@ -240,7 +237,7 @@ const CollectionContent: React.FC<ICollectionContentProps> = ({
             <OverlayDetailContainer open={openTransactionDetail}
                                     handleOpen={setOpenTransactionDetail}
                                     title="Transaction Information"
-                                    description={TransactionDetailDescription}>
+                                    description="This generated link will be automatically sent to the customer’s email address provided in the form. Please alert customer to make payment within some days after link has been generated.">
                 <div className="group relative flex flex-col py-3">
                     <TransactionDetail transaction={transaction}/>
                 </div>

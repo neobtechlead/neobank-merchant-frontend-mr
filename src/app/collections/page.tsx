@@ -10,9 +10,6 @@ import {useAuthHelper} from "@/hooks/useAuthEffect";
 import {useUserStore} from "@/store/UserStore";
 
 const CollectionPage: React.FC = () => {
-    const pageDescription = "Funds Collection is a vital process that involves gathering and consolidating financial contributions or payments from various sources or contributors. Whether you are managing donations for a non-profit organization, collecting payments for goods or services, or coordinating group contributions, efficient funds collection is key to financial success."
-    const pageTitle = "Funds Collection"
-
     const {
         setShowLogo,
         showBackButton,
@@ -41,8 +38,8 @@ const CollectionPage: React.FC = () => {
         setShowLogo(true)
         setShowBackButton(false)
         setShowNavigation(true)
-        setHeaderTitle(pageTitle)
-        setHeaderDescription(pageDescription)
+        setHeaderTitle("Funds Collection")
+        setHeaderDescription("Collect payments seamlessly from single or multiple sources.")
         setNavTitle('')
         setShowSupportButton(true)
         setShowPaymentLinkForm(false)

@@ -4,10 +4,9 @@ export interface ITransactionConfirmation {
     transactionType?: string;
     transaction: TransactionType;
     summary?: {
-        count: string,
-        duplicates: string,
-        description: string,
-        amount: string,
+        totalCount: number,
+        duplicates: number,
+        totalAmount: number,
     };
     customStyles?: string;
     enabled?: boolean;
