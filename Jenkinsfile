@@ -53,8 +53,7 @@ node {
                     }
                    
                     if (env.BRANCH_NAME == 'demo' || env.BRANCH_NAME == 'develop'){
-
-                        sh "sed -i 's/IMAGE_TAG/${tag}/' src/helm-charts/values.yaml"
+                        sh "sed -i 's/IMAGE_TAG/${tag}/' src/cf-helm/values.yaml"
                     }
                     docker.withRegistry('https://749165515165.dkr.ecr.us-east-2.amazonaws.com', 'ecr:us-east-2:cf-aws-credentials') {                   
                         app.push(tag)
@@ -72,7 +71,7 @@ node {
                     deploy_title = 'Staging'
                     ns = 'staging'
                     url = "apis-neobank-merchant-staging.completefarmer.com" 
-                    charts ="./src/helm-charts/"
+                    charts ="./src/cf-helm/"
                 break
                 case 'master':
                     deploy_title = 'Production'
@@ -84,7 +83,7 @@ node {
                     deploy_title = 'Demo'
                     ns = 'demo'
                     url = "apis-neobank-merchant-staging.completefarmer.com"
-                    charts ="./src/helm-charts/"
+                    charts ="./src/cf-helm/"
                 break
             }
 
@@ -99,7 +98,6 @@ node {
                 sh "helm upgrade --install --wait --timeout 360s --force merchant-frontend ${charts} -n=${ns}"
                 slackSend(color: 'good', message: "Merchant-frontend dashboard deployed at ${url}")
                 office365ConnectorSend webhookUrl: "${env.TEAM_WEBHOOK}", status: 'Success', message: "Merhant-frontend  dashboard deployed at ${url}"
-
             }
         }
         }
