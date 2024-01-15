@@ -12,7 +12,7 @@ metadata:
   
 spec:
   selector:
-    app: merchant-frontend
+    app: neobank-merchant-frontend
   ports:
     - protocol: TCP
       port: 80

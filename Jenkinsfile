@@ -25,8 +25,8 @@ node {
             lock('Environment Tagging'){
                 def run_environment = 'PROD'
        
-                if (env.BRANCH_NAME == 'dev') {
-                    run_environment = 'DEV'
+                if (env.BRANCH_NAME == 'develop') {
+                    run_environment = 'DEVELOP'
                 } else if (env.BRANCH_NAME == 'demo'){
                     run_environment = 'DEMO'
                 }
@@ -38,7 +38,7 @@ node {
                 app = docker.build("749165515165.dkr.ecr.us-east-2.amazonaws.com/cf-server", "--build-arg REACT_APP_ENVIRONMENT=${run_environment} .")
             }  
         }
-        if (env.BRANCH_NAME == 'dev' || env.BRANCH_NAME == 'master' || env.BRANCH_NAME == 'demo'){
+        if (env.BRANCH_NAME == 'develop' || env.BRANCH_NAME == 'master' || env.BRANCH_NAME == 'demo'){
             stage('Push image') {
                 /* Finally, we'll push the image with tag of the current build number
                 * Pushing multiple tags is cheap, as all the layers are reused.
@@ -48,11 +48,12 @@ node {
                     
                     if (env.BRANCH_NAME == 'demo'){
                         tag = "merchant-frontend-demo-latest"
-                    } else if(env.BRANCH_NAME == 'dev'){
+                    } else if(env.BRANCH_NAME == 'develop'){
                         tag = "merchant-frontend-dev-latest"
                     }
                    
-                    if (env.BRANCH_NAME == 'demo' || env.BRANCH_NAME == 'dev'){
+                    if (env.BRANCH_NAME == 'demo' || env.BRANCH_NAME == 'develop'){
+
                         sh "sed -i 's/IMAGE_TAG/${tag}/' src/helm-charts/values.yaml"
                     }
                     docker.withRegistry('https://749165515165.dkr.ecr.us-east-2.amazonaws.com', 'ecr:us-east-2:cf-aws-credentials') {                   
@@ -67,7 +68,7 @@ node {
             def charts = ''
             
             switch(env.BRANCH_NAME) {
-                case 'dev':
+                case 'develop':
                     deploy_title = 'Staging'
                     ns = 'staging'
                     url = "apis-neobank-merchant-staging.completefarmer.com" 
@@ -96,8 +97,9 @@ node {
                 sh 'kubectl config use-context ${NEOBANK_CONTEXT}'
                 sh 'helm lint ./src/cf-helm/'
                 sh "helm upgrade --install --wait --timeout 360s --force merchant-frontend ${charts} -n=${ns}"
-                slackSend(color: 'good', message: "Auth dashboard deployed at ${url}")
-                office365ConnectorSend webhookUrl: "${env.TEAM_WEBHOOK}", status: 'Success', message: "Auth  dashboard deployed at ${url}"
+                slackSend(color: 'good', message: "Merchant-frontend dashboard deployed at ${url}")
+                office365ConnectorSend webhookUrl: "${env.TEAM_WEBHOOK}", status: 'Success', message: "Merhant-frontend  dashboard deployed at ${url}"
+
             }
         }
         }
@@ -107,7 +109,7 @@ node {
         error "Build Failed ${err}"
 
     } finally {
-        if (env.BRANCH_NAME == 'dev' || env.BRANCH_NAME == 'master' || env.BRANCH_NAME == 'demo'){
+        if (env.BRANCH_NAME == 'develop' || env.BRANCH_NAME == 'master' || env.BRANCH_NAME == 'demo'){
                 def envName = env.BRANCH_NAME == 'dev' ? 'staging' : 'production'
                 if (env.BRANCH_NAME == 'demo') {
                     envName = 'testing'
