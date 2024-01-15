@@ -1,0 +1,4 @@
+replicaCount: 2
+repository: 749165515165.dkr.ecr.us-east-2.amazonaws.com
+registry: cf-server
+tag: neobank-merchant-frontend-prod-latest
