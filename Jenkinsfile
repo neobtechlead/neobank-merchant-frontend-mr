@@ -95,9 +95,8 @@ node {
                 withCredentials([string(credentialsId: 'neobank-context', variable: 'NEOBANK_CONTEXT')]) {
                 sh 'kubectl config use-context ${NEOBANK_CONTEXT}'
                 sh 'helm lint ./src/cf-helm/'
-                sh "helm upgrade --install --wait --timeout 360s --force neobank-merchant-frontend-prod-latest ${charts} -n=${ns}"
+                sh "helm upgrade --install --wait --timeout 360s --force neobank-merchant-frontend-prod-latest ${charts} --namespace=staging-frontend"
                 slackSend(color: 'good', message: "merchant-frontend dashboard deployed at ${url}")
-
                 office365ConnectorSend webhookUrl: "${env.TEAM_WEBHOOK}", status: 'Success', message: "Merhant-frontend  dashboard deployed at ${url}"
             }
         }
