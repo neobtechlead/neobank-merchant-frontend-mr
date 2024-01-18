@@ -32,6 +32,8 @@ spec:
               cpu: 200m
             limits:
               cpu: 500m
+      imagePullSecrets:
+        - name: cf-ecr-registry
 ---
 apiVersion: autoscaling/v1
 kind: HorizontalPodAutoscaler
@@ -45,3 +47,4 @@ spec:
   minReplicas: 1
   maxReplicas: 5
   targetCPUUtilizationPercentage: 70
+
