@@ -12,8 +12,10 @@ node {
 
             checkout scm
             //Copy .env file from workspace to project
-            sh 'cp ../cf-neobank-merchant-frontend.env .'
-            sh 'mv cf-neobank-merchant-frontend.env  .env.development.local'
+
+            sh 'cp ../cf_neobank_merchant_frontend.env .'
+            sh 'mv cf_neobank_merchant_frontend.env  .env.development.local'
+
             if(env.BRANCH_NAME == 'develop'){
                 
                 withCredentials([
@@ -52,7 +54,7 @@ node {
                 
             }   
         }
-        if (env.BRANCH_NAME == 'develop' || env.BRANCH_NAME == 'master' || env.BRANCH_NAME == 'demo'){
+        if (env.BRANCH_NAME == 'develop' || env.BRANCH_NAME == 'main'){
             stage('Push image') {
                 /* Finally, we'll push the image with tag of the current build number
                 * Pushing multiple tags is cheap, as all the layers are reused.
@@ -68,7 +70,8 @@ node {
                             if (env.BRANCH_NAME == 'main'){
                                 tag = 'cf-neobank-merchant-frontend-prod-latest'
                                 sh ('sed -i "s|IMAGE_TAG|cf-neobank-merchant-frontend-prod-latest|" src/cf-helm/values.yaml')
-                            } else if (env.BRANCH_NAME == 'dev'){
+                            } else if (env.BRANCH_NAME == 'develop'){
+
                                 tag = 'cf-neobank-merchant-frontend-staging-latest'
                                 sh ('sed -i "s|IMAGE_TAG|cf-neobank-merchant-frontend-staging-latest|" src/cf-helm/values.yaml')
                             }
@@ -86,18 +89,18 @@ node {
             def deploy_title = ''
             def ns = ''
             def url = ''
-            def charts = ''
             
             switch(env.BRANCH_NAME) {
                 case 'develop':
                     deploy_title = 'Staging'
                     ns = 'staging'
-                    url = "apis-neobank-merchant-staging.completefarmer.com" 
+                    url = "https://neobank-merchant-staging.completefarmer.com" 
+
                 break
                 case 'master':
                     deploy_title = 'Production'
                     ns = 'production'
-                    url = "apis-neobank-merchant-staging.completefarmer.comm"
+                    url = "https://neobank-merchant.completefarmer.comm"
                 break
             }
 
