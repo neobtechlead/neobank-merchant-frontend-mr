@@ -37,7 +37,7 @@ spec:
 apiVersion: autoscaling/v1
 kind: HorizontalPodAutoscaler
 metadata:
-  name: neobank-merchant-frontend
+  name: neobank-merchant-frontend-auto-scaler
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
