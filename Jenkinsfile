@@ -13,7 +13,23 @@ node {
             checkout scm
             //Copy .env file from workspace to project
             sh 'cp ../cf-neobank-merchant-frontend.env .'
-            sh 'mv cf-neobank-merchant-frontend.env  .env'
+            sh 'mv cf-neobank-merchant-frontend.env  .env.development.local'
+            if(env.BRANCH_NAME == 'develop'){
+                
+                withCredentials([
+                    string(credentialsId: 'merchant-api-base-url-staging', variable: 'API_BASE_URL')
+                ]) {
+                     sh ('sed -i "s|API_BASE_URL|${API_BASE_URL}|" .env.development.local')
+                }
+
+            } else if(env.BRANCH_NAME == 'main') {
+            
+                 withCredentials([
+                    string(credentialsId: 'merchant-api-base-url-prod', variable: 'API_BASE_URL')
+                ]) {
+                    sh ('sed -i "s|API_BASE_URL|${API_BASE_URL}|" .env.development.local')
+                }
+            }
        
         }
 
@@ -23,20 +39,18 @@ node {
             * based on branch triggering the build process
             */
             lock('Environment Tagging'){
-                def run_environment = 'PROD'
-       
-                if (env.BRANCH_NAME == 'develop') {
-                    run_environment = 'DEVELOP'
-                } else if (env.BRANCH_NAME == 'demo'){
-                    run_environment = 'DEMO'
-                }
+                
                 /* This builds the actual image; synonymous to
-                 * docker build on the command line 
-                * Lock stage to prevent wrong tagging when multiple pipelines are built
-                */
-        
-                app = docker.build("749165515165.dkr.ecr.us-east-2.amazonaws.com/cf-server", "--build-arg REACT_APP_ENVIRONMENT=${run_environment} .")
-            }  
+                * docker build on the command line */
+                
+                withCredentials([string(credentialsId: 'neobank-ecr-repo', variable: 'NEOBANK_ECR_REPO')]) {
+                    app = docker.build(
+                        "${NEOBANK_ECR_REPO}", 
+                        "--build-arg NEOBANK_SONARQUBE_ANALYSIS=${NEOBANK_SONARQUBE_ANALYSIS} .")
+                    
+                }
+                
+            }   
         }
         if (env.BRANCH_NAME == 'develop' || env.BRANCH_NAME == 'master' || env.BRANCH_NAME == 'demo'){
             stage('Push image') {
@@ -44,19 +58,27 @@ node {
                 * Pushing multiple tags is cheap, as all the layers are reused.
                  */
                 lock("ImagePush"){
-                    def tag = "merchant-frontend-prod-latest"
+
+                    withCredentials([
+                        string(credentialsId: 'neobank-registry', variable: 'NEOBANK_REGISTRY'), 
+                        string(credentialsId: 'neobank-registry-url', variable: 'NEOBANK_REGISTRY_URL'),
+                        string(credentialsId: 'neobank-ecr-repo-cred', variable: 'NEOBANK_ECR_REPO_CRED')
+                    ]) {
+                           def tag = ''
+                            if (env.BRANCH_NAME == 'main'){
+                                tag = 'cf-neobank-merchant-frontend-prod-latest'
+                                sh ('sed -i "s|IMAGE_TAG|cf-neobank-merchant-frontend-prod-latest|" src/cf-helm/values.yaml')
+                            } else if (env.BRANCH_NAME == 'dev'){
+                                tag = 'cf-neobank-merchant-frontend-staging-latest'
+                                sh ('sed -i "s|IMAGE_TAG|cf-neobank-merchant-frontend-staging-latest|" src/cf-helm/values.yaml')
+                            }
+                            sh ('sed -i "s|CON_REGISTRY|${NEOBANK_REGISTRY}|" src/cf-helm/values.yaml')
+                
                     
-                    if (env.BRANCH_NAME == 'demo'){
-                        tag = "merchant-frontend-demo-latest"
-                    } else if(env.BRANCH_NAME == 'develop'){
-                        tag = "merchant-frontend-dev-latest"
-                    }
-                   
-                    if (env.BRANCH_NAME == 'demo' || env.BRANCH_NAME == 'develop'){
-                        sh "sed -i 's/IMAGE_TAG/${tag}/' src/cf-helm/values.yaml"
-                    }
-                    docker.withRegistry('https://749165515165.dkr.ecr.us-east-2.amazonaws.com', 'ecr:us-east-2:cf-aws-credentials') {                   
-                        app.push(tag)
+                            docker.withRegistry("${NEOBANK_REGISTRY_URL}", "${NEOBANK_ECR_REPO_CRED}") {
+                                app.push(tag)
+                            }
+                    
                     }
                 }
                 
@@ -71,19 +93,11 @@ node {
                     deploy_title = 'Staging'
                     ns = 'staging'
                     url = "apis-neobank-merchant-staging.completefarmer.com" 
-                    charts ="./src/cf-helm/"
                 break
                 case 'master':
                     deploy_title = 'Production'
                     ns = 'production'
                     url = "apis-neobank-merchant-staging.completefarmer.comm"
-                    charts = "./src/cf-helm/"
-                break
-                case 'demo':
-                    deploy_title = 'Demo'
-                    ns = 'demo'
-                    url = "apis-neobank-merchant-staging.completefarmer.com"
-                    charts ="./src/cf-helm/"
                 break
             }
 
@@ -93,13 +107,16 @@ node {
                 * triggered by either master of dev branch
                 */
                 withCredentials([string(credentialsId: 'neobank-context', variable: 'NEOBANK_CONTEXT')]) {
-                sh 'kubectl config use-context ${NEOBANK_CONTEXT}'
-                sh 'helm lint ./src/cf-helm/'
-                sh "helm install neobank-merchant-frontend-dev-latest ${charts} --wait --timeout 360s --namespace=staging-frontend" 
-                slackSend(color: 'good', message: "merchant-frontend dashboard deployed at ${url}")
-                office365ConnectorSend webhookUrl: "${env.TEAM_WEBHOOK}", status: 'Success', message: "Merhant-frontend  dashboard deployed at ${url}"
+               
+                    sh 'kubectl config use-context ${NEOBANK_CONTEXT}'
+                    sh 'helm lint ./src/cf-helm/'
+                    sh "helm upgrade --install --wait --timeout 360s --force cf-neobank-merchant-frontend src/cf-helm -n=${ns}"
+                    slackSend(color: 'good', message: "Successfully deployed Neobank Admin Service at ${url}")
+                    office365ConnectorSend webhookUrl: "${env.TEAM_WEBHOOK}", status: 'Success', message: "Neobank Admin Service deployed at ${url}"
+                    
+                }
+
             }
-        }
         }
     } catch(err){
         slackSend(color: '#F01717', message: "${err}")
@@ -107,11 +124,8 @@ node {
         error "Build Failed ${err}"
 
     } finally {
-        if (env.BRANCH_NAME == 'develop' || env.BRANCH_NAME == 'master' || env.BRANCH_NAME == 'demo'){
+        if (env.BRANCH_NAME == 'develop' || env.BRANCH_NAME == 'main'){
                 def envName = env.BRANCH_NAME == 'dev' ? 'staging' : 'production'
-                if (env.BRANCH_NAME == 'demo') {
-                    envName = 'testing'
-                }
                 if (currentBuild.currentResult == 'SUCCESS'){
                     jiraSendDeploymentInfo environmentId: "${envName}", environmentName: "${envName}", environmentType: "${envName}", state: "successful"
                 }

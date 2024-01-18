@@ -1,4 +1,4 @@
 replicaCount: 1
-repository: 749165515165.dkr.ecr.us-east-2.amazonaws.com
-registry: cf-server
-tag: merchant-frontend-dev-latest
+repository: CON_REGISTRY
+tag: IMAGE_TAG
+registry: cf-neobank-repo

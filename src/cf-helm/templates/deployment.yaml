@@ -1,13 +1,13 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: neobank-merchant-frontend
+  name: cf-neobank-merchant-frontend
   labels:
-    app.kubernetes.io/name: neobank-merchant-service
+    app.kubernetes.io/name: neobank-merchant-frontend
     app.kubernetes.io/instance: wordpress-abcxzy
     app.kubernetes.io/version: "0.0.1"
     app.kubernetes.io/component: api
-    app.kubernetes.io/part-of: cf-microservices
+    app.kubernetes.io/part-of: cf-neobank-services
     app.kubernetes.io/managed-by: helm
 spec:
   replicas: {{ .Values.replicaCount }}
@@ -22,7 +22,7 @@ spec:
         app: neobank-merchant-frontend
     spec:
       containers:
-        - name: neobank-merchant-frontend
+        - name: cf-neobank-merchant-frontend
           image: {{ .Values.repository }}/{{ .Values.registry }}:{{ .Values.tag }}
           imagePullPolicy: Always
           ports:
@@ -32,19 +32,17 @@ spec:
               cpu: 200m
             limits:
               cpu: 500m
-      imagePullSecrets:
-        - name: cf-ecr-registry
+
 ---
 apiVersion: autoscaling/v1
 kind: HorizontalPodAutoscaler
 metadata:
-  name: neobank-merchant-frontend-auto-scaler
+  name: neobank-merchant-frontend
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: neobank-merchant-frontend
+    name: cf-neobank-merchant-frontend
   minReplicas: 1
   maxReplicas: 5
   targetCPUUtilizationPercentage: 70
-
