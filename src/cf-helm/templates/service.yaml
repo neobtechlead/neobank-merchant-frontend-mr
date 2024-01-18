@@ -9,7 +9,7 @@ metadata:
     app.kubernetes.io/component: api
     app.kubernetes.io/part-of: cf-neobank-services
     app.kubernetes.io/managed-by: helm
-    alb.ingress.kubernetes.io/healthcheck-path: "/"
+    alb.ingress.kubernetes.io/healthcheck-path: ""
 spec:
   selector:
     app: neobank-merchant-frontend
