@@ -71,7 +71,6 @@ node {
                                 tag = 'cf-neobank-merchant-frontend-prod-latest'
                                 sh ('sed -i "s|IMAGE_TAG|cf-neobank-merchant-frontend-prod-latest|" src/cf-helm/values.yaml')
                             } else if (env.BRANCH_NAME == 'develop'){
-
                                 tag = 'cf-neobank-merchant-frontend-staging-latest'
                                 sh ('sed -i "s|IMAGE_TAG|cf-neobank-merchant-frontend-staging-latest|" src/cf-helm/values.yaml')
                             }
@@ -95,7 +94,6 @@ node {
                     deploy_title = 'Staging'
                     ns = 'staging'
                     url = "https://neobank-merchant-staging.completefarmer.com" 
-
                 break
                 case 'master':
                     deploy_title = 'Production'
@@ -118,7 +116,6 @@ node {
                     office365ConnectorSend webhookUrl: "${env.TEAM_WEBHOOK}", status: 'Success', message: "Neobank Admin Service deployed at ${url}"
                     
                 }
-
             }
         }
     } catch(err){
