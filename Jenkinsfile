@@ -112,8 +112,8 @@ node {
                     sh 'kubectl config use-context ${NEOBANK_CONTEXT}'
                     sh 'helm lint ./src/cf-helm/'
                     sh "helm upgrade --install --wait --timeout 360s --force cf-neobank-merchant-frontend src/cf-helm -n=${ns}"
-                    slackSend(color: 'good', message: "Successfully deployed Neobank Admin Service at ${url}")
-                    office365ConnectorSend webhookUrl: "${env.TEAM_WEBHOOK}", status: 'Success', message: "Neobank Admin Service deployed at ${url}"
+                    slackSend(color: 'good', message: "Successfully deployed Neobank Merchant Frontend at ${url}")
+                    office365ConnectorSend webhookUrl: "${env.TEAM_WEBHOOK}", status: 'Success', message: "Neobank Merchant Frontend deployed at ${url}"
                     
                 }
             }
