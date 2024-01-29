@@ -28,6 +28,8 @@ import {formatAmount, getCurrentDateTimeString, getError, getInitials, getRSwitc
 import {useUserStore} from "@/store/UserStore";
 import {useTransactionStore} from "@/store/TransactionStore";
 import Alert from "@/components/Alert";
+import {DropdownInput} from "@/components/forms/DropdownInput";
+import {DropdownInputItemType} from "@/utils/types/DropdownInputItemType";
 
 const DisbursementActionContent: React.FC<IDisbursementActionContent> = ({
                                                                              contentType,
@@ -49,6 +51,16 @@ const DisbursementActionContent: React.FC<IDisbursementActionContent> = ({
     const [uploadedFileName, setUploadedFileName] = useState<string>('');
     const [uploadedFile, setUploadedFile] = useState<File | null>(null);
 
+    const providers: DropdownInputItemType[] = [
+        {id: 0, name: 'Select Provider', code: ''},
+        {id: 1, name: 'MTN', code: 'MTN'},
+        {id: 2, name: 'Vodafone', code: 'VOD'},
+        {id: 3, name: 'AirtelTigo', code: 'ATL'},
+        {id: 4, name: 'CF Transact', code: 'NEO'}
+    ]
+
+    const [provider, setProvider] = useState(providers[0])
+
     const [formData, setFormData] = useState<TransactionType>({
         recipient: '',
         phone: '',
@@ -64,6 +76,10 @@ const DisbursementActionContent: React.FC<IDisbursementActionContent> = ({
         event.preventDefault()
         const {name, value} = event.target;
         setFormData({...formData, [name]: value});
+    };
+
+    const handleSetProvider = (provider: DropdownInputItemType) => {
+        return setProvider(provider)
     };
 
     const handleDisbursementConfirmation: React.FormEventHandler<HTMLFormElement> = (event) => {
@@ -83,7 +99,6 @@ const DisbursementActionContent: React.FC<IDisbursementActionContent> = ({
             return {...formData, scheduled: toggle};
         });
     };
-
 
     const handleDateSelected = (date: Date) => {
         try {
@@ -136,14 +151,17 @@ const DisbursementActionContent: React.FC<IDisbursementActionContent> = ({
         setModalOpen(openModal)
         setError('')
     }
+
     const handleDisbursementTransaction = async () => {
+        if (provider.code === '') return
+
         if (!transactionSuccessful) {
             let payload = {}
             if (actionType === 'single') {
                 payload = {
                     merchantId: merchant?.externalId,
                     accountNumber: formData.phone,
-                    accountIssuer: getRSwitch(formData.phone),
+                    accountIssuer: provider.code,
                     accountName: formData.recipient,
                     narration: formData.description,
                     amount: toMinorDigits(formData.amount),
@@ -180,7 +198,6 @@ const DisbursementActionContent: React.FC<IDisbursementActionContent> = ({
         setModalOpen(false)
         resetDisbursementStore()
     }
-
 
     const getBulkDisbursementFileSummary = async () => {
         // make an api call to get file summary
@@ -252,6 +269,11 @@ const DisbursementActionContent: React.FC<IDisbursementActionContent> = ({
                             customClasses="col-span-full"
                         />}
 
+                        {actionType === 'single' &&
+                            <DropdownInput label="Provider" selected={provider} setSelected={handleSetProvider}
+                                           data={providers}
+                                           customClasses="gap-y-2 mb-4"/>}
+
                         {actionType === 'single' && <TextInput
                             label="amount"
                             id="amount"
@@ -263,9 +285,11 @@ const DisbursementActionContent: React.FC<IDisbursementActionContent> = ({
                             hasError={setHasError} autoComplete=""
                             customClasses="col-span-full"
                         >
-                                    <span
-                                        className="flex select-none items-center px-4 bg-gray-300 sm:text-sm rounded-l-md font-semibold"
-                                        style={{background: '#EFEFEF'}}>GHS</span>
+                            {{
+                                left: <span
+                                    className="flex select-none items-center px-4 bg-gray-300 sm:text-sm rounded-l-md font-semibold"
+                                    style={{background: '#EFEFEF'}}>GHS</span>
+                            }}
                         </TextInput>}
 
                         <TextInput

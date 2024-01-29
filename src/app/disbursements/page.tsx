@@ -54,7 +54,7 @@ const DisbursementPage: React.FC = () => {
 
     const handleBackButtonClicked = () => {
         setHeaderDetails()
-        disbursements && disbursements.length > 0 ? setHasActivity(true) : setShowEmptyState(true)
+        disbursements?.transactions && disbursements.transactions.length > 0 ? setHasActivity(true) : setShowEmptyState(true)
     }
 
     return (

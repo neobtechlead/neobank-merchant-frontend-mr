@@ -1,6 +1,5 @@
 import {UserType} from "@/utils/types/UserType";
 import {MerchantType} from "@/utils/types/MerchantType";
-import {MonthlyTransactionSummaryType} from "@/utils/types/MonthlyTransactionSummaryType";
 
 export type UserStoreType = {
     setUser?: (user?: UserType) => void,

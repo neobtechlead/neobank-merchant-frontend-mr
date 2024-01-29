@@ -6,32 +6,58 @@ import {devtools, persist} from 'zustand/middleware';
 export const useTransactionStore = create<TransactionStoreType>()(
     devtools(
         persist(
-            (set) => ({
+            (set, get) => ({
                 setTransaction: (transaction?: TransactionType) => set({transaction}),
                 transaction: {},
-                setTransactions: (transactions) => set({transactions: transactions ?? []}),
-                transactions: [],
+                setTransactions: (data) => set({transactions: data}),
+                transactions: {
+                    pagination: {
+                        size: 0,
+                        lastPage: false,
+                        firstPage: true,
+                        sorting: {
+                            empty: true,
+                            unsorted: false,
+                            sorted: true,
+                        },
+                        totalPages: 0,
+                        totalElements: 0
+                    },
+                    data: []
+                },
 
-                setCollections: (collections) => set({collections: collections ?? []}),
+                setCollections: (data) => set({collections: data}),
                 setCollection: (collection: TransactionType) => set((state) => ({
-                    collections: state.collections ? [collection, ...state?.collections] : [collection]
+                    collections: state.collections?.transactions?.length > 0
+                        ? {
+                            transactions: [collection, ...state.collections.transactions],
+                            pagination: state.collections.pagination,
+                        }
+                        : {transactions: [collection], pagination: state.collections.pagination},
                 })),
-                collections: [],
 
-                setDisbursements: (disbursements) => set({disbursements: disbursements ?? []}),
+                collections: get()?.collections,
+
+                setDisbursements: (data) => set({disbursements: data}),
                 setDisbursement: (disbursement: TransactionType) => set((state) => ({
-                    disbursements: state.disbursements ? [disbursement, ...state?.disbursements] : [disbursement]
+                    collections: state.disbursements?.transactions?.length > 0
+                        ? {
+                            transactions: [disbursement, ...state.disbursements.transactions],
+                            pagination: state.disbursements.pagination,
+                        }
+                        : {transactions: [disbursement], pagination: state.disbursements.pagination},
                 })),
-                disbursements: [],
 
-                setScheduledPayments: (scheduledPayments) => set({scheduledPayments: scheduledPayments ?? []}),
-                scheduledPayments: [],
+                disbursements: get()?.disbursements,
+
+                setScheduledPayments: (data) => set({scheduledPayments: data}),
+                scheduledPayments: get()?.scheduledPayments,
 
                 setTransactionSummary: (summary) => set({transactionSummary: summary ?? []}),
                 transactionSummary: {},
 
                 setLoading: (loading) => set({loading}),
-                loading: false,
+                loading: false
             }),
             {name: 'transaction'},
         ),

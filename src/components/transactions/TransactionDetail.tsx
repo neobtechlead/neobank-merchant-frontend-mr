@@ -48,7 +48,7 @@ const TransactionDetail: React.FC<ITransactionDetailProps> = ({transaction, cust
                         />
                     </div>}
 
-                    <InfoCardItem description={transaction.externalId ?? ''}
+                    <InfoCardItem description={transaction.internalId ?? ''}
                                   title="Transaction ID"
                                   customStyles="my-2"
                                   customTitleStyles="mt-5 text-sx"

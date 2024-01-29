@@ -99,12 +99,15 @@ const CollectionForm: React.FC<ICollectionForm> = ({onSubmit}) => {
                         hasError={setHasError} autoComplete=""
                         customClasses="w-full md:w-2/3 lg:w-1/3"
                     >
-                        <div
-                            className="flex select-none items-center px-4 bg-gray-300 sm:text-sm rounded-l-md font-semibold"
-                            style={{background: '#EFEFEF'}}>
-                            <Image src="/assets/images/ghana-flag.svg" alt="flag" height={19} width={30}/>
-                            <Svg fill="#4F4F4F" path={CaretDown}/>
-                        </div>
+                        {{
+                            left: <div
+                                className="flex select-none items-center px-4 bg-gray-300 sm:text-sm rounded-l-md font-semibold"
+                                style={{background: '#EFEFEF'}}>
+                                <Image src="/assets/images/ghana-flag.svg" alt="flag" height={19} width={30}
+                                       style={{width: 'auto'}}/>
+                                <Svg fill="#4F4F4F" path={CaretDown}/>
+                            </div>
+                        }}
                     </TextInput>
                 </div>
                 <div className="flex flex-col items-center">
@@ -119,9 +122,13 @@ const CollectionForm: React.FC<ICollectionForm> = ({onSubmit}) => {
                         hasError={setHasError} autoComplete=""
                         customClasses="w-full md:w-2/3 lg:w-1/3"
                     >
+                        {{
+                            left: <div className="">
                             <span
-                                className="flex select-none items-center px-4 bg-gray-300 sm:text-sm rounded-l-md font-semibold"
+                                className="flex select-none items-center p-4 md:p-5 bg-gray-300 sm:text-sm rounded-l-md font-semibold"
                                 style={{background: '#EFEFEF'}}>GHS</span>
+                            </div>
+                        }}
                     </TextInput>
                 </div>
                 <div className="flex flex-col items-center">

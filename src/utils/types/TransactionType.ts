@@ -1,5 +1,6 @@
 export type TransactionType = {
     externalId?: string,
+    internalId?: string,
     accountIssuer?: string,
     type?: string,
     amount?: number,
@@ -16,7 +17,7 @@ export type TransactionType = {
     accountNumber?: string,
     initiatorName?: string,
     callbackUrl?: string | null,
-    batchId?: string | null
+    batchExternalId?: string | null
     emailPaymentLink?: string | null
 
     id?: string,

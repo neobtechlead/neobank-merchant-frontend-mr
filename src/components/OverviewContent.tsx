@@ -32,8 +32,6 @@ const OverviewContent: React.FC = () => {
         transactions,
         disbursements,
         setTransactions,
-        setCollections,
-        setDisbursements,
         transactionSummary,
         setTransactionSummary,
         scheduledPayments,
@@ -76,14 +74,11 @@ const OverviewContent: React.FC = () => {
         listTransactions(merchant?.externalId, user?.authToken)
             .then(async (response) => {
                 if (response.ok) {
-                    const transactions = (await response.json()).data.transactions;
+                    const feedback = (await response.json());
+                    const {pagination, transactions} = feedback.data
                     if (transactions.length > 0) {
-                        const collections = transactions.filter((transaction: { type: string }) => transaction.type.toLowerCase() === 'collection');
-                        const disbursements = transactions.filter((transaction: { type: string }) => transaction.type.toLowerCase() === 'disbursement');
-                        if (setCollections) setCollections(collections)
-                        if (setDisbursements) setDisbursements(disbursements)
+                        if (setTransactions) setTransactions({pagination, data: transactions});
                     }
-                    if (setTransactions) setTransactions(transactions);
                 }
             })
             .catch((error) => {
@@ -110,8 +105,8 @@ const OverviewContent: React.FC = () => {
     }
 
     const getRecentScheduledBulkPayment = () => {
-        if (disbursements) {
-            const transactions = disbursements.filter((disbursement) => {
+        if (disbursements && disbursements.transactions) {
+            const transactions = disbursements.transactions.filter((disbursement) => {
                 return disbursement.processAt !== null;
             });
 
@@ -190,25 +185,26 @@ const OverviewContent: React.FC = () => {
                                     customStyles={`lg:w-2/3 flex flex-col p-3 w-full border border-purple-900 rounded-l-2xl rounded-r-0 h-[197px] `}>
                                     <div className="flex flex-col h-full">
                                         <h5 className="text-sm md:font-medium leading-6">Recent Transactions</h5>
-                                        {transactions.length === 0 && <EmptyTransactionCardContent showContent={false}>
-                                            <div
-                                                className="flex flex-col justify-center items-center h-full w-full mt-4">
-                                                <div className="flex justify-between my-4">
-                                                    <Svg fill="#F29339" path={UserCircleFill}/>
-                                                    <Svg fill="#E6E6E6" path={LineArrowRight} customClasses="mx-8"
-                                                         width={46} height={6}/>
-                                                    <Svg fill="#59D3D4" path={UsersColorFill}/>
+                                        {transactions?.data?.length === 0 &&
+                                            <EmptyTransactionCardContent showContent={false}>
+                                                <div
+                                                    className="flex flex-col justify-center items-center h-full w-full mt-4">
+                                                    <div className="flex justify-between my-4">
+                                                        <Svg fill="#F29339" path={UserCircleFill}/>
+                                                        <Svg fill="#E6E6E6" path={LineArrowRight} customClasses="mx-8"
+                                                             width={46} height={6}/>
+                                                        <Svg fill="#59D3D4" path={UsersColorFill}/>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <div className="flex flex-col justify-center items-center">
-                                                <h5 className="font-semibold">No data available</h5>
-                                                <p className="font-normal text-xs text-center mt-1 lg:w-2/3 md:w-2/3 sm:w-1/3 sm:mx-6">{emptyTransactionDescription}</p>
-                                            </div>
-                                        </EmptyTransactionCardContent>}
+                                                <div className="flex flex-col justify-center items-center">
+                                                    <h5 className="font-semibold">No data available</h5>
+                                                    <p className="font-normal text-xs text-center mt-1 lg:w-2/3 md:w-2/3 sm:w-1/3 sm:mx-6">{emptyTransactionDescription}</p>
+                                                </div>
+                                            </EmptyTransactionCardContent>}
 
                                         <div className="">
                                             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                                                {transactions.map((transaction) => (
+                                                {transactions?.data?.map((transaction) => (
                                                     <RecentTransactionCard transaction={transaction}
                                                                            customStyles="space-x-3 rounded-lg hover:border-gray-400"/>
                                                 ))}
@@ -237,43 +233,44 @@ const OverviewContent: React.FC = () => {
                                         </div>
                                     </EmptyTransactionCardContent>}
 
-                                    {scheduledPayments && scheduledPayments?.length > 0 && <div className="flex flex-col h-full">
-                                        <div className="flex flex-grow justify-between items-center p-3">
-                                            <InfoCardItem
-                                                title={recentScheduledPayment?.amount?.toString() ?? '0'}
-                                                customTitleStyles="font-bold text-md text-gray-900"
-                                                description="Individuals"
-                                                customDescriptionStyles="text-xs"/>
-                                            <div className="flex items-center">
-                                                <Image src="/assets/icons/arrow-circle-right.svg" alt="file"
-                                                       className="flex text-white" width={24} height={24}
-                                                />
+                                    {scheduledPayments && scheduledPayments?.transactions?.length > 0 &&
+                                        <div className="flex flex-col h-full">
+                                            <div className="flex flex-grow justify-between items-center p-3">
+                                                <InfoCardItem
+                                                    title={recentScheduledPayment?.amount?.toString() ?? '0'}
+                                                    customTitleStyles="font-bold text-md text-gray-900"
+                                                    description="Individuals"
+                                                    customDescriptionStyles="text-xs"/>
+                                                <div className="flex items-center">
+                                                    <Image src="/assets/icons/arrow-circle-right.svg" alt="file"
+                                                           className="flex text-white" width={24} height={24}
+                                                    />
+                                                </div>
+                                                <InfoCardItem
+                                                    title={recentScheduledPayment?.amount?.toString() ?? '0'}
+                                                    customTitleStyles="font-bold text-md text-gray-900 truncate"
+                                                    description="Total Amount"
+                                                    customDescriptionStyles="text-xs"/>
                                             </div>
-                                            <InfoCardItem
-                                                title={recentScheduledPayment?.amount?.toString() ?? '0'}
-                                                customTitleStyles="font-bold text-md text-gray-900 truncate"
-                                                description="Total Amount"
-                                                customDescriptionStyles="text-xs"/>
-                                        </div>
-                                        <div className="flex items-end bg-purple-900 p-3">
-                                            <div className="flex w-full">
-                                                <Image src="/assets/icons/file-white.svg" alt="file"
-                                                       className="flex text-white" width={24} height={24}
-                                                />
-                                                <div
-                                                    className="flex justify-between items-center ml-3 text-white w-full">
-                                                    <InfoCardItem
-                                                        title={recentScheduledPayment?.amount?.toString() ?? '0'}
-                                                        customTitleStyles="font-bold text-md text-gray-900 truncate text-white"
-                                                        description="Scheduled payments"
-                                                        customDescriptionStyles="text-xs leading-3 text-white"/>
-                                                    <InfoCardItem
-                                                        title={recentScheduledPayment?.createdAt?.toString()}
-                                                        customTitleStyles="text-xs text-gray-900 truncate text-white"/>
+                                            <div className="flex items-end bg-purple-900 p-3">
+                                                <div className="flex w-full">
+                                                    <Image src="/assets/icons/file-white.svg" alt="file"
+                                                           className="flex text-white" width={24} height={24}
+                                                    />
+                                                    <div
+                                                        className="flex justify-between items-center ml-3 text-white w-full">
+                                                        <InfoCardItem
+                                                            title={recentScheduledPayment?.amount?.toString() ?? '0'}
+                                                            customTitleStyles="font-bold text-md text-gray-900 truncate text-white"
+                                                            description="Scheduled payments"
+                                                            customDescriptionStyles="text-xs leading-3 text-white"/>
+                                                        <InfoCardItem
+                                                            title={recentScheduledPayment?.createdAt?.toString()}
+                                                            customTitleStyles="text-xs text-gray-900 truncate text-white"/>
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    </div>}
+                                        </div>}
                                 </Card>
                             </div>
 
@@ -282,25 +279,26 @@ const OverviewContent: React.FC = () => {
                                     customStyles={`lg:w-2/3 flex flex-col p-3 w-full border border-purple-900 rounded-l-2xl rounded-xl mb-2 h-[197px] `}>
                                     <div className="flex flex-col h-full">
                                         <h5 className="text-sm md:font-medium leading-6">Recent Transactions</h5>
-                                        {transactions.length === 0 && <EmptyTransactionCardContent showContent={false}>
-                                            <div
-                                                className="flex flex-col justify-center items-center h-full w-full mt-4">
-                                                <div className="flex justify-between my-4">
-                                                    <Svg fill="#F29339" path={UserCircleFill}/>
-                                                    <Svg fill="#E6E6E6" path={LineArrowRight} customClasses="mx-8"
-                                                         width={46} height={6}/>
-                                                    <Svg fill="#59D3D4" path={UsersColorFill}/>
+                                        {transactions?.data?.length === 0 &&
+                                            <EmptyTransactionCardContent showContent={false}>
+                                                <div
+                                                    className="flex flex-col justify-center items-center h-full w-full mt-4">
+                                                    <div className="flex justify-between my-4">
+                                                        <Svg fill="#F29339" path={UserCircleFill}/>
+                                                        <Svg fill="#E6E6E6" path={LineArrowRight} customClasses="mx-8"
+                                                             width={46} height={6}/>
+                                                        <Svg fill="#59D3D4" path={UsersColorFill}/>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <div className="flex flex-col justify-center items-center">
-                                                <h5 className="font-semibold">No data available</h5>
-                                                <p className="font-normal text-xs text-center mt-1 lg:w-2/3 md:w-2/3 sm:w-1/3 sm:mx-6">{emptyTransactionDescription}</p>
-                                            </div>
-                                        </EmptyTransactionCardContent>}
+                                                <div className="flex flex-col justify-center items-center">
+                                                    <h5 className="font-semibold">No data available</h5>
+                                                    <p className="font-normal text-xs text-center mt-1 lg:w-2/3 md:w-2/3 sm:w-1/3 sm:mx-6">{emptyTransactionDescription}</p>
+                                                </div>
+                                            </EmptyTransactionCardContent>}
 
                                         <div className="">
                                             <div className="grid grid-cols-2 gap-x-10 gap-y-5">
-                                                {transactions.map((transaction) => (
+                                                {transactions?.data?.map((transaction) => (
                                                     <RecentTransactionCard transaction={transaction}
                                                                            customStyles="flex-grow space-x-3 rounded-lg hover:border-gray-400"/>
                                                 ))}
@@ -331,39 +329,40 @@ const OverviewContent: React.FC = () => {
                                         </div>
                                     </EmptyTransactionCardContent>}
 
-                                    {scheduledPayments && scheduledPayments?.length > 0 && <div className="flex flex-col h-full">
-                                        <div className="flex flex-grow justify-between items-center p-3">
-                                            <InfoCardItem title={recentScheduledPayment?.amount?.toString() ?? '0'}
-                                                          customTitleStyles="font-bold"
-                                                          description="Individuals"
-                                                          customDescriptionStyles="text-xs truncate"/>
-                                            <div className="flex items-center">
-                                                <Image src="/assets/icons/arrow-circle-right.svg" alt="file"
-                                                       className="flex text-white" width={24} height={24}
-                                                />
+                                    {scheduledPayments && scheduledPayments?.transactions?.length > 0 &&
+                                        <div className="flex flex-col h-full">
+                                            <div className="flex flex-grow justify-between items-center p-3">
+                                                <InfoCardItem title={recentScheduledPayment?.amount?.toString() ?? '0'}
+                                                              customTitleStyles="font-bold"
+                                                              description="Individuals"
+                                                              customDescriptionStyles="text-xs truncate"/>
+                                                <div className="flex items-center">
+                                                    <Image src="/assets/icons/arrow-circle-right.svg" alt="file"
+                                                           className="flex text-white" width={24} height={24}
+                                                    />
+                                                </div>
+                                                <InfoCardItem title={recentScheduledPayment?.amount?.toString() ?? '0'}
+                                                              customTitleStyles="font-bold"
+                                                              description="Total Amount"
+                                                              customDescriptionStyles="text-xs truncate"/>
                                             </div>
-                                            <InfoCardItem title={recentScheduledPayment?.amount?.toString() ?? '0'}
-                                                          customTitleStyles="font-bold"
-                                                          description="Total Amount"
-                                                          customDescriptionStyles="text-xs truncate"/>
-                                        </div>
-                                        <div className="flex items-end bg-purple-900 p-3">
-                                            <div className="flex w-full">
-                                                <div
-                                                    className="flex justify-between items-center ml-3 text-white w-full">
-                                                    <InfoCardItem
-                                                        svgFill="white" svgPath={File}
-                                                        title={recentScheduledPayment?.amount?.toString() ?? '0'}
-                                                        customTitleStyles="font-bold text-md text-gray-900 truncate text-white"
-                                                        description="Scheduled payments"
-                                                        customDescriptionStyles="text-xs leading-3 text-white"/>
-                                                    <InfoCardItem
-                                                        title={normalizeDate(recentScheduledPayment?.createdAt?.toString() ?? '')}
-                                                        customTitleStyles="text-xs text-gray-900 truncate text-white"/>
+                                            <div className="flex items-end bg-purple-900 p-3">
+                                                <div className="flex w-full">
+                                                    <div
+                                                        className="flex justify-between items-center ml-3 text-white w-full">
+                                                        <InfoCardItem
+                                                            svgFill="white" svgPath={File}
+                                                            title={recentScheduledPayment?.amount?.toString() ?? '0'}
+                                                            customTitleStyles="font-bold text-md text-gray-900 truncate text-white"
+                                                            description="Scheduled payments"
+                                                            customDescriptionStyles="text-xs leading-3 text-white"/>
+                                                        <InfoCardItem
+                                                            title={normalizeDate(recentScheduledPayment?.createdAt?.toString() ?? '')}
+                                                            customTitleStyles="text-xs text-gray-900 truncate text-white"/>
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    </div>}
+                                        </div>}
                                 </Card>
                             </div>
                         </div>
@@ -371,24 +370,25 @@ const OverviewContent: React.FC = () => {
                 </div>
             </div>
 
-            <div className="flex gap-5">
+            <div className="sm:flex-col md:flex-row lg:flex gap-5">
                 <Card
                     customStyles={`lg:w-2/3 flex flex-col border border-gray-200 w-full rounded-2xl h-[417px] px-[40px] p-3 my-5`}>
-                    <div className="flex justify-between w-full items-center">
+                    <div className="md:flex justify-between w-full items-center">
                         <h5 className="flex text-md md:font-medium leading-6 my-5">Total Counts</h5>
-                        {transactions.length > 0 && <div className="flex justify-end items-center">
-                            <div className="flex items-center text-purple-800">
-                                <div className="w-2 h-2 bg-purple-800 mx-2 rounded-full"/>
-                                Collections
-                            </div>
-                            <div className="flex items-center text-teal-300">
-                                <div className="w-2 h-2 bg-teal-300 mx-2 rounded-full"/>
-                                Disbursements
-                            </div>
-                        </div>}
+                        {transactions?.data?.length > 0 &&
+                            <div className="flex lg:justify-end items-center sm:flex-col md:flex-row">
+                                <div className="flex items-center text-purple-800">
+                                    <div className="w-2 h-2 bg-purple-800 mx-2 rounded-full"/>
+                                    Collections
+                                </div>
+                                <div className="flex items-center text-teal-300">
+                                    <div className="w-2 h-2 bg-teal-300 mx-2 rounded-full"/>
+                                    Disbursements
+                                </div>
+                            </div>}
                     </div>
 
-                    {!transactions.length && <EmptyTransactionCardContent showContent={false}>
+                    {!transactions?.data?.length && <EmptyTransactionCardContent showContent={false}>
                         <div
                             className="flex flex-col justify-center items-center h-full w-full">
                             <div className="flex justify-between my-4">
@@ -403,18 +403,18 @@ const OverviewContent: React.FC = () => {
                         </div>
                     </EmptyTransactionCardContent>}
 
-                    {transactions.length > 0 && <div className="flex flex-col h-full">
+                    {transactions?.data?.length > 0 && <div className="flex flex-col h-full">
                         <ReBarGraph data={barGraphData} dataOptionSet={getDataOptions} options={{tooltip: true}}/>
                     </div>}
                 </Card>
 
                 <Card customStyles="lg:w-1/3 flex flex-col border border-gray-200 w-full rounded-2xl my-5 h-[417px]">
                     <div className="flex flex-col h-full">
-                        <div className="flex justify-between w-full items-center m-5">
-                            <h5 className="flex text-md md:font-medium leading-6 m-3">Total Values</h5>
+                        <div className="flex justify-between w-full items-center mt-5 mx-5">
+                            <h5 className="flex text-md md:font-medium leading-6">Total Values</h5>
                         </div>
 
-                        {transactions.length === 0 && (
+                        {transactions?.data?.length === 0 && (
                             <EmptyTransactionCardContent showContent={false}>
                                 <div className="flex flex-col justify-center items-center h-full w-full">
                                     <div className="flex justify-between my-5">
@@ -429,16 +429,17 @@ const OverviewContent: React.FC = () => {
                             </EmptyTransactionCardContent>
                         )}
 
-                        {transactions.length > 0 && (
-                            <div className="flex flex-col justify-between p-3">
-                                <div className="flex justify-between border border-gray-100 rounded-lg text-center">
+                        {transactions?.data?.length > 0 && (
+                            <div className="flex flex-col mx-5">
+                                <div
+                                    className="flex justify-between border border-gray-100 rounded-lg text-center my-5">
                                     <TabsNav tabs={[
                                         {item: 'collections', label: 'collections'},
                                         {item: 'disbursements', label: 'disbursements'}
                                     ]} handleClick={handleNavClick} activeTab={activeNav}/>
                                 </div>
-                                <div className="flex flex-grow flex-col">
-                                    <ReAreaGraph data={areaGraphData} dataKey={activeNav}/>
+                                <div className="flex-grow mt-auto">
+                                    <ReAreaGraph data={areaGraphData} dataKey={activeNav} customClasses="flex-grow"/>
                                 </div>
                             </div>
                         )}

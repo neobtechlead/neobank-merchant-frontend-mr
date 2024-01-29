@@ -14,7 +14,6 @@ interface Props {
     }
 }
 
-
 const PaymentPage = ({searchParams: {id, confirm, reject, clientReference}}: Props) => {
     const handleNoReject = () => {
     }

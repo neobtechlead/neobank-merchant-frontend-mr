@@ -1,4 +1,4 @@
-import React, {ReactNode} from "react";
+import React, {ReactNode, ReactElement, JSXElementConstructor} from "react";
 
 export interface ITextInput {
     label: string;
@@ -12,8 +12,12 @@ export interface ITextInput {
     hasError?: (value: boolean) => void;
     passwordIcon?: boolean;
     disabled?: boolean;
-    children?: ReactNode;
+    children?: {
+        left?: ReactNode | ReactElement<any, string | JSXElementConstructor<any>>;
+        right?: ReactNode | ReactElement<any, string | JSXElementConstructor<any>>;
+    };
     customClasses?: string;
     customInputClasses?: string;
+    customLabelClasses?: string;
     height?: number;
 }

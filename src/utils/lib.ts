@@ -44,7 +44,7 @@ export const getCurrentDateTimeString = () => {
     return DateTime.local().toFormat('yyyyMMddHHmmss');
 };
 
-export const calculateDateRange = (range: number = 6, customStart: boolean = false, whereStart: DateTimeUnit = 'month') => {
+export const calculateDateRange = (range: number = 5, customStart: boolean = false, whereStart: DateTimeUnit = 'month') => {
     const endDate = DateTime.local();
     const dateDifference = endDate.minus({months: range})
     const startDate = customStart ? dateDifference.startOf(whereStart) : dateDifference
@@ -136,12 +136,17 @@ export const plotGraphData = (data: MonthlyTransactionSummaryType = {}) => {
 
             const valueEntry = {
                 name: period,
-                collections: data[month]?.collectionValue ? formatAmountGHS(String(data[month].collectionValue)) : collectionValue,
-                disbursements: data[month]?.disbursementValue ? formatAmountGHS(String(data[month].disbursementValue)) : disbursementValue,
+                collections: data[month]?.collectionValue
+                    ? Number(formatAmountGHS(String(data[month].collectionValue)))
+                    : Number(collectionValue),
+                disbursements: data[month]?.disbursementValue
+                    ? Number(formatAmountGHS(String(data[month].disbursementValue)))
+                    : Number(disbursementValue),
             };
 
             accumulator.volume.push(volumeEntry);
             accumulator.value.push(valueEntry);
+            console.log(accumulator)
             return accumulator;
         },
         {volume: [], value: []} as { volume: any[]; value: any[] }
@@ -186,11 +191,20 @@ export const getRSwitch = (phoneNumber: string = 'NEO'): string => {
     return matchedRSwitch ? matchedRSwitch.value : 'NEO';
 };
 
-
 export const getDisbursementType = (transaction: TransactionType): string => {
-    return transaction.batchId ? 'bulk' : 'single';
+    return transaction.batchExternalId ? 'bulk' : 'single';
 };
 
+export const isImageAvailable = (imageSrc: string = '', extension: string = 'png') => {
+    try {
+        const image = new Image();
+        image.src = `/assets/images/${imageSrc}.${extension}`;
+        return image.complete;
+    } catch (error) {
+        console.error('Error checking image availability', error);
+        return false;
+    }
+};
 
 
 

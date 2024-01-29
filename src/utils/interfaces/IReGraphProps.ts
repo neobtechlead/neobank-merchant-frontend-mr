@@ -14,6 +14,7 @@ export interface IReBarGraphProps {
 }
 
 export interface IAreaGraphProps {
-    data: TransactionGraphDataType[];
+    data: TransactionGraphDataType[]
     dataKey: string
+    customClasses: string
 }

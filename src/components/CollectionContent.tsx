@@ -13,12 +13,13 @@ import {TransactionType} from "@/utils/types/TransactionType";
 import Image from "next/image";
 import CollectionActionContent from "@/components/CollectionActionContent";
 import {ICollectionContentProps} from "@/utils/interfaces/ICollectionContentProps";
-import {ShareNetwork} from "@/assets/icons/ShareNetwork";
 import {useTransactionStore} from "@/store/TransactionStore";
 import {listCollections} from "@/api/collection";
 import {useUserStore} from "@/store/UserStore";
 import {formatAmount, formatAmountGHS, normalizeDate} from "@/utils/lib";
-import CopyButton from "@/components/CopyButton";
+import TextInput from "@/components/forms/TextInput";
+import {Search} from "@/assets/icons/Search";
+import {IListBoxItem} from "@/utils/interfaces/IDropdownProps";
 
 const CollectionContent: React.FC<ICollectionContentProps> = ({
                                                                   showPaymentLinkForm,
@@ -42,17 +43,21 @@ const CollectionContent: React.FC<ICollectionContentProps> = ({
     const {merchant, user} = useUserStore();
 
     useEffect(() => {
-        getCollectionTransactions()
         setDashboardState()
     }, [])
 
-    const getCollectionTransactions = () => {
-        listCollections(merchant?.externalId, user?.authToken)
+    const [pageOption, setPageOption] = useState<IListBoxItem>({
+        label: '10',
+        value: '10'
+    });
+
+    const getCollectionTransactions = (params: string) => {
+        listCollections(merchant?.externalId, user?.authToken, params)
             .then(async (response) => {
                 if (response.ok) {
-                    const collections = await response.json();
-                    const data = collections.data.transactions ?? []
-                    if (setCollections) setCollections(data);
+                    const feedback = await response.json();
+                    const {pagination, transactions} = feedback.data
+                    if (setCollections) setCollections({pagination, transactions});
                 }
             })
             .catch((error) => {
@@ -62,20 +67,30 @@ const CollectionContent: React.FC<ICollectionContentProps> = ({
 
     const [openTransactionDetail, setOpenTransactionDetail] = useState<boolean>(false);
 
+    const handleSetPageOption = (pageOption: IListBoxItem) => {
+        getCollectionTransactions(`rows=${pageOption.value}`)
+        setPageOption(pageOption)
+    }
+
+    const perPageOptions: IListBoxItem [] = [
+        {label: '10', value: '10'},
+        {label: '20', value: '20'},
+    ]
+
     const tableHeading = [
         {label: 'date', classes: ''},
         {label: 'client name', classes: 'hidden sm:table-cell'},
         {label: 'amount', classes: ''},
-        {label: 'status', classes: ''},
-        {label: 'action', classes: ''}
+        {label: 'status', classes: ''}
     ]
 
     const setDashboardState = () => {
+        getCollectionTransactions('')
         setShowSupportButton(true)
         setShowPaymentLinkForm(false)
         setNavTitle('')
 
-        if (collections && collections.length > 0) {
+        if (collections?.transactions && collections.transactions.length > 0) {
             setShowEmptyState(false)
             setHasActivity(true)
         } else {
@@ -87,10 +102,6 @@ const CollectionContent: React.FC<ICollectionContentProps> = ({
     const handlePrevious = () => {
     }
     const handleNext = () => {
-    }
-
-    const handleSharePaymentLink = (event: React.MouseEvent<HTMLDivElement>) => {
-        event.preventDefault()
     }
 
     const handleCollectionActionContent = () => {
@@ -154,6 +165,7 @@ const CollectionContent: React.FC<ICollectionContentProps> = ({
                                                height={87}
                                                width={387}
                                                className="border-b border-purple-900"
+                                               style={{width: 'auto'}}
                                         />
                                         <Image src="/assets/images/successful-badge.svg"
                                                alt="payment-link"
@@ -188,9 +200,18 @@ const CollectionContent: React.FC<ICollectionContentProps> = ({
                         </EmptyTransactionCardContent>
                     </div>
 
-                    <div className=" overflow-hidden rounded-lg border border-gray-100 m-5 px-5">
+                    <div className="w-1/4 ml-auto my-8">
+                        <TextInput label="" id="search" name="search" type="search" placeholder="Search" autoComplete=""
+                                   customInputClasses="grid ml-auto mr-4">
+                            {{
+                                left: <Svg fill="#4F4F4F" path={Search} customClasses="ml-2"/>
+                            }}
+                        </TextInput>
+                    </div>
+
+                    <div className="overflow-hidden rounded-lg border border-gray-100 px-5 ml-5">
                         <Table title="Payment Links" headers={tableHeading}>
-                            {collections && collections.map((transaction: TransactionType, key: number) => (
+                            {collections?.transactions && collections.transactions.map((transaction: TransactionType, key: number) => (
                                 <tr key={key} className={`text-center `}>
                                     <td className="relative py-2 pr-3 font-normal text-xs">
                                         <div
@@ -199,9 +220,9 @@ const CollectionContent: React.FC<ICollectionContentProps> = ({
                                             'absolute top-0 right-full h-px w-full bg-gray-100' : ''}`}/>
 
                                         {normalizeDate(transaction.createdAt ?? '', true)}
-                                        <div className={` ${key !== collections.length - 1 ?
+                                        <div className={` ${key !== collections.transactions.length - 1 ?
                                             'absolute bottom-0 left-0 right-0 h-px w-screen bg-gray-100' : ''}`}/>
-                                        <div className={` ${key !== collections.length - 1 ?
+                                        <div className={` ${key !== collections.transactions.length - 1 ?
                                             'absolute bottom-0 right-full h-px w-full bg-gray-100' : ''}`}/>
                                     </td>
                                     <td className="hidden px-3 py-2 sm:table-cell text-xs">{transaction.accountName}</td>
@@ -210,24 +231,18 @@ const CollectionContent: React.FC<ICollectionContentProps> = ({
                                         <Status customStyles="text-red-500"
                                                 status={transaction.status?.toLowerCase() ?? ''}/>
                                     </td>
-                                    <td className="relative py-2 pl-3 text-right text-xs font-medium flex justify-center gap-4">
-                                        <CopyButton text={'collection text'}/>
-                                        <div className="cursor-pointer p-2 group flex relative"
-                                             onClick={handleSharePaymentLink}>
-                                            <Svg fill="#4F4F4F" path={ShareNetwork} customClasses="cursor-pointer"/>
-                                            <span
-                                                className="group-hover:opacity-100 transition-opacity bg-gray-700 px-1 text-sm text-gray-100 rounded absolute top-[-2rem] left-1/2 -translate-x-1/2 opacity-0 m-4 mx-auto z-50 truncate">
-                                                Share
-                                            </span>
-                                        </div>
-                                    </td>
                                 </tr>
                             ))}
                         </Table>
                     </div>
                     <div className="mx-5 mb-[100px]">
-                        <Footer from={1} to={10} total={32} handlePrevious={handlePrevious}
-                                handleNext={handleNext}/>
+                        <Footer pagination={collections.pagination}
+                                handlePrevious={handlePrevious}
+                                handleNext={handleNext}
+                                pageOption={pageOption}
+                                setPageOption={handleSetPageOption}
+                                perPageOptions={perPageOptions}
+                        />
                     </div>
                 </div>}
 

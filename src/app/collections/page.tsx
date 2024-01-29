@@ -54,7 +54,7 @@ const CollectionPage: React.FC = () => {
     const handleBackButtonClicked = () => {
         setNavTitle('')
         setHeaderDetails()
-        collections && collections.length > 0 ? setHasActivity(true) : setShowEmptyState(true)
+        collections && collections.transactions.length > 0 ? setHasActivity(true) : setShowEmptyState(true)
     }
 
     return (

@@ -19,6 +19,7 @@ import {useUserStore} from "@/store/UserStore";
 import {listDisbursements} from "@/api/disbursement";
 import {formatAmount, formatAmountGHS, getDisbursementType, normalizeDate} from "@/utils/lib";
 import {useDisbursementStore} from "@/store/DisbursementStore";
+import {IListBoxItem} from "@/utils/interfaces/IDropdownProps";
 
 const DisbursementContent: React.FC<IDisbursementContent> = ({
                                                                  showDisbursementActionContent,
@@ -47,16 +48,15 @@ const DisbursementContent: React.FC<IDisbursementContent> = ({
 
     useEffect(() => {
         setDashboardState()
-        getDisbursementTransactions()
     }, [])
 
-    const getDisbursementTransactions = () => {
-        listDisbursements(merchant?.externalId, user?.authToken)
+    const getDisbursementTransactions = (params: string) => {
+        listDisbursements(merchant?.externalId, user?.authToken, params)
             .then(async (response) => {
                 if (response.ok) {
-                    const disbursements = await response.json();
-                    const data = disbursements.data;
-                    if (setDisbursements) setDisbursements(data.transactions);
+                    const feedback = await response.json();
+                    const {pagination, transactions} = feedback.data
+                    if (setDisbursements) setDisbursements({pagination, transactions});
                 }
             })
             .catch((error) => {
@@ -87,15 +87,15 @@ const DisbursementContent: React.FC<IDisbursementContent> = ({
         {label: 'status', classes: ''},
         {label: ' ', classes: ''}
     ]
-    const TransactionDetailDescription = "You can see the details of this transaction. Lorem Ipsum lawal ........You can see the details of this transaction. Lorem Ipsum lawal ........You can see the details of this transaction. Lorem Ipsum lawal ........You can see the details of this transaction. Lorem Ipsum lawal ........"
 
     const singleDisbursementActionDescription = "Send funds to a single recipient here."
     const bulkDisbursementActionDescription = "Send funds to multiple recipients at once."
 
     const setDashboardState = () => {
+        getDisbursementTransactions('')
         setNavTitle('')
         if (setShowDisbursementActionContent) setShowDisbursementActionContent(false)
-        if (disbursements && disbursements.length > 0) {
+        if (disbursements?.transactions && disbursements?.transactions.length > 0) {
             if (setShowEmptyState) setShowEmptyState(false)
             if (setHasActivity) setHasActivity(true)
         } else {
@@ -104,9 +104,24 @@ const DisbursementContent: React.FC<IDisbursementContent> = ({
         }
     }
 
+    const [pageOption, setPageOption] = useState<IListBoxItem>({
+        label: '10',
+        value: '10'
+    });
+
+    const perPageOptions: IListBoxItem [] = [
+        {label: '10', value: '10'},
+        {label: '20', value: '20'},
+    ]
+
     const handlePrevious = () => {
     }
     const handleNext = () => {
+    }
+
+    const handleSetPageOption = (pageOption: IListBoxItem) => {
+        getDisbursementTransactions(`rows=${pageOption.value}`)
+        setPageOption(pageOption)
     }
 
     const handleTransactionDetails = (transaction: TransactionType) => {
@@ -121,7 +136,7 @@ const DisbursementContent: React.FC<IDisbursementContent> = ({
         setShowBackButton(true)
         setShowSupportButton(false)
 
-        if (disbursements && !disbursements.length) {
+        if (disbursements && !disbursements?.transactions.length) {
             setNavTitle('single')
             setContentType('initiate')
             if (setShowEmptyState) setShowEmptyState(false)
@@ -224,7 +239,7 @@ const DisbursementContent: React.FC<IDisbursementContent> = ({
                     </div>
                     <div className=" overflow-hidden rounded-lg border border-gray-100 m-5 px-5">
                         <Table title="Disbursement Transaction" headers={tableHeading}>
-                            {disbursements && disbursements.map((transaction, key) => (
+                            {disbursements?.transactions && disbursements?.transactions.map((transaction, key) => (
                                 <tr key={key} className={`text-center `}>
                                     <td className="relative py-2 pr-3 font-normal text-xs">
                                         <div
@@ -232,12 +247,14 @@ const DisbursementContent: React.FC<IDisbursementContent> = ({
                                         <div className={` ${key === 0 ?
                                             'absolute top-0 right-full h-px w-full bg-gray-100' : ''}`}/>
                                         {normalizeDate(transaction.createdAt, true)}
-                                        <div className={` ${key !== disbursements.length - 1 ?
+                                        <div className={` ${key !== disbursements?.transactions.length - 1 ?
                                             'absolute bottom-0 left-0 right-0 h-px w-screen bg-gray-100' : ''}`}/>
-                                        <div className={` ${key !== disbursements.length - 1 ?
+                                        <div className={` ${key !== disbursements?.transactions.length - 1 ?
                                             'absolute bottom-0 right-full h-px w-full bg-gray-100' : ''}`}/>
                                     </td>
-                                    <td className="hidden px-3 py-2 sm:table-cell text-xs">{transaction.externalId}</td>
+                                    <td className="hidden px-3 py-2 sm:table-cell text-xs">
+                                        {transaction.batchExternalId ?? transaction.internalId}
+                                    </td>
                                     <td className="hidden px-3 py-2 md:table-cell text-xs capitalize">{getDisbursementType(transaction)}</td>
                                     <td className="px-3 py-2 text-xs">{formatAmount(formatAmountGHS(transaction.amount?.toString()))}</td>
                                     <td className="px-3 py-2 text-xs">
@@ -255,7 +272,11 @@ const DisbursementContent: React.FC<IDisbursementContent> = ({
                         </Table>
                     </div>
                     <div className="mx-5 mb-[100px]">
-                        <Footer from={1} to={10} total={32} handlePrevious={handlePrevious}
+                        <Footer pagination={disbursements.pagination}
+                                pageOption={pageOption}
+                                perPageOptions={perPageOptions}
+                                setPageOption={handleSetPageOption}
+                                handlePrevious={handlePrevious}
                                 handleNext={handleNext}/>
                     </div>
                 </div>}
@@ -269,7 +290,7 @@ const DisbursementContent: React.FC<IDisbursementContent> = ({
             <OverlayDetailContainer open={openTransactionDetail}
                                     handleOpen={setOpenTransactionDetail}
                                     title="Transaction Information"
-                                    description={TransactionDetailDescription}>
+                                    description="Here are the details of your transaction">
                 <div className="group relative flex flex-col py-3">
                     <TransactionDetail transaction={transaction}/>
                 </div>

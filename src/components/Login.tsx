@@ -11,6 +11,7 @@ import Button from '@/components/forms/Button';
 import {login, logout} from "@/api/auth";
 import {useUserStore} from "@/store/UserStore";
 import {getError} from "@/utils/lib";
+import Logo from "@/assets/images/logo.svg";
 
 export default function Login() {
     const router = useRouter();
@@ -77,7 +78,7 @@ export default function Login() {
             <div className="lg-w-3/5 m-auto">
                 <div className="w-full h-full max-w-sm px-3">
                     <div className="m-auto">
-                        <Image src="/assets/images/logo.png" width={172} height={70} alt="logo"/>
+                        <Image src={Logo} width={257} height={34} alt="CF Transact" style={{width: "auto"}}/>
 
                         <div className="my-8">
                             <h1 className="text-xl font-semibold">Sign in to your account</h1>

@@ -19,7 +19,8 @@ const TextInput: React.FC<ITextInput> = ({
                                              disabled = false,
                                              children,
                                              customClasses,
-                                             customInputClasses
+                                             customInputClasses,
+                                             customLabelClasses= 'capitalize',
                                          }) => {
     const [inputValue, setInputValue] = useState('');
     const [error, setError] = useState<string | null>(null);
@@ -58,7 +59,7 @@ const TextInput: React.FC<ITextInput> = ({
 
     return (
         <div className={`mb-4 ${customClasses}`}>
-            <label htmlFor={id} className="block text-sm font-medium leading-6 text-gray-900 capitalize">
+            <label htmlFor={id} className={`block text-sm font-medium leading-6 text-gray-900 ${customLabelClasses}`}>
                 {label}
             </label>
             <div className=" mt-2 flex flex-col gap-y-2">
@@ -67,7 +68,7 @@ const TextInput: React.FC<ITextInput> = ({
                         className={`flex rounded-md border border-gray-100 sm:min-w-md ${
                             error ? 'border-red-400' : 'focus:border-purple-900'
                         } focus-within:border-purple-900 relative`}>
-                        {children}
+                        {children?.left}
                         <input
                             id={id}
                             name={name}
@@ -83,6 +84,12 @@ const TextInput: React.FC<ITextInput> = ({
                                     ${customInputClasses}`}
                             disabled={disabled}
                         />
+
+                        {children?.right && (
+                            <div className="absolute right-0 flex truncate h-full z-20">
+                                {children?.right}
+                            </div>
+                        )}
 
                         {type === 'password' && passwordIcon && (
                             <div

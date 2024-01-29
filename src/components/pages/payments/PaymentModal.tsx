@@ -5,7 +5,6 @@ import TextButton from "@/components/pages/payments/TextButton";
 import IconWithStackedTextLabels from "@/components/pages/payments/IconWithStackedTextLabels";
 import type {IconWithData} from "@/utils/types";
 
-
 interface Props {
     title: string;
     description: string;
