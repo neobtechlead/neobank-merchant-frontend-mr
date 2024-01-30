@@ -10,7 +10,7 @@ import {useUserStore} from "@/store/UserStore";
 import {useAuthHelper} from "@/hooks/useAuthEffect";
 
 const DisbursementPage: React.FC = () => {
-    const pageDescription = "Disburse Funds is a powerful tool that allows you to efficiently transfer allocated funds to their intended recipients. Whether it's sending payments to vendors, distributing salaries to employees, or making withdrawals, this feature streamlines the process for you."
+    const pageDescription = "Send funds to your recipients, individually or in bulk with ease."
     const pageTitle = 'Disburse Funds';
 
     const {
@@ -28,7 +28,7 @@ const DisbursementPage: React.FC = () => {
     const {disbursements} = useTransactionStore();
     const {
         isAuthenticated,
-        setIsAuthenticated,
+        setIsAuthenticated
     } = useUserStore();
 
     const [showDisbursementActionContent, setShowDisbursementActionContent] = useState<boolean>(false);
@@ -54,7 +54,7 @@ const DisbursementPage: React.FC = () => {
 
     const handleBackButtonClicked = () => {
         setHeaderDetails()
-        disbursements && disbursements.length > 0 ? setHasActivity(true) : setShowEmptyState(true)
+        disbursements?.transactions && disbursements.transactions.length > 0 ? setHasActivity(true) : setShowEmptyState(true)
     }
 
     return (

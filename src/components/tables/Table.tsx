@@ -1,6 +1,5 @@
 import React from "react";
 import Svg from "@/components/Svg";
-import {FileDownload} from "../../../public/assets/icons/FileDownload";
 import Button from "@/components/forms/Button";
 
 interface TableHeader {

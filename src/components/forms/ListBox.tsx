@@ -1,4 +1,4 @@
-import React, {Fragment, useState} from 'react';
+import React, {Fragment} from 'react';
 import {Listbox, Transition} from '@headlessui/react';
 import {CaretDown} from "@/assets/icons/Caret";
 import Svg from "@/components/Svg";
@@ -34,13 +34,13 @@ const ListBox: React.FC<IListBoxProps> = ({
                         leaveTo="opacity-0"
                     >
                         <Listbox.Options
-                            className="absolute mt-2 max-h-60 w-full overflow-auto rounded-md bg-white text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm z-50"
+                            className="absolute mt-2 w-full overflow-scroll rounded-md bg-white text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
                         >
-                            {data.map((item, key) => (
+                            {data?.map((item, key) => (
                                 <Listbox.Option key={key} value={item} disabled={disableFirstKey ? key === 0 : false}>
                                     {({active}) => (
                                         <div
-                                            className={`${active ? 'text-purple-900 bg-purple-200' : ''}
+                                            className={`${active ? 'text-gray-900 bg-gray-100' : ''}
                                             cursor-pointer select-none py-2 pl-3 pr-9 text-gray-900 capitalize
                                             ${disableFirstKey && key === 0 ? 'pointer-events-none opacity-50' : ''}
                                           `}

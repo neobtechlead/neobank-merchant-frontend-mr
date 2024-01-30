@@ -11,29 +11,31 @@ import Button from '@/components/forms/Button';
 import {login, logout} from "@/api/auth";
 import {useUserStore} from "@/store/UserStore";
 import {getError} from "@/utils/lib";
+import Logo from "@/assets/images/logo.svg";
 
 export default function Login() {
     const router = useRouter();
     const [formData, setFormData] = useState({email: '', password: ''});
     const [hasError, setHasError] = useState<boolean | undefined>(false);
     const [error, setError] = useState<string | null>(null);
-    const {user, setUser, isAuthenticated, setIsAuthenticated} = useUserStore();
+    const {
+        user,
+        setUser,
+        setMerchant,
+        setIsAuthenticated
+    } = useUserStore();
 
     useEffect(() => {
-        if (!isAuthenticated) {
-            if (setIsAuthenticated) setIsAuthenticated(false)
-            if (setUser) setUser({})
-        }
         logout(user?.authToken).then(async (response) => {
-            const feedback = await response.json()
-            console.log('feedback: ', feedback)
             if (response.ok) {
                 if (setUser) setUser({})
+                if (setMerchant) setMerchant({})
+                if (setIsAuthenticated) setIsAuthenticated(false)
             }
         }).catch(error => {
             console.log(error)
         })
-    }, [isAuthenticated])
+    }, [])
 
     const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const {name, value} = event.target;
@@ -49,9 +51,17 @@ export default function Login() {
             .then(async (response) => {
                 const feedback = (await response.json())
                 if (response.ok) {
-                    const data = feedback.data;
-                    if (setUser) setUser({accessKey: data.accessKey})
+                    const {data} = feedback;
+                    if (setUser) setUser({
+                        externalId: data.id,
+                        email: data.email,
+                        firstName: data.firstName,
+                        lastName: data.lastName,
+                        authToken: data.token,
+                        roles: data.roles
+                    })
                     if (setIsAuthenticated) setIsAuthenticated(true)
+                    if (setMerchant) setMerchant(data.merchant)
                     return router.push('/overview')
                 }
 
@@ -68,7 +78,7 @@ export default function Login() {
             <div className="lg-w-3/5 m-auto">
                 <div className="w-full h-full max-w-sm px-3">
                     <div className="m-auto">
-                        <Image src="/assets/images/logo.png" width={172} height={70} alt="logo"/>
+                        <Image src={Logo} width={257} height={34} alt="CF Transact" style={{width: "auto"}}/>
 
                         <div className="my-8">
                             <h1 className="text-xl font-semibold">Sign in to your account</h1>

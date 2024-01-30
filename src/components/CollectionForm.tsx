@@ -1,32 +1,44 @@
-import React, {FormEventHandler, useState} from 'react';
+import React, {useState} from 'react';
 import TextInput from "@/components/forms/TextInput";
 import Button from "@/components/forms/Button";
 import Svg from "@/components/Svg";
 import {CaretDown} from "@/assets/icons/Caret";
 import {ICollectionForm} from "@/utils/interfaces/ICollectionForm";
-import {CollectionFormDataType} from "@/utils/types/CollectionFormDataType";
 import Image from "next/image";
+import {TransactionType} from "@/utils/types/TransactionType";
 
 const CollectionForm: React.FC<ICollectionForm> = ({onSubmit}) => {
-    const [hasError, setHasError] = useState<boolean | undefined>(false);
-    const [error, setError] = useState<string | null>(null);
-    const [formData, setFormData] = useState<CollectionFormDataType>({
+    const [hasError, setHasError] = useState<boolean>(false);
+    const [formData, setFormData] = useState<TransactionType>({
         recipient: '',
         phone: '',
         email: '',
-        amount: '',
+        amount: 0,
         reference: '',
         type: '',
     });
 
+    const isFormValid = () => {
+        return formData.recipient?.trim() !== '' &&
+            formData.email?.trim() !== '' &&
+            formData.reference?.trim() !== '' &&
+            formData.phone?.trim() !== '' &&
+            ![undefined, null, 0].includes(formData.amount)
+    };
+
     const handleInputChange: React.ChangeEventHandler<HTMLInputElement> = (event) => {
-        const { name, value } = event.target;
+        const {name, value} = event.target;
         setFormData({...formData, [name]: value});
     };
 
     const handleSubmit: React.FormEventHandler<HTMLFormElement> = (event) => {
         event.preventDefault();
-        if (onSubmit) onSubmit(formData)
+
+        if (isFormValid()) {
+            if (onSubmit) onSubmit(formData);
+        } else {
+            return setHasError(true);
+        }
     };
 
     return (
@@ -45,7 +57,7 @@ const CollectionForm: React.FC<ICollectionForm> = ({onSubmit}) => {
                         hasError={setHasError}
                         autoComplete=""
                         customClasses="w-full md:w-2/3 lg:w-1/3"
-                     />
+                    />
                 </div>
                 <div className="flex flex-col items-center">
                     <TextInput
@@ -87,12 +99,15 @@ const CollectionForm: React.FC<ICollectionForm> = ({onSubmit}) => {
                         hasError={setHasError} autoComplete=""
                         customClasses="w-full md:w-2/3 lg:w-1/3"
                     >
-                        <div
-                            className="flex select-none items-center px-4 bg-gray-300 sm:text-sm rounded-l-md font-semibold"
-                            style={{background: '#EFEFEF'}}>
-                            <Image src="/assets/images/ghana-flag.svg" alt="flag" height={19} width={30}/>
-                            <Svg fill="#4F4F4F" path={CaretDown}/>
-                        </div>
+                        {{
+                            left: <div
+                                className="flex select-none items-center px-4 bg-gray-300 sm:text-sm rounded-l-md font-semibold"
+                                style={{background: '#EFEFEF'}}>
+                                <Image src="/assets/images/ghana-flag.svg" alt="flag" height={19} width={30}
+                                       style={{width: 'auto'}}/>
+                                <Svg fill="#4F4F4F" path={CaretDown}/>
+                            </div>
+                        }}
                     </TextInput>
                 </div>
                 <div className="flex flex-col items-center">
@@ -107,9 +122,13 @@ const CollectionForm: React.FC<ICollectionForm> = ({onSubmit}) => {
                         hasError={setHasError} autoComplete=""
                         customClasses="w-full md:w-2/3 lg:w-1/3"
                     >
+                        {{
+                            left: <div className="">
                             <span
-                                className="flex select-none items-center px-4 bg-gray-300 sm:text-sm rounded-l-md font-semibold"
+                                className="flex select-none items-center p-4 md:p-5 bg-gray-300 sm:text-sm rounded-l-md font-semibold"
                                 style={{background: '#EFEFEF'}}>GHS</span>
+                            </div>
+                        }}
                     </TextInput>
                 </div>
                 <div className="flex flex-col items-center">

@@ -69,13 +69,14 @@ const VerificationContent: React.FC = () => {
 
                     const data = feedback.data
                     if (setUser) setUser({
+                        externalId: data.id,
                         firstName: data.firstName,
                         lastName: data.lastName,
                         email: data.email,
                         authToken: data.token,
+                        roles: data.roles
                     })
-
-                    if (setMerchant) setMerchant({roles: data.roles})
+                    if (setMerchant) setMerchant(data.merchant)
                 } else
                     return setError(getError(feedback))
             })
@@ -85,12 +86,12 @@ const VerificationContent: React.FC = () => {
             })
     };
 
-    const handlePasswordChange = (password: string, confirmPassword: string) => {
+    const handlePasswordCreate = (password: string, confirmPassword: string) => {
         if (setLoading) setLoading(true);
         createPassword(password, confirmPassword, user?.authToken)
             .then(async (response) => {
                 const feedback = await response.json()
-                console.log(feedback, feedback)
+                console.log('password feedback: ', feedback)
                 if (setLoading) setLoading(false);
 
                 if (response.ok) {
@@ -153,7 +154,7 @@ const VerificationContent: React.FC = () => {
                                     <VerifyOtp handleSubmit={handleVerifyOtp} handleResend={handleResendOtp}/>}
 
                                 {otpVerified && <CreatePassword handleError={handleError}
-                                                                handleSubmit={handlePasswordChange}/>}
+                                                                handleSubmit={handlePasswordCreate}/>}
                             </div>
                         </div>
                     </div>

@@ -10,6 +10,9 @@ export interface IEmptyTransactionCardContentProps {
     iconWidth?: number,
     iconHeight?: number,
     iconCustomStyle?: string,
-    customStyles?: string;
-    children?: React.ReactNode
+    customStyles?: string,
+    children?: React.ReactNode,
+    data?: [],
+    emptyTitle?: string,
+    emptyDescription?: string,
 }

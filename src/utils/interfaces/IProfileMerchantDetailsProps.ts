@@ -1,3 +1,2 @@
 interface IProfileMerchantProps {
-    merchant: object
 }

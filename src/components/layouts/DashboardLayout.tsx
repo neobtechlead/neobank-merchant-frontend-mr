@@ -1,6 +1,6 @@
 import React, {useEffect} from 'react';
 import NavigationLinks from "@/components/navigation/NavigationLinks";
-import Logo from "@/assets/images/logo.png";
+import Logo from "@/assets/images/logo.svg";
 import {useDashboardStore} from "@/store/DashboardStore";
 import Image from "next/image";
 import ProfileDropdown from "@/components/profile/ProfileDropdown";
@@ -96,7 +96,7 @@ const DashboardLayout: React.FC<IDashboardLayoutProps> = ({
                 <nav
                     className="bg-white flex justify-between md:items-center px-6 pb-0 md:px-8 h-16 border border-b-gray-200">
                     <div className={`flex md:justify-start items-center ${logoStyles}`}>
-                        {showLogo && <Image src={Logo} alt="neobank" width={0} height={35} style={{width: 'auto'}}/>}
+                        {showLogo && <Image src={Logo} alt="CF Transact" width={0} height={35} style={{width: 'auto'}}/>}
                         {children.logo}
                     </div>
 

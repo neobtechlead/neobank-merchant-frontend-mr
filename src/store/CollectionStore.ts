@@ -1,7 +1,15 @@
 import {create} from 'zustand'
-import {DisbursementStoreType} from "@/utils/types/DisbursementStoreType";
+import {devtools, persist} from "zustand/middleware";
+import {CollectionStoreType} from "@/utils/types/CollectionStoreType";
 
-export const useCollectionStore = create<DisbursementStoreType>((set) => ({
-    actionType: 'single',
-    setActionType: (action) => set((state) => ({...state, action})),
-}))
+export const useCollectionStore = create<CollectionStoreType>()(
+    devtools(
+        persist(
+            (set) => ({
+                actionType: 'single',
+                setActionType: (action: string) => set({actionType: action}),
+            }),
+            {name: 'collection'},
+        ),
+    ),
+)

@@ -1,16 +1,26 @@
 import {TransactionType} from "@/utils/types/TransactionType";
+import {MonthlyTransactionSummaryType} from "@/utils/types/MonthlyTransactionSummaryType";
+import {PaginationType} from "@/utils/types/PaginationType";
 
 export type TransactionStoreType = {
     setTransaction: (transaction: TransactionType) => void,
     transaction: TransactionType,
-    setTransactions: (transactions: TransactionType[]) => void
-    transactions: TransactionType[],
-    setDisbursements?: (disbursements: TransactionType[]) => void,
+    setTransactions: (data: { pagination: PaginationType, data: TransactionType[] }) => void
+    transactions: { pagination: PaginationType, data: TransactionType[] },
+
+    setDisbursements?: (data: { pagination: PaginationType, transactions: TransactionType[] }) => void,
     setDisbursement?: (disbursement: TransactionType) => void,
-    disbursements?: TransactionType[],
-    setCollections?: (collections: TransactionType[]) => void,
+    disbursements: { pagination: PaginationType, transactions: TransactionType[] },
+
+    setCollections?: (data: { pagination: PaginationType, transactions: TransactionType[] }) => void,
     setCollection?: (collection: TransactionType) => void,
-    collections?: TransactionType[],
-    setScheduledPayments?: (scheduledPayments: TransactionType[]) => void,
-    scheduledPayments?: TransactionType[],
+    collections: { pagination: PaginationType, transactions: TransactionType[] },
+
+    setScheduledPayments?: (data: { pagination: PaginationType, transactions: TransactionType[] }) => void,
+    scheduledPayments?: { pagination: PaginationType, transactions: TransactionType[] },
+
+    setTransactionSummary?: (summary: MonthlyTransactionSummaryType) => void,
+    transactionSummary?: MonthlyTransactionSummaryType,
+    setLoading?: (loading: boolean) => void,
+    loading?: boolean,
 }

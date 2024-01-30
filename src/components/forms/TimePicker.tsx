@@ -1,4 +1,4 @@
-import React, {Fragment, useEffect, useState} from 'react';
+import React, {Fragment} from 'react';
 import {Listbox, Transition} from '@headlessui/react';
 import Svg from '@/components/Svg';
 import {ITimePickerProps} from "@/utils/interfaces/ITimePickerProps";

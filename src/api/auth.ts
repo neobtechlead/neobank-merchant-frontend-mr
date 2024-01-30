@@ -54,11 +54,11 @@ export async function logout(jwtToken: string | undefined) {
     });
 }
 
-export async function updatePassword(currentPassword: string, newPassword: string, jwtToken: string | undefined) {
+export async function updatePassword(currentPassword: string, newPassword: string, authToken: string | undefined) {
     return await fetcher('api/v1/auth/update-password', {
         method: 'POST',
         headers: {
-            'Authorization': `Bearer ${jwtToken}`,
+            'Authorization': `Bearer ${authToken}`,
             'Content-Type': 'application/json'
         },
         body: JSON.stringify({currentPassword, newPassword})

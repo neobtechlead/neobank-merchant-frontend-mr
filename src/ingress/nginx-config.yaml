@@ -1,0 +1,19 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: nginx-config
+  namespace: default
+data:
+  proxy-connect-timeout: "10s"
+  proxy-read-timeout: "10s"
+  client-max-body-size: "2m"
+  http-snippet: |
+    server {
+      listen 8080 proxy_protocol;
+      server_tokens off;
+      return 301 https://$host$request_uri;
+    }
+  ssl-redirect: "false"
+  use-forwarded-headers: "true"
+  use-proxy-protocol: "true"
+  error-log-level: debug

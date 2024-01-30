@@ -2,18 +2,26 @@ import React, {FormEventHandler, useEffect, useState} from 'react';
 import TextInput from "@/components/forms/TextInput";
 import Button from "@/components/forms/Button";
 import InfoCardItem from "@/components/InfoCardItem";
+import {updatePassword} from "@/api/auth";
+import {useUserStore} from "@/store/UserStore";
+import {getError} from "@/utils/lib";
 
 const SettingsChangePasswordForm: React.FC = () => {
     const [formData, setFormData] = useState({
-        password: "",
+        currentPassword: "",
         newPassword: "",
         confirmPassword: ""
     });
-    const [hasError, setHasError] = useState<boolean>(false);
+    const {
+        user
+    } = useUserStore();
 
     useEffect(() => {
         if (Object.values(formData).every((field) => field === '')) setHasError(true)
     }, []);
+
+    const [hasError, setHasError] = useState<boolean>(false);
+    const [error, setError] = useState<string | null>('');
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const {name, value} = e.target;
@@ -24,14 +32,24 @@ const SettingsChangePasswordForm: React.FC = () => {
 
     const handleFormSubmitted: FormEventHandler<HTMLFormElement> = (event) => {
         event.preventDefault()
-        if (formData.password !== formData.confirmPassword) {
-            setHasError(true)
-        }
-
+        if (formData.newPassword !== formData.confirmPassword) return setHasError(true)
         if (!hasError) return handlePasswordChange()
     }
 
     const handlePasswordChange = () => {
+        setHasError(true)
+        updatePassword(formData.currentPassword, formData.confirmPassword, user?.authToken)
+            .then(async (response) => {
+                const feedback = await response.json()
+                if (response.ok) {
+                    return setHasError(false)
+                }
+                setHasError(true)
+                setError(getError(feedback))
+            })
+            .catch((error) => {
+                console.log('error: ', error)
+            })
     }
 
     return (

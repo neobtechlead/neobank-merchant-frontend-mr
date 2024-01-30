@@ -13,7 +13,7 @@ import {Download} from "@/assets/icons/Download";
 import {ITransactionDetailProps} from "@/utils/interfaces/ITransactionProps";
 import Alert from "@/components/Alert";
 import InfoCardItem from "@/components/InfoCardItem";
-import {formatAmount, normalizeDate} from "@/utils/lib";
+import {formatAmount, formatAmountGHS, normalizeDate} from "@/utils/lib";
 
 const TransactionDetail: React.FC<ITransactionDetailProps> = ({transaction, customClasses}) => {
 
@@ -21,14 +21,13 @@ const TransactionDetail: React.FC<ITransactionDetailProps> = ({transaction, cust
         <div className={`border-gray-200 p-6 ${customClasses}`}>
             <div className="capitalize">
                 <Alert
-                    alertType={transaction.status}
+                    alertType={transaction.status?.toString()}
                     description={`${transaction.status?.toLowerCase()} Transaction`}
-                    descriptionClasses=""
                 />
             </div>
 
             <div className="mt-4">
-                <h5 className="font-bold text-2xl">{formatAmount(transaction.amount)}</h5>
+                <h5 className="font-bold text-2xl">{formatAmount(formatAmountGHS(transaction.amount?.toString()))}</h5>
                 <div className="relative flex flex-col min-w-0 flex-1 my-2 mx-4">
                     {transaction.type === 'bulk' && <div className="grid grid-cols-2">
                         <InfoCardItem description={"250/270"}
@@ -49,7 +48,7 @@ const TransactionDetail: React.FC<ITransactionDetailProps> = ({transaction, cust
                         />
                     </div>}
 
-                    <InfoCardItem description={transaction.externalId}
+                    <InfoCardItem description={transaction.internalId ?? ''}
                                   title="Transaction ID"
                                   customStyles="my-2"
                                   customTitleStyles="mt-5 text-sx"
@@ -72,7 +71,7 @@ const TransactionDetail: React.FC<ITransactionDetailProps> = ({transaction, cust
                                       svgPath={Info}
                         />}
 
-                    <InfoCardItem description={transaction.accountNumber}
+                    <InfoCardItem description={transaction.accountNumber ?? ''}
                                   title="Phone Number"
                                   customStyles="my-2"
                                   customTitleStyles="mt-5 text-sx"
@@ -86,7 +85,7 @@ const TransactionDetail: React.FC<ITransactionDetailProps> = ({transaction, cust
                                   svgPath={Calendar}
                     />
 
-                    <InfoCardItem description={transaction.narration}
+                    <InfoCardItem description={transaction.narration ?? ''}
                                   title="Reference"
                                   customStyles="my-2"
                                   customTitleStyles="mt-5 text-sx"

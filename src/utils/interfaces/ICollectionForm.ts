@@ -1,5 +1,5 @@
-import {CollectionFormDataType} from "@/utils/types/CollectionFormDataType";
+import {TransactionType} from "@/utils/types/TransactionType";
 
 export interface ICollectionForm {
-    onSubmit: (formData: CollectionFormDataType) => void;
+    onSubmit: (formData: TransactionType) => void;
 }

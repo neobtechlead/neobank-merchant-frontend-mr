@@ -11,27 +11,31 @@ import InfoCardItem from "@/components/InfoCardItem";
 import CollectionConfirmation from "@/components/CollectionConfirmation";
 import {ShareNetwork} from "@/assets/icons/ShareNetwork";
 import CollectionForm from "@/components/CollectionForm";
-import {CollectionFormDataType} from "@/utils/types/CollectionFormDataType";
 import {TransactionType} from "@/utils/types/TransactionType";
-import {formatAmount} from "@/utils/lib";
-import {generatePaymentLink} from "@/api/collection";
+import {formatAmount, toMinorDigits} from "@/utils/lib";
 import {useUserStore} from "@/store/UserStore";
 import {useTransactionStore} from "@/store/TransactionStore";
 import CopyButton from "@/components/CopyButton";
+import Tabs from "@/components/forms/Tabs";
+import {ITab} from "@/utils/interfaces/ITab";
+import TextInput from "@/components/forms/TextInput";
+import {generatePaymentLink} from "@/api/collection";
 
 const CollectionActionContent: React.FC<ICollectionActionContentProps> = ({resetDashboard}) => {
     const [openOverlay, setOpenOverlay] = useState<boolean>(false);
     const [openModal, setModalOpen] = useState<boolean>(false);
+    const [showPaymentLinkInfo, setShowPaymentLinkInfo] = useState<boolean>(false);
     const [modalTitle, setModalTitle] = useState<string>('Confirm Collection Details');
     const [modalDescription, setModalDescription] = useState<string>('Please confirm the information below before proceeding.');
     const [modalButtonText, setModalButtonText] = useState<string>('Confirm');
-    const [transactionSuccessful, setTransactionSuccessful] = useState<boolean>(false);
+    const [transactionSuccessful, setTransactionSuccessful] = useState<boolean>(true);
+    const [transactionConfirmation, setTransactionConfirmation] = useState<boolean>(false);
     const [overlayDetailContainerDescription, setOverlayDetailContainerDescription] = useState<string>('');
     const [formData, setFormData] = useState<TransactionType | undefined>();
+    const [paymentLink, setPaymentLink] = useState<string>('https://neobank-merchant-portal.vercel.app/payments?id=');
 
-    const handleCollectionConfirmation = (formData: CollectionFormDataType) => {
-        const data = {...formData}
-        setFormData(data)
+    const handleCollectionConfirmation = (formData: TransactionType) => {
+        setFormData(formData)
         setOverlayDetailContainerDescription('This generated link will be automatically sent to the customer’s email address provided in the form. Please alert customer to make payment within 5 days after link has been generated.')
         setOpenOverlay(true)
     };
@@ -47,6 +51,7 @@ const CollectionActionContent: React.FC<ICollectionActionContentProps> = ({reset
 
     const {
         user,
+        merchant
     } = useUserStore();
 
     const {
@@ -54,33 +59,82 @@ const CollectionActionContent: React.FC<ICollectionActionContentProps> = ({reset
     } = useTransactionStore();
 
     const handleTransactionConfirmation = () => {
+        setShowPaymentLinkInfo(false)
+        setTransactionSuccessful(false)
+        setTransactionConfirmation(true)
         setModalOpen(true)
     }
 
     const handlePaymentLinkGeneration = () => {
         if (!transactionSuccessful) {
-            generatePaymentLink('b615555a-f190-4d03-a20b-0e5648efcb23', user?.authToken, {
-                accountNumber: formData?.accountNumber,
+            generatePaymentLink(merchant?.externalId, user?.authToken, {
+                accountNumber: formData?.phone,
                 accountIssuer: "NEO",
-                accountName: formData?.description,
-                narration: formData?.narration,
+                accountName: formData?.recipient,
+                narration: formData?.reference,
                 email: formData?.email,
-                amount: formData?.amount,
+                amount: toMinorDigits(formData?.amount),
                 processAt: formData?.processAt
             }).then(async response => {
+                const {data} = await response.json();
+
                 if (response.ok) {
                     setModalTitle('Link Generated Successfully')
-                    setModalDescription('You have successfully created a payment link. You can share this link by either copying or through social media platforms.')
+                    setModalDescription('Your payment link was successfully generated. Copy this link to share with your desired recipient.')
                     setTransactionSuccessful(true)
+                    if (setCollection) setCollection(data)
+                    setPaymentLink(data?.emailPaymentLink)
+                    setTransactionConfirmation(false)
                     setModalButtonText('Go to collections dashboard')
-                    const collection = await response.json();
-                    if (setCollection) setCollection(collection?.data)
-                    return
+                    setTransactionSuccessful(true)
                 }
             })
+        } else {
+            setModalOpen(false)
+            resetCollectionStore()
         }
-        setModalOpen(false)
-        resetCollectionStore()
+    }
+
+    const sharePaymentLinkTabs = [
+        {name: 'email', label: 'email'},
+        {name: 'phone', label: 'phone number'}
+    ]
+
+    const [activeShareTab, setActiveShareTab] = useState<ITab>(sharePaymentLinkTabs[0]);
+    const [shareInputPlaceholder, setShareInputPlaceholder] = useState<string>('Enter email address');
+
+    const handleActiveShareTab = (tab: ITab) => {
+        try {
+            if (tab.name === 'email') {
+                setShareInputPlaceholder('Enter email address')
+            } else
+                setShareInputPlaceholder('Enter phone number')
+
+            setActiveShareTab(tab)
+        } catch (error) {
+            console.error('Error in handleSharePaymentLink:', error);
+        }
+    };
+
+    const handleSharePaymentLink: React.MouseEventHandler<HTMLDivElement> = (event) => {
+        try {
+            event.preventDefault();
+            setShowPaymentLinkInfo(true);
+            setModalTitle("Share Payment Link");
+            setModalDescription('');
+            setTransactionSuccessful(false);
+            setTransactionConfirmation(false);
+            setActiveShareTab(sharePaymentLinkTabs[0])
+
+            setShareInputPlaceholder('Enter email address')
+            return
+        } catch (error) {
+            console.error('handleSharePaymentLink:', error);
+        }
+    };
+
+    const handleShareAction = () => {
+        console.log(activeShareTab)
     }
 
     const resetCollectionStore = () => {
@@ -90,11 +144,9 @@ const CollectionActionContent: React.FC<ICollectionActionContentProps> = ({reset
         setShowProfileDropdown(true)
         setShowBackButton(false)
         setHeaderTitle('Funds Collection')
-        setHeaderDescription("Funds Collection is a vital process that involves gathering and consolidating financial contributions or payments from various sources or contributors. Whether you are managing donations for a non-profit organization, collecting payments for goods or services, or coordinating group contributions, efficient funds collection is key to financial success.")
+        setHeaderDescription("Collect payments seamlessly from single or multiple sources.")
         resetDashboard()
     }
-
-    const paymentLink = "https://neobank.completefarmer.com/transactions/new-payment-link"
 
     return (
         <div className="w-full h-full">
@@ -114,72 +166,113 @@ const CollectionActionContent: React.FC<ICollectionActionContentProps> = ({reset
 
             <Modal showCloseButton={true} setModalOpen={setModalOpen} showModal={openModal} customClasses="relative">
                 {transactionSuccessful && <div>
-                    <div className="">
-                        <Image className="mt-5" src="/assets/images/confetti.svg" alt="confetti" width={765}
-                               height={765}/>
-                    </div>
-                    <div className="flex justify-center ">
-                        <Image className="" src="/assets/icons/check-circle.svg" alt="success" width={170}
-                               height={171}/>
+                    <Image className="mt-5" src="/assets/images/confetti.svg" alt="confetti" width={765}
+                           height={765}/>
+                    <div className="flex justify-center">
+                        <Image src="/assets/icons/check-circle.svg" alt="success" width={170} height={171}/>
                     </div>
                 </div>}
 
-                <div className="flex flex-col p-10">
-                    <div className="sm:flex sm:items-start justify-center">
-                        <div className="text-center sm:ml-4 sm:mt-0 sm:text-left">
-                            <Dialog.Title as="h3"
-                                          className="text-base font-semibold leading-6 text-gray-900 text-center">
+                <div className="flex flex-col p-5 py-10">
+                    <div className="block w-full">
+                        <div className="text-center sm:mt-0 sm:text-left">
+                            <Dialog.Title
+                                as="h3"
+                                className={`text-base font-semibold leading-6 text-gray-900 text-xl mb-10 
+                                ${showPaymentLinkInfo ? 'text-left' : 'text-center'}`}>
                                 {modalTitle}
                             </Dialog.Title>
-                            <div className="mt-4">
-                                <p className="text-xs text-gray-500 text-center">
-                                    {modalDescription}
-                                </p>
+                            <Dialog.Description
+                                className={`text-xs ${showPaymentLinkInfo ? 'text-left mb-0' : 'mb-10 text-center text-gray-500'}`}>
+                                {modalDescription}
+                            </Dialog.Description>
 
-                                {transactionSuccessful &&
-                                    <div
-                                        className="flex items-center justify-between rounded mt-[20px]">
-                                        <div
-                                            className="flex items-center p-2 border rounded-md mr-3 max-h-[50px] text-gray-700 text-xs">
-                                            {paymentLink}
+                            <div className="mt-4">
+                                {transactionConfirmation &&
+                                    <div className="bg-gray-100 my-3 rounded border border-gray-10">
+                                        <div className="flex flex-col p-5 py-0 divide-y divide-gray-300">
+                                            <InfoCardItem description={formData?.recipient?.toString()}
+                                                          title="Recipients Name"
+                                                          customStyles="my-2"
+                                                          customTitleStyles="mt-5 text-xs font-semibold"/>
+                                            <InfoCardItem description={formData?.email?.toString()}
+                                                          title="Email Address"
+                                                          customStyles="my-2"
+                                                          customTitleStyles="mt-5 text-xs font-semibold"/>
+                                            <InfoCardItem description={formData?.reference?.toString()}
+                                                          title="Reference"
+                                                          customStyles="my-2"
+                                                          customTitleStyles="mt-5 text-xs font-semibold"/>
+                                            <InfoCardItem description={formData?.phone?.toString()}
+                                                          title="Recipient's Contact Number"
+                                                          customStyles="my-2"
+                                                          customTitleStyles="mt-5 text-xs font-semibold"/>
+                                            <InfoCardItem description={formatAmount(formData?.amount)}
+                                                          title="Total Amount"
+                                                          customStyles="my-2"
+                                                          customTitleStyles="mt-5 text-xs font-semibold"/>
                                         </div>
-                                        <div className="cursor-pointer p-2 group flex relative">
-                                            <Svg fill="#4F4F4F" path={ShareNetwork} customClasses="cursor-pointer"/>
-                                            <span
-                                                className="group-hover:opacity-100 transition-opacity bg-gray-700 px-1 text-sm text-gray-100 rounded absolute top-[-2rem] left-1/2 -translate-x-1/2 opacity-0 m-4 mx-auto z-50 truncate">
+                                    </div>}
+
+                                {transactionSuccessful && <div
+                                    className="flex items-center justify-between rounded mt-[20px]">
+                                    <div
+                                        className="flex items-center p-2 border rounded-md mr-3 max-h-[50px] text-gray-700 text-xs">
+                                        {paymentLink}
+                                    </div>
+                                    <div className="cursor-pointer p-2 group flex relative"
+                                         onClick={handleSharePaymentLink}>
+                                        <Svg fill="#4F4F4F" path={ShareNetwork} customClasses="cursor-pointer"/>
+                                        <span
+                                            className="group-hover:opacity-100 transition-opacity bg-gray-700 px-1 text-sm text-gray-100 rounded absolute top-[-2rem] left-1/2 -translate-x-1/2 opacity-0 m-4 mx-auto z-50 truncate">
                                                 Share
                                             </span>
-                                        </div>
-                                        <CopyButton text={paymentLink}/>
-                                    </div>}
+                                    </div>
+                                    <CopyButton text={paymentLink}/>
+                                </div>}
+
+                                {showPaymentLinkInfo && <div>
+                                    <TextInput
+                                        label="The generated link can be found at:"
+                                        id="paymentLink"
+                                        name="paymentLink"
+                                        type="text"
+                                        customLabelClasses="text-sm font-normal no-wrap"
+                                        placeholder={paymentLink}
+                                    >
+                                        {{
+                                            right: <CopyButton text={paymentLink} position="right"
+                                                               customClasses="bg-white mr-1" showTooltip={false}/>
+                                        }}
+                                    </TextInput>
+                                    <Tabs selected={activeShareTab} setSelected={handleActiveShareTab}
+                                          data={sharePaymentLinkTabs}/>
+                                    <TextInput
+                                        id="paymentLink"
+                                        name="paymentLink"
+                                        type="text"
+                                        customClasses="mt-5"
+                                        placeholder={shareInputPlaceholder}
+                                        label="">
+                                        {{
+                                            right: <Button customStyles="rounded p-3" buttonType="button"
+                                                           styleType="primary"
+                                                           onClick={handleShareAction}>Share link</Button>
+                                        }}
+                                    </TextInput>
+                                </div>}
                             </div>
                         </div>
                     </div>
 
-                    {!transactionSuccessful && <div className="bg-gray-100 my-3 rounded border border-gray-10">
-                        <div className="flex flex-col justify-center p-5 py-0 divide-y divide-gray-300">
-                            <InfoCardItem description={formData?.recipient ?? 'data'} title="Recipients Name"
-                                          customStyles="my-2" customTitleStyles="mt-5 text-xs font-semibold"/>
-                            <InfoCardItem description={formData?.email} title="Email Address"
-                                          customStyles="my-2" customTitleStyles="mt-5 text-xs font-semibold"/>
-                            <InfoCardItem description={formData?.reference} title="Reference"
-                                          customStyles="my-2" customTitleStyles="mt-5 text-xs font-semibold"/>
-                            <InfoCardItem description={formData?.phone} title="Recipient's Contact Number"
-                                          customStyles="my-2" customTitleStyles="mt-5 text-xs font-semibold"/>
-                            <InfoCardItem description={formatAmount(formData?.amount)} title="Total Amount"
-                                          customStyles="my-2"
-                                          customTitleStyles="mt-5 text-xs font-semibold"/>
-                        </div>
-                    </div>}
-
-                    <div
+                    {!showPaymentLinkInfo && <div
                         className={`sm:mt-4 sm:flex sm:flex-row-reverse ${transactionSuccessful ? 'pt-[50px]' : 'mt6'}`}>
                         <Button buttonType="button" styleType="primary" customStyles="p-4 md:p-5 rounded-lg"
                                 onClick={handlePaymentLinkGeneration}>
                             {modalButtonText} {transactionSuccessful &&
                             <Svg fill="#FFFFFF" path={ArrowCircleRight} customClasses="px-2"/>}
                         </Button>
-                    </div>
+                    </div>}
                 </div>
             </Modal>
         </div>
