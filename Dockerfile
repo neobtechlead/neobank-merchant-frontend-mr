@@ -34,9 +34,6 @@ RUN rm /etc/nginx/conf.d/*
 # create cache directory for nginx 
 #RUN mkdir -p /var/cache/nginx
 
-
-RUN mkdir -p /var/cache/nginx
-
 COPY ./.nginx/nginx.conf /etc/nginx/nginx.conf
 
 ## Remove default nginx index page
