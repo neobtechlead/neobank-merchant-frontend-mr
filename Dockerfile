@@ -32,6 +32,8 @@ FROM nginx:stable-alpine
 RUN rm /etc/nginx/conf.d/*
 
 # create cache directory for nginx 
+#RUN mkdir -p /var/cache/nginx
+
 RUN mkdir -p /var/cache/nginx
 
 
