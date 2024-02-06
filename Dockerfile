@@ -29,10 +29,14 @@ RUN yarn build
 # production environment
 FROM nginx:stable-alpine
 
+RUN rm /etc/nginx/conf.d/*
+
 COPY ./.nginx/nginx.conf /etc/nginx/nginx.conf
 
 ## Remove default nginx index page
 RUN rm -rf /usr/share/nginx/html/*
+
+# copy build files to nginx delivery directory
 COPY --from=builder /home/node/app/build /usr/share/nginx/html
 EXPOSE 3000 80
 
