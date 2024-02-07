@@ -23,4 +23,6 @@ export type TransactionStoreType = {
     transactionSummary?: MonthlyTransactionSummaryType,
     setLoading?: (loading: boolean) => void,
     loading?: boolean,
+
+    resetTransactionStore?: () => void,
 }

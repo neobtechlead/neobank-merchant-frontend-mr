@@ -17,7 +17,7 @@ import {IDisbursementContent} from "@/utils/interfaces/IDisbursementContent";
 import {useTransactionStore} from "@/store/TransactionStore";
 import {useUserStore} from "@/store/UserStore";
 import {listDisbursements} from "@/api/disbursement";
-import {formatAmount, formatAmountGHS, getDisbursementType, normalizeDate} from "@/utils/lib";
+import {extractPaginationData, formatAmount, formatAmountGHS, getDisbursementType, normalizeDate} from "@/utils/lib";
 import {useDisbursementStore} from "@/store/DisbursementStore";
 import {IListBoxItem} from "@/utils/interfaces/IDropdownProps";
 
@@ -55,7 +55,8 @@ const DisbursementContent: React.FC<IDisbursementContent> = ({
             .then(async (response) => {
                 if (response.ok) {
                     const feedback = await response.json();
-                    const {pagination, transactions} = feedback.data
+                    const {transactions} = feedback.data
+                    const pagination = extractPaginationData(feedback.data)
                     if (setDisbursements) setDisbursements({pagination, transactions});
                 }
             })
@@ -115,8 +116,18 @@ const DisbursementContent: React.FC<IDisbursementContent> = ({
     ]
 
     const handlePrevious = () => {
+        if (disbursements) {
+            const {pagination} = disbursements
+            const previousPageNumber = pagination.pageNumber - 1
+            return pagination.firstPage ? null : getDisbursementTransactions(`rows=${pageOption.value}&pageNumber=${previousPageNumber}`)
+        }
     }
     const handleNext = () => {
+        if (disbursements) {
+            const {pagination} = disbursements
+            const nextPageNumber = pagination.pageNumber + 1
+            return pagination.lastPage ? null : getDisbursementTransactions(`rows=${pageOption.value}&pageNumber=${nextPageNumber}`)
+        }
     }
 
     const handleSetPageOption = (pageOption: IListBoxItem) => {
@@ -130,8 +141,8 @@ const DisbursementContent: React.FC<IDisbursementContent> = ({
     }
 
     const handleDisbursementActionContent = (actionType = '') => {
-        let pageHeading = ''
-        let pageDescription = ''
+        let pageHeading
+        let pageDescription
         setShowLogo(false)
         setShowBackButton(true)
         setShowSupportButton(false)

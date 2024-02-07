@@ -8,4 +8,5 @@ export type UserStoreType = {
     merchant?: MerchantType,
     isAuthenticated?: boolean,
     setIsAuthenticated?: (isAuthenticated: boolean) => void,
+    resetUserStore?: () => void,
 }

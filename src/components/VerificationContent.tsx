@@ -1,103 +1,54 @@
 'use client'
-import React, {useEffect, useState} from 'react';
-import {useRouter, useSearchParams} from "next/navigation";
+import React, {useState} from 'react';
+import AuthContentWrapper from "@/components/auth/AuthContentWrapper";
 import VerifyOtp from "@/components/VerifyOtp";
-import Alert from "@/components/Alert";
-import {verifyOtp, verifyEmailLink, createPassword, resendOtp} from "@/api/auth";
-import {useUserStore} from "@/store/UserStore";
 import CreatePassword from "@/components/CreatePassword";
-import {useUtilsStore} from "@/store/UtilsStore";
-import Loader from "@/components/Loader";
+import {resendOtp, resetPassword, verifyPasswordResetOtp} from "@/api/auth";
 import {getError} from "@/utils/lib";
+import {useSearchParams, useRouter} from "next/navigation";
+import {useUserStore} from "@/store/UserStore";
+import {useUtilsStore} from "@/store/UtilsStore";
 
 const VerificationContent: React.FC = () => {
-    const [title, setTitle] = useState<string | null>('Enter OTP');
-    const [description, setDescription] = useState<string | null>('We have sent you a One Time Password to your email address.');
-    const [error, setError] = useState<string | null>(null);
+    const [title, setTitle] = useState<string>('Enter OTP');
+    const [description, setDescription] = useState<string>('Type the verification code sent your mobile number.');
+    const [error, setError] = useState<string>('');
     const [otpVerified, setOtpVerified] = useState<boolean | null>(false);
-    const router = useRouter();
-    const [verificationComplete, setVerificationComplete] = useState(false);
+    const token = useSearchParams().get('token')
+    const router = useRouter()
+
     const {
         user,
         setUser,
         setMerchant,
-        setIsAuthenticated
+        setIsAuthenticated,
     } = useUserStore();
-
-    const {loading, setLoading} = useUtilsStore()
-    const token = useSearchParams().get('token')
-
-    useEffect(() => {
-        if (!verificationComplete && !['', null, undefined].includes(token)) {
-            handleEmailLinkVerification()
-        }
-    }, [])
-
-    const handleEmailLinkVerification = () => {
-        verifyEmailLink(token)
-            .then(async (response) => {
-                const feedback = await response.json()
-                if (setLoading) setLoading(false);
-                setVerificationComplete(true);
-
-                if (response.ok) {
-                    const data = feedback.data
-                    if (setUser) setUser({
-                        verificationToken: token ?? '',
-                        accessKey: data.accessKey,
-                    })
-                } else
-                    return setError(getError(feedback))
-            })
-            .catch((error) => {
-                setVerificationComplete(false);
-                setError(error.message)
-            })
-    }
+    const {loading, setLoading} = useUtilsStore();
 
     const handleVerifyOtp = async (otp: string) => {
-        if (setLoading) setLoading(true);
-        verifyOtp(user?.accessKey, otp)
+        if (setLoading) setLoading(true)
+
+        verifyPasswordResetOtp(token, otp)
             .then(async (response) => {
                 const feedback = await response.json()
-                if (setLoading) setLoading(false);
+                if (setLoading) setLoading(false)
+
                 if (response.ok) {
                     setError('')
                     setOtpVerified(true)
-                    setTitle('Create a Password')
+                    setTitle('Create a new password')
                     setDescription('Create a password to sign in to your account')
 
-                    const data = feedback.data
+                    const {data} = feedback
                     if (setUser) setUser({
                         externalId: data.id,
                         firstName: data.firstName,
                         lastName: data.lastName,
                         email: data.email,
-                        authToken: data.token,
-                        roles: data.roles
+                        authToken: data.accessKey
                     })
-                    if (setMerchant) setMerchant(data.merchant)
-                } else
-                    return setError(getError(feedback))
-            })
-            .catch((error) => {
-                if (setLoading) setLoading(false);
-                setError(error.message)
-            })
-    };
 
-    const handlePasswordCreate = (password: string, confirmPassword: string) => {
-        if (setLoading) setLoading(true);
-        createPassword(password, confirmPassword, user?.authToken)
-            .then(async (response) => {
-                const feedback = await response.json()
-                console.log('password feedback: ', feedback)
-                if (setLoading) setLoading(false);
-
-                if (response.ok) {
-                    if (setIsAuthenticated) setIsAuthenticated(true)
-                    setError('')
-                    return router.push('/overview')
+                    setOtpVerified(true)
                 } else
                     return setError(getError(feedback))
             })
@@ -108,10 +59,13 @@ const VerificationContent: React.FC = () => {
     };
 
     const handleResendOtp = () => {
-        resendOtp(user?.accessKey)
+        if (setLoading) setLoading(false);
+        setError('')
+
+        resendOtp(token ?? user?.authToken)
             .then(async (response) => {
                 if (response.ok) {
-                    setError('')
+
                     const data = await response.json()
                     if (setUser) return setUser({accessKey: data.accessKey})
                 }
@@ -121,46 +75,49 @@ const VerificationContent: React.FC = () => {
                 setError(error.message)
             })
     };
+
+    const handlePasswordCreate = (password: string) => {
+        if (setLoading) setLoading(true);
+
+        resetPassword(password, user?.authToken)
+            .then(async (response) => {
+                const feedback = await response.json()
+                if (setLoading) setLoading(false);
+
+                if (!response.ok) return setError(getError(feedback))
+                setError('')
+
+                const {data} = feedback
+                if (setIsAuthenticated) setIsAuthenticated(true)
+                if (setMerchant) setMerchant({...data.merchant})
+                if (setUser) setUser({
+                    externalId: data.id,
+                    email: data.email,
+                    firstName: data.firstName,
+                    lastName: data.lastName,
+                    authToken: data.token,
+                    roles: data.roles
+                })
+
+                return router.push('/overview')
+            })
+            .catch((error) => {
+                if (setLoading) setLoading(false);
+                setError(error.message)
+            })
+    };
+
     const handleError = (error: string) => setError(error)
 
     return (
-        <>
-            {loading && (
-                <Loader type="default"
-                        customClasses="w-10 h-10 text-purple-200 dark:text-gray-600 fill-purple-900"/>
-            )}
-            {verificationComplete && (
-                <div className="relative flex min-h-full flex-col justify-center overflow-hidden bg-transparent">
-                    <div
-                        className="relative bg-white px-6 py-[50px] md:shadow-md shadow-indigo-600/10 mx-auto w-full max-w-lg rounded-2xl">
-                        <div className="mx-auto flex w-full max-w-sm flex-col space-y-8">
-                            <div className="flex flex-col items-center justify-center text-center space-y-2">
-                                <div className="font-semibold text-3xl">
-                                    <p>{title}</p>
-                                </div>
-                                <div className="flex flex-row text-sm font-medium text-gray-800">
-                                    <p className="max-w-md">{description}</p>
-                                </div>
-                            </div>
-
-                            <div className="">
-                                <div className="my-30">
-                                    {error &&
-                                        <Alert alertType="error" description={error}
-                                               customClasses="rounded-md text-sm mb-10 mt-2"/>}
-                                </div>
-
-                                {!otpVerified &&
-                                    <VerifyOtp handleSubmit={handleVerifyOtp} handleResend={handleResendOtp}/>}
-
-                                {otpVerified && <CreatePassword handleError={handleError}
-                                                                handleSubmit={handlePasswordCreate}/>}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            )}
-        </>);
+        <AuthContentWrapper title={title} description={description} error={error}>
+            <div className="min-w-[27rem]">
+                {!otpVerified &&
+                    <VerifyOtp handleSubmit={handleVerifyOtp} handleResend={handleResendOtp} otpLength={6}
+                               loading={loading ?? false}/>}
+                {otpVerified && <CreatePassword handleError={handleError} handleSubmit={handlePasswordCreate}/>}
+            </div>
+        </AuthContentWrapper>);
 };
 
 export default VerificationContent;

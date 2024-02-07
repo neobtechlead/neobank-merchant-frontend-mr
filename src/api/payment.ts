@@ -1,6 +1,5 @@
 import type {ApiResponse, PaymentData, PaymentLinkData} from "@/utils/types";
 
-//utility function to handle response error
 const handleErrorResponse = async (response: Response) => {
     let errorMessage = "Something went wrong. Please try again.";
     if (response.status >= 400 && response.status < 500) {
@@ -11,7 +10,6 @@ const handleErrorResponse = async (response: Response) => {
     }
     return errorMessage;
 };
-
 
 export const getPaymentData = async (id: string): Promise<PaymentData> => {
     const URL = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/merchants/payments/${id}`
@@ -35,8 +33,6 @@ export const sendRejectionNotification = async (clientReference: string): Promis
 
 }
 
-
-//Client Side Fetching
 export const getPaymentLink = async (clientReference: string): Promise<PaymentLinkData> => {
     const URL = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/merchants/payment-link/${clientReference}`
     const response = await fetch(URL, {cache: "no-cache"})
@@ -49,8 +45,6 @@ export const getPaymentLink = async (clientReference: string): Promise<PaymentLi
 
 }
 
-
-//Client Side Fetching
 export const getPaymentDataClient = async (id: string, status = ""): Promise<PaymentData> => {
     const URL = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/merchants/payments/${id}?status=${status}`
     const response = await fetch(URL)

@@ -12,6 +12,7 @@ import {login, logout} from "@/api/auth";
 import {useUserStore} from "@/store/UserStore";
 import {getError} from "@/utils/lib";
 import Logo from "@/assets/images/logo.svg";
+import {useTransactionStore} from "@/store/TransactionStore";
 
 export default function Login() {
     const router = useRouter();
@@ -22,19 +23,22 @@ export default function Login() {
         user,
         setUser,
         setMerchant,
-        setIsAuthenticated
+        setIsAuthenticated,
+        resetUserStore
     } = useUserStore();
+    const {resetTransactionStore} = useTransactionStore();
 
     useEffect(() => {
-        logout(user?.authToken).then(async (response) => {
-            if (response.ok) {
-                if (setUser) setUser({})
-                if (setMerchant) setMerchant({})
-                if (setIsAuthenticated) setIsAuthenticated(false)
-            }
-        }).catch(error => {
-            console.log(error)
-        })
+        if (user?.authToken) {
+            logout(user?.authToken).then(async (response) => {
+                if (response.ok && await response.json()) {
+                    if (resetUserStore) resetUserStore()
+                    if (resetTransactionStore) resetTransactionStore()
+                }
+            }).catch(error => {
+                console.log(error)
+            })
+        }
     }, [])
 
     const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -117,7 +121,7 @@ export default function Login() {
                                     </div>
 
                                     <div className="text-sm leading-6">
-                                        <Link href="#"
+                                        <Link href="auth/forgot-password"
                                               className="font-semibold text-purple-900 hover:text-purple-500 text-md">
                                             Forgot password?
                                         </Link>

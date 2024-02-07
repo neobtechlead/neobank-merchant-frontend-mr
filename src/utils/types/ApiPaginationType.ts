@@ -1,6 +1,4 @@
-export type PaginationType = {
-    pageNumber: number
-    offset: number
+export type ApiPaginationType = {
     size: number
     lastPage: boolean
     firstPage: boolean

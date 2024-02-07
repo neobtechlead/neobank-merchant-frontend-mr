@@ -6,4 +6,5 @@ interface IDetailItemProps {
     customStyles?: string;
     customTitleStyles?: string
     customDescriptionStyles?: string
+    children?: React.ReactNode
 }

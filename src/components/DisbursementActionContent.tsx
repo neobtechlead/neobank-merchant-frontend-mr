@@ -1,6 +1,6 @@
 'use client'
 
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import TextInput from "@/components/forms/TextInput";
 import Button from "@/components/forms/Button";
 import Toggle from "@/components/forms/Toggle";
@@ -24,12 +24,13 @@ import {useDisbursementStore} from "@/store/DisbursementStore";
 import {DateTime} from "luxon";
 import {TransactionType} from "@/utils/types/TransactionType";
 import {disburse, downloadBulkDisbursementTemplate} from "@/api/disbursement";
-import {formatAmount, getCurrentDateTimeString, getError, getInitials, getRSwitch, toMinorDigits} from "@/utils/lib";
+import {formatAmount, getCurrentDateTimeString, getError, getInitials, toMinorDigits} from "@/utils/lib";
 import {useUserStore} from "@/store/UserStore";
 import {useTransactionStore} from "@/store/TransactionStore";
 import Alert from "@/components/Alert";
 import {DropdownInput} from "@/components/forms/DropdownInput";
 import {DropdownInputItemType} from "@/utils/types/DropdownInputItemType";
+import Loader from "@/components/Loader";
 
 const DisbursementActionContent: React.FC<IDisbursementActionContent> = ({
                                                                              contentType,
@@ -58,6 +59,10 @@ const DisbursementActionContent: React.FC<IDisbursementActionContent> = ({
         {id: 3, name: 'AirtelTigo', code: 'ATL'},
         {id: 4, name: 'CF Transact', code: 'NEO'}
     ]
+
+    useEffect(() => {
+        if (setLoading) setLoading(false);
+    }, [])
 
     const [provider, setProvider] = useState(providers[0])
 
@@ -139,9 +144,7 @@ const DisbursementActionContent: React.FC<IDisbursementActionContent> = ({
         setActionType
     } = useDisbursementStore();
 
-    const {
-        setDisbursement,
-    } = useTransactionStore();
+    const {disbursements, setDisbursements, loading, setLoading} = useTransactionStore();
 
     const handleTransactionConfirmation = () => {
         setModalOpen(true)
@@ -156,6 +159,7 @@ const DisbursementActionContent: React.FC<IDisbursementActionContent> = ({
         if (provider.code === '') return
 
         if (!transactionSuccessful) {
+            if (setLoading) setLoading(true)
             let payload = {}
             if (actionType === 'single') {
                 payload = {
@@ -165,7 +169,7 @@ const DisbursementActionContent: React.FC<IDisbursementActionContent> = ({
                     accountName: formData.recipient,
                     narration: formData.description,
                     amount: toMinorDigits(formData.amount),
-                    processAt: toggleEnabled ? formData.date : null,
+                    processAt: toggleEnabled ? convertDateTimeToISOFormat() : null
                 };
             } else if (actionType === 'bulk') {
                 const currentDateTimeString = getCurrentDateTimeString();
@@ -182,21 +186,37 @@ const DisbursementActionContent: React.FC<IDisbursementActionContent> = ({
             }
 
             const response = await disburse(actionType, user?.authToken, {...payload});
-            const feedback = await response.json();
+            const {data} = await response.json();
 
+            if (setLoading) setLoading(false)
             if (response.ok) {
                 setModalTitle('Transaction Successful')
                 setModalDescription(`Payment sent to ${formData.recipient} was successful. They can access the funds in their wallet using USSD.`)
-                if (setDisbursement) setDisbursement(feedback.data);
+
+                const transactions = disbursements.transactions?.length > 0
+                    ? {transactions: [data, ...disbursements.transactions], pagination: disbursements.pagination}
+                    : {transactions: [data], pagination: disbursements.pagination}
+
+                if (setDisbursements) setDisbursements(transactions);
+
                 setTransactionSuccessful(true);
                 return setModalButtonText('Go to disbursement dashboard');
             }
 
             setHasError(true)
-            return setError(getError(feedback))
+            return setError(getError(data))
         }
         setModalOpen(false)
         resetDisbursementStore()
+    }
+
+
+    const convertDateTimeToISOFormat = () => {
+        const timeString = formData.time?.trim().replace(/\s+/g, '');
+        const dateTimeString = `${formData.date} ${timeString}`.trim();
+        const luxonDateTime = DateTime.fromFormat(dateTimeString, "dd/MM/yyyy h:mma");
+
+        return !luxonDateTime.isValid ? null : luxonDateTime.toFormat("yyyy-MM-dd'T'HH:mm:ss");
     }
 
     const getBulkDisbursementFileSummary = async () => {
@@ -460,9 +480,16 @@ const DisbursementActionContent: React.FC<IDisbursementActionContent> = ({
                     <div
                         className={`sm:mt-4 sm:flex sm:flex-row-reverse ${transactionSuccessful ? 'pt-[50px]' : 'mt6'}`}>
                         <Button buttonType="button" styleType="primary" customStyles="p-4 md:p-5 rounded-lg"
-                                onClick={handleDisbursementTransaction}>
-                            {modalButtonText} {transactionSuccessful &&
-                            <Svg fill="#FFFFFF" path={ArrowCircleRight} customClasses="px-2"/>}
+                                onClick={handleDisbursementTransaction} disabled={loading}>
+                            {!loading && <>
+                                {modalButtonText} {transactionSuccessful &&
+                                <Svg fill="#FFFFFF" path={ArrowCircleRight} customClasses="px-2"/>}
+                            </>}
+
+                            {loading && <Loader type="default"
+                                                customClasses="relative"
+                                                customAnimationClasses="w-10 h-10 text-white dark:text-gray-600 fill-purple-900"
+                            />}
                         </Button>
                     </div>
                 </div>

@@ -11,10 +11,8 @@ import {ReportFilterFormDataType} from "@/utils/types/ReportFilterFormDataType";
 import {useTransactionStore} from "@/store/TransactionStore";
 import {listTransactions} from "@/api/transaction";
 import {useUserStore} from "@/store/UserStore";
-import {formatAmount, formatAmountGHS, normalizeDate} from "@/utils/lib";
-import {TransactionType} from "@/utils/types/TransactionType";
+import {extractPaginationData, formatAmount, formatAmountGHS, normalizeDate} from "@/utils/lib";
 import {IListBoxItem} from "@/utils/interfaces/IDropdownProps";
-import {listDisbursements} from "@/api/disbursement";
 
 const ReportContent: React.FC<IReportContentProps> = ({
                                                           hasActivity,
@@ -57,7 +55,8 @@ const ReportContent: React.FC<IReportContentProps> = ({
             .then(async (response) => {
                 if (response.ok) {
                     const feedback = await response.json();
-                    const {pagination, transactions} = feedback.data
+                    const {transactions} = feedback.data;
+                    const pagination = extractPaginationData(feedback.data)
                     if (setTransactions) setTransactions({pagination, data: transactions});
                 }
             })
@@ -69,7 +68,7 @@ const ReportContent: React.FC<IReportContentProps> = ({
     const setDashboardState = () => {
         setShowSupportButton(true)
         setNavTitle('')
-        return transactions?.data?.length > 0 ? setHasActivity(true) : setShowEmptyState(true)
+        return transactions && transactions?.data?.length > 0 ? setHasActivity(true) : setShowEmptyState(true)
     }
 
     const [pageOption, setPageOption] = useState<IListBoxItem>({
@@ -83,8 +82,18 @@ const ReportContent: React.FC<IReportContentProps> = ({
     ]
 
     const handlePrevious = () => {
+        if (transactions) {
+            const {pagination} = transactions
+            const previousPageNumber = pagination.pageNumber - 1
+            return pagination.firstPage ? null : fetchTransactions(`rows=${pageOption.value}&pageNumber=${previousPageNumber}`)
+        }
     }
     const handleNext = () => {
+        if (transactions) {
+            const {pagination} = transactions
+            const nextPageNumber = pagination.pageNumber + 1
+            return pagination.lastPage ? null : fetchTransactions(`rows=${pageOption.value}&pageNumber=${nextPageNumber}`)
+        }
     }
 
     const handleSetPageOption = (pageOption: IListBoxItem) => {

@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import Button from "@/components/forms/Button";
 import OverlayDetailContainer from "@/components/OverlayDetailContainer";
 import {useDashboardStore} from "@/store/DashboardStore";
@@ -20,6 +20,7 @@ import Tabs from "@/components/forms/Tabs";
 import {ITab} from "@/utils/interfaces/ITab";
 import TextInput from "@/components/forms/TextInput";
 import {generatePaymentLink} from "@/api/collection";
+import Loader from "@/components/Loader";
 
 const CollectionActionContent: React.FC<ICollectionActionContentProps> = ({resetDashboard}) => {
     const [openOverlay, setOpenOverlay] = useState<boolean>(false);
@@ -40,6 +41,10 @@ const CollectionActionContent: React.FC<ICollectionActionContentProps> = ({reset
         setOpenOverlay(true)
     };
 
+    useEffect(() => {
+        if (setLoading) setLoading(false);
+    }, [])
+
     const {
         setShowLogo,
         setShowNavigation,
@@ -54,9 +59,7 @@ const CollectionActionContent: React.FC<ICollectionActionContentProps> = ({reset
         merchant
     } = useUserStore();
 
-    const {
-        setCollection,
-    } = useTransactionStore();
+    const {collections, setCollections, loading, setLoading} = useTransactionStore();
 
     const handleTransactionConfirmation = () => {
         setShowPaymentLinkInfo(false)
@@ -66,6 +69,8 @@ const CollectionActionContent: React.FC<ICollectionActionContentProps> = ({reset
     }
 
     const handlePaymentLinkGeneration = () => {
+        if (setLoading) setLoading(true)
+
         if (!transactionSuccessful) {
             generatePaymentLink(merchant?.externalId, user?.authToken, {
                 accountNumber: formData?.phone,
@@ -76,22 +81,30 @@ const CollectionActionContent: React.FC<ICollectionActionContentProps> = ({reset
                 amount: toMinorDigits(formData?.amount),
                 processAt: formData?.processAt
             }).then(async response => {
-                const {data} = await response.json();
+                    const {data} = await response.json();
 
-                if (response.ok) {
-                    setModalTitle('Link Generated Successfully')
-                    setModalDescription('Your payment link was successfully generated. Copy this link to share with your desired recipient.')
-                    setTransactionSuccessful(true)
-                    if (setCollection) setCollection(data)
-                    setPaymentLink(data?.emailPaymentLink)
-                    setTransactionConfirmation(false)
-                    setModalButtonText('Go to collections dashboard')
-                    setTransactionSuccessful(true)
+                    if (response.ok) {
+                        setModalTitle('Link Generated Successfully')
+                        setModalDescription('Your payment link was successfully generated. Copy this link to share with your desired recipient.')
+                        setTransactionSuccessful(true)
+
+                        const transactions = collections.transactions?.length > 0
+                            ? {transactions: [data, ...collections.transactions], pagination: collections.pagination}
+                            : {transactions: [data], pagination: collections.pagination}
+
+                        if (setCollections) setCollections(transactions)
+                        setPaymentLink(data?.emailPaymentLink)
+                        setTransactionConfirmation(false)
+                        setModalButtonText('Go to collections dashboard')
+                        setTransactionSuccessful(true)
+                    }
+                    if (setLoading) setLoading(false)
                 }
-            })
+            )
         } else {
             setModalOpen(false)
             resetCollectionStore()
+            if (setLoading) setLoading(false)
         }
     }
 
@@ -268,9 +281,16 @@ const CollectionActionContent: React.FC<ICollectionActionContentProps> = ({reset
                     {!showPaymentLinkInfo && <div
                         className={`sm:mt-4 sm:flex sm:flex-row-reverse ${transactionSuccessful ? 'pt-[50px]' : 'mt6'}`}>
                         <Button buttonType="button" styleType="primary" customStyles="p-4 md:p-5 rounded-lg"
-                                onClick={handlePaymentLinkGeneration}>
-                            {modalButtonText} {transactionSuccessful &&
-                            <Svg fill="#FFFFFF" path={ArrowCircleRight} customClasses="px-2"/>}
+                                onClick={handlePaymentLinkGeneration} disabled={loading}>
+                            {!loading && <>
+                                {modalButtonText} {transactionSuccessful &&
+                                <Svg fill="#FFFFFF" path={ArrowCircleRight} customClasses="px-2"/>}
+                            </>}
+
+                            {loading && <Loader type="default"
+                                                customClasses="relative"
+                                                customAnimationClasses="w-10 h-10 text-white dark:text-gray-600 fill-purple-900"
+                            />}
                         </Button>
                     </div>}
                 </div>

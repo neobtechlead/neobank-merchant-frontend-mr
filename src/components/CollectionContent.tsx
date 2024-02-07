@@ -16,7 +16,7 @@ import {ICollectionContentProps} from "@/utils/interfaces/ICollectionContentProp
 import {useTransactionStore} from "@/store/TransactionStore";
 import {listCollections} from "@/api/collection";
 import {useUserStore} from "@/store/UserStore";
-import {formatAmount, formatAmountGHS, normalizeDate} from "@/utils/lib";
+import {extractPaginationData, formatAmount, formatAmountGHS, normalizeDate} from "@/utils/lib";
 import TextInput from "@/components/forms/TextInput";
 import {Search} from "@/assets/icons/Search";
 import {IListBoxItem} from "@/utils/interfaces/IDropdownProps";
@@ -56,7 +56,8 @@ const CollectionContent: React.FC<ICollectionContentProps> = ({
             .then(async (response) => {
                 if (response.ok) {
                     const feedback = await response.json();
-                    const {pagination, transactions} = feedback.data
+                    const {transactions} = feedback.data
+                    const pagination = extractPaginationData(feedback.data)
                     if (setCollections) setCollections({pagination, transactions});
                 }
             })
@@ -100,8 +101,18 @@ const CollectionContent: React.FC<ICollectionContentProps> = ({
     }
 
     const handlePrevious = () => {
+        if (collections) {
+            const {pagination} = collections
+            const previousPageNumber = pagination.pageNumber - 1
+            return pagination.firstPage ? null : getCollectionTransactions(`rows=${pageOption.value}&pageNumber=${previousPageNumber}`)
+        }
     }
     const handleNext = () => {
+        if (collections) {
+            const {pagination} = collections
+            const nextPageNumber = pagination.pageNumber + 1
+            return pagination.lastPage ? null : getCollectionTransactions(`rows=${pageOption.value}&pageNumber=${nextPageNumber}`)
+        }
     }
 
     const handleCollectionActionContent = () => {

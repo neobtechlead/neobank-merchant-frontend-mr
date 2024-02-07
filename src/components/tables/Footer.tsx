@@ -13,11 +13,12 @@ const Footer: React.FC<ITableFooter> = ({
                                             perPageOptions
                                         }) => {
     const getPaginationSize = () => {
-        const size = pagination?.size ?? 0;
-        const totalElements = pagination?.totalElements ?? 0;
-        return size > totalElements ? totalElements : size;
+        if (pagination) {
+            const {size, totalElements} = pagination;
+            return size > totalElements ? totalElements : size;
+        } else
+            return 10;
     };
-
 
     const getCaretColor = (page: string) => {
         if (page === 'first') {
@@ -28,12 +29,29 @@ const Footer: React.FC<ITableFooter> = ({
         return '#4F4F4F';
     }
 
+    const getInitialOffset = () => {
+        if (pagination) {
+            const {offset} = pagination
+            return offset === 0 ? 1 : offset + 1
+        } else
+            return 0;
+    }
+
+    const getFinalOffset = () => {
+        if (pagination) {
+            const {size, offset, totalElements, pageNumber} = pagination
+            const finalOffset = size * pageNumber
+            return offset === 0 ? getPaginationSize() : finalOffset > totalElements ? totalElements : finalOffset
+        } else
+            return 10;
+    }
+
     return (
         <div className="flex items-center justify-between bg-white px-4 sm:px-6 mt-3">
             <div className="flex flex-1 justify-between items-center sm:hidden">
                 <div className="text-xs">
-                    <span className="font-medium">{1}</span> to <span
-                    className="font-medium">{getPaginationSize()}</span> of{' '}
+                    <span className="font-medium">{getInitialOffset()}</span> to <span
+                    className="font-medium">{getFinalOffset()}</span> of{' '}
                     <span className="font-medium">{pagination?.totalElements}</span>
                 </div>
 
@@ -59,15 +77,17 @@ const Footer: React.FC<ITableFooter> = ({
                 </div>
                 <div className="flex items-center">
                     <div className="text-xs mr-5">
-                        <span className="font-medium">{1}</span> to <span
-                        className="font-medium">{getPaginationSize()}</span> of{' '}
+                        <span className="font-medium">{getInitialOffset()}</span> to <span
+                        className="font-medium">{getFinalOffset()}</span> of{' '}
                         <span className="font-medium">{pagination?.totalElements}</span>
                     </div>
 
-                    <div onClick={() => handlePrevious} className="cursor-pointer">
+                    <div onClick={handlePrevious}
+                         className={`${pagination?.firstPage ? 'cursor-not-allowed' : 'cursor-pointer'}`}>
                         <Svg fill={getCaretColor('first')} path={CaretLeft}/>
                     </div>
-                    <div onClick={() => handleNext} className={`${pagination?.lastPage ? '' : 'cursor-pointer'}`}>
+                    <div onClick={handleNext}
+                         className={`${pagination?.lastPage ? 'cursor-not-allowed' : 'cursor-pointer'}`}>
                         <Svg fill={getCaretColor('last')} path={CaretRight}/>
                     </div>
                 </div>

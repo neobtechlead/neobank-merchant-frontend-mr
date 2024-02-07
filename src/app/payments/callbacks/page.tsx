@@ -37,7 +37,7 @@ const PaymentCallbacksPage = ({searchParams: {status, clientReference}}: Props) 
 
     const handleReturn = () => {
         setModalOpen(false);
-        router.replace(`/payments?id=${clientReference}`);
+        return router.push('https://www.completefarmer.com')
     };
 
     const iconData = data

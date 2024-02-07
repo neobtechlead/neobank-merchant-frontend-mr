@@ -3,9 +3,12 @@ import {ErrorResponse} from "@/utils/interfaces/IErrorResponse";
 import {MonthlyTransactionSummaryType} from "@/utils/types/MonthlyTransactionSummaryType";
 import {now} from "d3-timer";
 import {TransactionType} from "@/utils/types/TransactionType";
+import {PaginationType} from "@/utils/types/PaginationType";
+import {ApiMetaType} from "@/utils/types/ApiMetaType";
+import {ApiPaginationType} from "@/utils/types/ApiPaginationType";
 
-export const formatAmountGHS = (amount: string = ''): string => {
-    return (parseFloat(amount) / 100).toFixed(2);
+export const formatAmountGHS = (amount: number | string = ''): string => {
+    return (parseFloat(<string>amount) / 100).toFixed(2);
 }
 
 export const formatAmount = (amount: number | string = 0, currency: string = 'GHS') => {
@@ -38,6 +41,14 @@ export const normalizeDate = (date: string = now().toString(), includeTime: bool
         : dateOptions;
 
     return DateTime.fromISO(date).toLocaleString(dateTimeOptions);
+};
+
+export const splitDateAndTime = (date: string = now().toString()) => {
+    const dateTime = DateTime.fromISO(date);
+    return {
+        date: dateTime.toFormat('dd/MM/yyyy'),
+        time: dateTime.toFormat('hh:mma'),
+    };
 };
 
 export const getCurrentDateTimeString = () => {
@@ -79,7 +90,7 @@ const isErrorStringFormat = (message: string = '') => {
     return formatRegex.test(message);
 };
 
-export const getError = (error: ErrorResponse) => {
+export const getError = (error: ErrorResponse): string => {
     if (error.data) {
         const {violations} = error.data;
         if (violations) return `${violations[0].field} ${violations[0].message}`;
@@ -98,7 +109,7 @@ export const getError = (error: ErrorResponse) => {
             message: messageMatch ? messageMatch[1].trim() : null,
         };
 
-        return extractedData.message
+        return extractedData.message ?? ''
     } else
         return error.message
 };
@@ -146,7 +157,6 @@ export const plotGraphData = (data: MonthlyTransactionSummaryType = {}) => {
 
             accumulator.volume.push(volumeEntry);
             accumulator.value.push(valueEntry);
-            console.log(accumulator)
             return accumulator;
         },
         {volume: [], value: []} as { volume: any[]; value: any[] }
@@ -206,8 +216,42 @@ export const isImageAvailable = (imageSrc: string = '', extension: string = 'png
     }
 };
 
+export const isValidEmail = (email: string): boolean => {
+    const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
+    return emailRegex.test(email);
+};
 
+export const extractPaginationData = (data: { meta: ApiMetaType, pagination: ApiPaginationType, transactions: [] }): PaginationType => {
+    const {meta, pagination} = data;
+    return {
+        firstPage: pagination.firstPage,
+        lastPage: pagination.lastPage,
+        pageNumber: meta.pageNumber,
+        offset: meta.offset,
+        size: pagination.size,
+        sorting: {...pagination.sorting},
+        totalElements: pagination.totalElements,
+        totalPages: pagination.totalPages
+    };
+};
 
+export const formatRelativeTime = (dateString: string) => {
+    const dateTime = DateTime.fromISO(dateString);
+    const now = DateTime.now();
+    const diff = now.diff(dateTime);
+
+    if (diff.as('milliseconds') < 0) {
+        const futureDiff = dateTime.diff(now);
+
+        if (futureDiff.as('days') >= 1) return `${Math.floor(futureDiff.as('days'))} days left`
+        if (futureDiff.as('hours') >= 1) return `${Math.floor(futureDiff.as('hours'))} hours left`
+        return `${Math.floor(futureDiff.as('minutes'))} minutes left`
+    }
+
+    if (diff.as('days') >= 1) return `${Math.floor(diff.as('days'))} days ago`
+    if (diff.as('hours') >= 1) return `${Math.floor(diff.as('hours'))} hours ago`
+    return `${Math.floor(diff.as('minutes'))} minutes ago`
+};
 
 
 

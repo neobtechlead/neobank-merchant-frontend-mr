@@ -65,7 +65,7 @@ const DatePicker: React.FC<IDatePickerProps> = ({selectedDate, setSelectedDate, 
     }
 
     return (
-        <Datepicker classNames={`relative z-10 ${disabled ? 'pointer-events-none opacity-50' : ''}`} options={options}
+        <Datepicker classNames={`relative ${disabled ? 'pointer-events-none opacity-50' : ''}`} options={options}
                     onChange={setSelectedDate} show={show} setShow={handleClose}/>
     )
 }

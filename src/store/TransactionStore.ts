@@ -13,6 +13,8 @@ export const useTransactionStore = create<TransactionStoreType>()(
                 transactions: {
                     pagination: {
                         size: 0,
+                        pageNumber: 0,
+                        offset: 0,
                         lastPage: false,
                         firstPage: true,
                         sorting: {
@@ -27,27 +29,9 @@ export const useTransactionStore = create<TransactionStoreType>()(
                 },
 
                 setCollections: (data) => set({collections: data}),
-                setCollection: (collection: TransactionType) => set((state) => ({
-                    collections: state.collections?.transactions?.length > 0
-                        ? {
-                            transactions: [collection, ...state.collections.transactions],
-                            pagination: state.collections.pagination,
-                        }
-                        : {transactions: [collection], pagination: state.collections.pagination},
-                })),
-
                 collections: get()?.collections,
 
                 setDisbursements: (data) => set({disbursements: data}),
-                setDisbursement: (disbursement: TransactionType) => set((state) => ({
-                    collections: state.disbursements?.transactions?.length > 0
-                        ? {
-                            transactions: [disbursement, ...state.disbursements.transactions],
-                            pagination: state.disbursements.pagination,
-                        }
-                        : {transactions: [disbursement], pagination: state.disbursements.pagination},
-                })),
-
                 disbursements: get()?.disbursements,
 
                 setScheduledPayments: (data) => set({scheduledPayments: data}),
@@ -57,7 +41,81 @@ export const useTransactionStore = create<TransactionStoreType>()(
                 transactionSummary: {},
 
                 setLoading: (loading) => set({loading}),
-                loading: false
+                loading: false,
+
+                resetTransactionStore: () => set({
+                    transaction: {},
+                    transactions: {
+                        pagination: {
+                            pageNumber: 0,
+                            offset: 0,
+                            size: 0,
+                            lastPage: false,
+                            firstPage: false,
+                            sorting: {
+                                empty: false,
+                                unsorted: false,
+                                sorted: false
+                            },
+                            totalPages: 0,
+                            totalElements: 0,
+                        },
+                        data: []
+                    },
+                    collections: {
+                        pagination: {
+                            pageNumber: 0,
+                            offset: 0,
+                            size: 0,
+                            lastPage: false,
+                            firstPage: false,
+                            sorting: {
+                                empty: false,
+                                unsorted: false,
+                                sorted: false
+                            },
+                            totalPages: 0,
+                            totalElements: 0,
+                        },
+                        transactions: []
+                    },
+                    disbursements: {
+                        pagination: {
+                            pageNumber: 0,
+                            offset: 0,
+                            size: 0,
+                            lastPage: false,
+                            firstPage: false,
+                            sorting: {
+                                empty: false,
+                                unsorted: false,
+                                sorted: false
+                            },
+                            totalPages: 0,
+                            totalElements: 0,
+                        },
+                        transactions: []
+                    },
+                    scheduledPayments: {
+                        pagination: {
+                            pageNumber: 0,
+                            offset: 0,
+                            size: 0,
+                            lastPage: false,
+                            firstPage: false,
+                            sorting: {
+                                empty: false,
+                                unsorted: false,
+                                sorted: false
+                            },
+                            totalPages: 0,
+                            totalElements: 0,
+                        },
+                        transactions: []
+                    },
+                    transactionSummary: {},
+                    loading: false
+                }),
             }),
             {name: 'transaction'},
         ),

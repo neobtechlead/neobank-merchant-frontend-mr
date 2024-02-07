@@ -38,7 +38,7 @@ const ReportsPage: React.FC = () => {
         setHeaderDescription("Explore detailed analytics of your transactions with our Merchant Reports.")
         setNavTitle('')
         setShowSupportButton(true)
-        transactions?.data?.length > 0 ? setHasActivity(true) : setShowEmptyState(false)
+        transactions && transactions?.data?.length > 0 ? setHasActivity(true) : setShowEmptyState(false)
     }
 
     useAuthHelper({

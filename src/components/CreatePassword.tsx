@@ -43,6 +43,7 @@ const CreatePassword: React.FC<ICreatePasswordProps> = ({handleSubmit, handleErr
                         onInputChange={handleInputChange}
                         hasError={setHasError}
                         passwordIcon
+                        customClasses="w-full"
                     />
                     <TextInput
                         label="confirm password"
@@ -55,6 +56,7 @@ const CreatePassword: React.FC<ICreatePasswordProps> = ({handleSubmit, handleErr
                         onInputChange={handleInputChange}
                         hasError={setHasError}
                         passwordIcon
+                        customClasses="w-full"
                     />
                 </div>
 

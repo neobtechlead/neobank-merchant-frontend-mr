@@ -15,6 +15,17 @@ export async function verifyOtp(accessKey: string | undefined, otp: string) {
     });
 }
 
+export async function verifyPasswordResetOtp(accessKey: string | null, otp: string) {
+    return await fetcher('api/v1/auth/reset-password/verify-otp', {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${accessKey}`,
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({accessKey, otp})
+    });
+}
+
 export async function createPassword(password: string, confirmPassword: string, authToken: string | undefined) {
     return await fetcher('api/v1/auth/create-password', {
         method: 'POST',
@@ -62,6 +73,26 @@ export async function updatePassword(currentPassword: string, newPassword: strin
             'Content-Type': 'application/json'
         },
         body: JSON.stringify({currentPassword, newPassword})
+    });
+}
+
+export async function sendResetEmailLink(email: string = '') {
+    return await fetcher('api/v1/auth/request-reset-password', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({email})
+    });
+}
+
+export async function resetPassword(password: string, accessKey: string | undefined) {
+    return await fetcher('api/v1/auth/reset-password', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({password, accessKey})
     });
 }
 
