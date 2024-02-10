@@ -17,7 +17,6 @@ node {
             sh 'mv cf_neobank_merchant_frontend.env  .env.development.local'
 
             if(env.BRANCH_NAME == 'develop'){
-                sh ('sed -i "s|SERVER_NAME|https://transact-merchant-staging.completefarmer.com|" .nginx/nginx.conf')
                 withCredentials([
                     string(credentialsId: 'merchant-api-base-url-staging', variable: 'API_BASE_URL')
                 ]) {
@@ -25,7 +24,6 @@ node {
                 }
 
             } else if(env.BRANCH_NAME == 'main') {
-                sh ('sed -i "s|SERVER_NAME|https://transact-merchant.completefarmer.com|" .nginx/nginx.conf')
                 withCredentials([
                     string(credentialsId: 'merchant-api-base-url-prod', variable: 'API_BASE_URL')
                 ]) {
