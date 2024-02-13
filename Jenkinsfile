@@ -32,6 +32,23 @@ node {
             }
        
         }
+        stage('SonarQube Analysis'){
+                withSonarQubeEnv('Sonarqube'){
+                    sh "sonar-scanner \
+                        -Dsonar.projectKey=cf-neobank-merchant-frontend \
+                        -Dsonar.sources=. \
+                        -Dsonar.host.url=${env.SONARQUBE_URL} \
+                        -Dsonar.login=${env.NEOBANK_MERCHANT_FRONTNED_SONARQUBE_TOKEN}"
+                    }
+            }
+        stage('Quality Gateway'){
+                timeout(time: 1, unit: 'HOURS'){
+                    def qualityGate = waitForQualityGate()
+                    if (qualityGate.status != 'OK'){
+                        error "Pipeline aborted due to quality gate failure: ${qualityGate.status}"
+                    }
+                }
+            }
 
         stage('Build image') {
             /**
