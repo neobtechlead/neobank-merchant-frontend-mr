@@ -14,7 +14,7 @@ node {
             //Copy .env file from workspace to project
 
             sh 'cp ../cf_neobank_merchant_frontend.env .'
-            sh 'mv cf_neobank_merchant_frontend.env  .env.development.local'
+            sh 'mv cf_neobank_merchant_frontend.env  .env.local'
 
             if(env.BRANCH_NAME == 'develop'){
                 withCredentials([
