@@ -10,7 +10,7 @@ http {
     large_client_header_buffers 8 64k;
 
     server {
-        listen 3000;
+        listen 80;
         root /usr/share/nginx/html/server/app;
         include /etc/nginx/mime.types;
 
@@ -26,13 +26,8 @@ http {
             # Add cache settings if needed
         }
 
-        location /overview {
-            try_files /overview.html =404;
-        }
-
-        # Proxy requests to the Next.js server for all other routes
         location / {
-            try_files $uri $uri/ @nextjs;
+            try_files $uri $uri.html $uri/ =404;
         }
 
         location @nextjs {
