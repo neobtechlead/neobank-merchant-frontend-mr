@@ -24,7 +24,14 @@ import {useDisbursementStore} from "@/store/DisbursementStore";
 import {DateTime} from "luxon";
 import {TransactionType} from "@/utils/types/TransactionType";
 import {disburse, downloadBulkDisbursementTemplate} from "@/api/disbursement";
-import {formatAmount, getCurrentDateTimeString, getError, getInitials, toMinorDigits} from "@/utils/lib";
+import {
+    convertDateTimeToISOFormat,
+    formatAmount,
+    getCurrentDateTimeString,
+    getError,
+    getInitials, objectToFormData,
+    toMinorDigits
+} from "@/utils/lib";
 import {useUserStore} from "@/store/UserStore";
 import {useTransactionStore} from "@/store/TransactionStore";
 import Alert from "@/components/Alert";
@@ -50,7 +57,7 @@ const DisbursementActionContent: React.FC<IDisbursementActionContent> = ({
     const [transactionSuccessful, setTransactionSuccessful] = useState<boolean>(false);
     const [overlayDetailContainerDescription, setOverlayDetailContainerDescription] = useState<string>('');
     const [uploadedFileName, setUploadedFileName] = useState<string>('');
-    const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+    const [uploadedFile, setUploadedFile] = useState<Blob | undefined>(undefined);
 
     const providers: DropdownInputItemType[] = [
         {id: 0, name: 'Select Provider', code: ''},
@@ -92,6 +99,20 @@ const DisbursementActionContent: React.FC<IDisbursementActionContent> = ({
         setOverlayDetailContainerDescription('Here are the details of your transaction.')
         setOpenOverlay(true)
         !toggleEnabled ? handleToggle(false) : setFormData({...formData, date: new Date().toLocaleDateString(),})
+
+        if (actionType === 'bulk') {
+            const currentDateTimeString = getCurrentDateTimeString();
+            const merchantInitials = getInitials(merchant?.businessName);
+
+            return getBulkDisbursementFileSummary({
+                merchantId: merchant?.externalId,
+                batchDescription: formData.description,
+                batchName: `${merchantInitials}-BD-${currentDateTimeString}`,
+                file: uploadedFile,
+            }).then(response => {
+                console.log('response: ', response)
+            })
+        }
     };
 
     const handleToggle = (toggle: boolean) => {
@@ -169,7 +190,7 @@ const DisbursementActionContent: React.FC<IDisbursementActionContent> = ({
                     accountName: formData.recipient,
                     narration: formData.description,
                     amount: toMinorDigits(formData.amount),
-                    processAt: toggleEnabled ? convertDateTimeToISOFormat() : null
+                    processAt: toggleEnabled ? handleConvertDateTimeToISOFormat() : null
                 };
             } else if (actionType === 'bulk') {
                 const currentDateTimeString = getCurrentDateTimeString();
@@ -181,12 +202,11 @@ const DisbursementActionContent: React.FC<IDisbursementActionContent> = ({
                     batchName: `${merchantInitials}-BD-${currentDateTimeString}`,
                     file: uploadedFile,
                 }
-
-                await getBulkDisbursementFileSummary()
             }
 
             const response = await disburse(actionType, user?.authToken, {...payload});
-            const {data} = await response.json();
+            const feedback = await response.json()
+            const {data} = feedback
 
             if (setLoading) setLoading(false)
             if (response.ok) {
@@ -204,23 +224,30 @@ const DisbursementActionContent: React.FC<IDisbursementActionContent> = ({
             }
 
             setHasError(true)
-            return setError(getError(data))
+            return setError(getError(feedback))
         }
         setModalOpen(false)
         resetDisbursementStore()
     }
 
-
-    const convertDateTimeToISOFormat = () => {
+    const handleConvertDateTimeToISOFormat = () => {
         const timeString = formData.time?.trim().replace(/\s+/g, '');
         const dateTimeString = `${formData.date} ${timeString}`.trim();
-        const luxonDateTime = DateTime.fromFormat(dateTimeString, "dd/MM/yyyy h:mma");
 
-        return !luxonDateTime.isValid ? null : luxonDateTime.toFormat("yyyy-MM-dd'T'HH:mm:ss");
+        return convertDateTimeToISOFormat(dateTimeString)
     }
 
-    const getBulkDisbursementFileSummary = async () => {
-        // make an api call to get file summary
+    const getBulkDisbursementFileSummary = async (payload: {
+        merchantId?: string,
+        batchDescription?: string,
+        batchName?: string,
+        file?: Blob,
+    }) => {
+        const newData = objectToFormData(payload)
+
+        return await disburse(actionType, user?.authToken, newData).then(response => {
+            const feedback = response.json()
+        });
     }
 
     const resetDisbursementStore = () => {

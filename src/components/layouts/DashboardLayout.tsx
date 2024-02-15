@@ -92,7 +92,7 @@ const DashboardLayout: React.FC<IDashboardLayoutProps> = ({
 
     return (
         <div>
-            <div className={`sticky top-0 z-10 ${customStyles}`}>
+            <div className={`sticky top-0 z-50 ${customStyles}`}>
                 <nav
                     className="bg-white flex justify-between md:items-center px-6 pb-0 md:px-8 h-16 border border-b-gray-200">
                     <div className={`flex md:justify-start items-center ${logoStyles}`}>

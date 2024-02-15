@@ -3,4 +3,5 @@ interface IDatePickerProps {
     setSelectedDate: (date: Date) => void,
     minDate: Date,
     disabled?: boolean,
+    error?: string,
 }

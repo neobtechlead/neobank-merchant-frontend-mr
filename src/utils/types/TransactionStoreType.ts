@@ -4,6 +4,7 @@ import {PaginationType} from "@/utils/types/PaginationType";
 
 export type TransactionStoreType = {
     setTransaction: (transaction: TransactionType) => void,
+    getTransaction: (reference?: string) => TransactionType[],
     transaction: TransactionType,
     setTransactions: (data: { pagination: PaginationType, data: TransactionType[] }) => void
     transactions: { pagination: PaginationType, data: TransactionType[] },

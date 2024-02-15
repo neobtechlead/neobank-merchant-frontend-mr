@@ -9,10 +9,20 @@ import {IReportContentProps} from "@/utils/interfaces/IReportContentProps";
 import ReportFilter from "@/components/ReportFilter";
 import {ReportFilterFormDataType} from "@/utils/types/ReportFilterFormDataType";
 import {useTransactionStore} from "@/store/TransactionStore";
-import {listTransactions} from "@/api/transaction";
+import {downloadReport, listTransactions} from "@/api/transaction";
 import {useUserStore} from "@/store/UserStore";
-import {extractPaginationData, formatAmount, formatAmountGHS, normalizeDate} from "@/utils/lib";
+import {
+    camelToKebab,
+    convertDateTimeToISOFormat,
+    extractPaginationData,
+    formatAmount,
+    formatAmountGHS,
+    getTimestamp,
+    normalizeDate
+} from "@/utils/lib";
 import {IListBoxItem} from "@/utils/interfaces/IDropdownProps";
+import {TransactionType} from "@/utils/types/TransactionType";
+import {ReportFilterQueryType} from "@/utils/types/ReportFilterQueryType";
 
 const ReportContent: React.FC<IReportContentProps> = ({
                                                           hasActivity,
@@ -27,10 +37,14 @@ const ReportContent: React.FC<IReportContentProps> = ({
 
     const {
         transactions,
-        setTransactions
+        setTransactions,
+        getTransaction,
     } = useTransactionStore();
 
     const {merchant, user} = useUserStore();
+
+    const [reports, setReports] = useState<TransactionType[]>([]);
+    const [filterQueryString, setFilterQueryString] = useState<string>('');
 
     useEffect(() => {
         setDashboardState()
@@ -50,14 +64,15 @@ const ReportContent: React.FC<IReportContentProps> = ({
         {label: 'pre balance', classes: ''}
     ]
 
-    const fetchTransactions = (params: string = '') => {
+    const fetchTransactions = (params: string = '', skipReports = false) => {
         listTransactions(merchant?.externalId, user?.authToken, params)
-            .then(async (response) => {
+            .then(async response => {
                 if (response.ok) {
                     const feedback = await response.json();
                     const {transactions} = feedback.data;
                     const pagination = extractPaginationData(feedback.data)
                     if (setTransactions) setTransactions({pagination, data: transactions});
+                    if (!skipReports) setReports(transactions ?? [])
                 }
             })
             .catch((error) => {
@@ -85,27 +100,87 @@ const ReportContent: React.FC<IReportContentProps> = ({
         if (transactions) {
             const {pagination} = transactions
             const previousPageNumber = pagination.pageNumber - 1
-            return pagination.firstPage ? null : fetchTransactions(`rows=${pageOption.value}&pageNumber=${previousPageNumber}`)
+
+            const queryString = prepareFilterQueryString({rows: pageOption.value, pageNumber: previousPageNumber})
+            setFilterQueryString(queryString);
+            return pagination.firstPage ? null : fetchTransactions(queryString)
         }
     }
     const handleNext = () => {
         if (transactions) {
             const {pagination} = transactions
             const nextPageNumber = pagination.pageNumber + 1
-            return pagination.lastPage ? null : fetchTransactions(`rows=${pageOption.value}&pageNumber=${nextPageNumber}`)
+
+            const queryString = prepareFilterQueryString({rows: pageOption.value, pageNumber: nextPageNumber})
+            setFilterQueryString(queryString);
+
+            return pagination.lastPage ? null : fetchTransactions(queryString)
         }
     }
 
+    const prepareFilterQueryString = (queryObject: ReportFilterQueryType) => {
+        const queryParams = filterQueryString.split('&')
+            .map(param => param.split('='))
+            .reduce((obj: Record<string, string>, [key, value]) => {
+                obj[key] = value;
+                return obj;
+            }, {});
+
+        const {startDate, endDate, ...remainingParams} = queryParams;
+
+        const mergedParams = {
+            ...remainingParams,
+            ...queryObject,
+            ...(queryObject.startDate !== undefined && queryObject.startDate !== '' ? {[camelToKebab('startDate')]: queryObject.startDate} : {}),
+            ...(queryObject.endDate !== undefined && queryObject.endDate !== '' ? {[camelToKebab('endDate')]: queryObject.endDate} : {})
+        };
+
+        const filteredParams = Object.fromEntries(
+            Object.entries(mergedParams).filter(([key, value]) => {
+                return ![undefined, ''].includes(String(value));
+            })
+        );
+
+        return Object.entries(filteredParams)
+            .map(([key, value]) => `${key}=${value}`)
+            .join('&');
+    };
+
+
     const handleSetPageOption = (pageOption: IListBoxItem) => {
-        fetchTransactions(`rows=${pageOption.value}`)
+        const queryString = prepareFilterQueryString({rows: pageOption.value})
+        setFilterQueryString(queryString);
+        fetchTransactions(queryString)
         setPageOption(pageOption)
     }
 
-    const handleDownloadReport = () => {
-    }
+    const handleDownloadReport = () => downloadReport(merchant?.externalId, user?.authToken, filterQueryString)
 
     const handleSubmitFilter = (data: ReportFilterFormDataType) => {
-        console.log(data)
+        const queryString = prepareFilterQueryString(data)
+        setFilterQueryString(queryString)
+
+        if (data.externalId) {
+            const filteredTransactions = getTransaction(data.externalId)
+
+            const recentTransaction = filteredTransactions[0]
+            const transactionTimestamp = getTimestamp(recentTransaction?.createdAt)
+
+            const currentDateTimeString = convertDateTimeToISOFormat(new Date().toLocaleString(), 'dd/MM/yyyy, HH:mm:ss')
+            const currentTimestamp = getTimestamp(currentDateTimeString);
+
+            if ((currentTimestamp - transactionTimestamp) < 5 * 60 * 1000)
+                return fetchTransactions(prepareFilterQueryString({externalId: recentTransaction.externalId}))
+
+            if (filteredTransactions.length > 0) return setReports(filteredTransactions)
+        }
+
+        return fetchTransactions(queryString)
+    }
+
+    const handleResetFilter = () => {
+        setFilterQueryString('')
+        return fetchTransactions()
     }
 
     return (
@@ -128,14 +203,14 @@ const ReportContent: React.FC<IReportContentProps> = ({
                     <div className=" overflow-hidden rounded-lg border border-gray-100">
                         <div className="relative rounded-lg border-b border-gray-200">
                             <div className="p-4">
-                                <ReportFilter onSubmit={handleSubmitFilter}/>
+                                <ReportFilter onSubmit={handleSubmitFilter} onReset={handleResetFilter}/>
                             </div>
                             <div className="absolute bottom-0 right-0 w-screen bg-gray-100"/>
                         </div>
 
                         <Table title="Reports" headers={tableHeading} buttonLabel="Download Report"
                                iconPath={FileDownload} onButtonClick={handleDownloadReport}>
-                            {transactions?.data?.map((transaction, key) => (
+                            {reports?.map((transaction, key) => (
                                 <tr key={key} className={`text-center`}>
                                     <td className="relative py-2 pr-3 font-normal text-xs">
                                         <div
@@ -143,9 +218,9 @@ const ReportContent: React.FC<IReportContentProps> = ({
                                         <div className={` ${key === 0 ?
                                             'absolute top-0 right-full h-px w-full bg-gray-100' : ''}`}/>
                                         {normalizeDate(transaction.createdAt ?? 's')}
-                                        <div className={`${key !== transactions?.data?.length - 1 ?
+                                        <div className={`${key !== reports?.length - 1 ?
                                             'absolute bottom-0 left-0 right-0 h-px w-screen bg-gray-100' : ''}`}/>
-                                        <div className={`${key !== transactions?.data?.length - 1 ?
+                                        <div className={`${key !== reports?.length - 1 ?
                                             'absolute bottom-0 right-full h-px w-full bg-gray-100' : ''}`}/>
                                     </td>
                                     <td className="hidden px-3 py-2 sm:table-cell text-xs">{transaction.internalId}</td>

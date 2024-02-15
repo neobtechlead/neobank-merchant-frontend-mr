@@ -35,7 +35,9 @@ const TransactionConfirmation: React.FC<ITransactionConfirmation> = ({
                                   customStyles="py-5" customDescriptionStyles="text-sm"/>
                     <InfoCardItem description={transaction.description ?? ''} svgPath={ClipboardText}
                                   title="Description"
-                                  customStyles="py-5"/>
+                                  customStyles="py-5"
+                                  customTitleStyles="truncate"
+                    />
                     {transaction.scheduled &&
                         <InfoCardItem description={transaction.date ?? ''} svgPath={Calendar} title="Scheduled Date"
                                       customStyles="py-5" customDescriptionStyles="text-sm"/>}
