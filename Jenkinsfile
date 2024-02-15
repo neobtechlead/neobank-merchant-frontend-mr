@@ -20,14 +20,14 @@ node {
                 withCredentials([
                     string(credentialsId: 'merchant-api-base-url-staging', variable: 'API_BASE_URL')
                 ]) {
-                     sh ('sed -i "s|MERCHANT_URL|${API_BASE_URL}|" .env.development.local')
+                     sh ('sed -i "s|MERCHANT_URL|${API_BASE_URL}|" .env.local')
                 }
 
             } else if(env.BRANCH_NAME == 'main') {
                 withCredentials([
                     string(credentialsId: 'merchant-api-base-url-prod', variable: 'API_BASE_URL')
                 ]) {
-                    sh ('sed -i "s|MERCHANT_URL|${API_BASE_URL}|" .env.development.local')
+                    sh ('sed -i "s|MERCHANT_URL|${API_BASE_URL}|" .env.local')
                 }
             }
        
