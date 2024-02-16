@@ -13,7 +13,7 @@ import Alert from "@/components/Alert";
 import {WarningTriangle} from "@/assets/icons/WarningTriangle";
 import InfoCardItem from "@/components/InfoCardItem";
 import {ITransactionConfirmation} from "@/utils/interfaces/ITransactionConfirmation";
-import {formatAmount} from "@/utils/lib";
+import {formatAmount, formatAmountGHS} from "@/utils/lib";
 
 const TransactionConfirmation: React.FC<ITransactionConfirmation> = ({
                                                                          transactionType,
@@ -23,6 +23,8 @@ const TransactionConfirmation: React.FC<ITransactionConfirmation> = ({
                                                                          handleConfirmation,
                                                                          handleCancel
                                                                      }) => {
+    const transactionHasDuplicates = () => ![0, null, undefined].includes(summary?.totalDuplicateCount)
+
     return (
         <div className="m-6 flex flex-col h-full">
             {transactionType === 'single' && <div className={`flex flex-2 ${customStyles}`}>
@@ -53,7 +55,7 @@ const TransactionConfirmation: React.FC<ITransactionConfirmation> = ({
                 <div className={`relative flex justify-between min-w-0 flex-1 rounded-lg border px-4 ${customStyles}`}>
                     <div className="flex flex-shrink-0 gap-3 my-5">
                         <InfoCardItem
-                            description={summary?.totalCount.toString() ?? '0'}
+                            description={summary?.totalCount.toString()}
                             svgPath={Sigma} title="Total Count"
                             customStyles="py-5"
                             customTitleStyles="text-xs font-semibold text-gray-950"
@@ -61,9 +63,9 @@ const TransactionConfirmation: React.FC<ITransactionConfirmation> = ({
                     </div>
                     <div className="flex flex-shrink-0 gap-3 my-5 text-orange-400">
                         <InfoCardItem
-                            description={summary?.duplicates.toString() ?? '0'}
+                            description={summary?.totalDuplicateCount.toString()}
                             svgFill="#F29339"
-                            svgPath={Copy} title="Total Count"
+                            svgPath={Copy} title="Duplicates"
                             customStyles="py-5"
                             customTitleStyles="text-xs font-semibold text-orange-400"
                             customDescriptionStyles="text-orange-400"
@@ -71,7 +73,7 @@ const TransactionConfirmation: React.FC<ITransactionConfirmation> = ({
                     </div>
                 </div>
 
-                <Alert customClasses="rounded-lg bg-orange-400 my-5 text-white">
+                {transactionHasDuplicates() && <Alert customClasses="rounded-lg bg-orange-400 mt-5 text-white">
                     <div className="p-2">
                         <div className="flex">
                             <div className="flex-shrink-0">
@@ -80,16 +82,16 @@ const TransactionConfirmation: React.FC<ITransactionConfirmation> = ({
                             <div className="ml-3">
                                 <h3 className="text-sm font-medium">ALERT!</h3>
                                 <div className="mt-2 text-xs">
-                                    <p>{`If you continue with this transaction, you will transfer a sum of ${formatAmount(summary?.totalAmount)}
-                                        including 20 duplicates
+                                    <p>{`If you continue with this transaction, you will transfer a sum of ${formatAmount(formatAmountGHS(summary?.totalAmount))}
+                                        including ${summary?.totalDuplicateCount} duplicates
                                     `}</p>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </Alert>
+                </Alert>}
 
-                <div className={`relative flex flex-col min-w-0 flex-1 rounded-lg border px-4 mb-10`}>
+                <div className="relative flex flex-col min-w-0 flex-1 rounded-lg border px-4 mb-10 mt-5">
                     <div className="flex flex-shrink-0 mt-1">
                         <InfoCardItem
                             description={transaction?.description ?? ''}
@@ -101,7 +103,7 @@ const TransactionConfirmation: React.FC<ITransactionConfirmation> = ({
                     </div>
                     <div className="flex flex-shrink-0 gap-3 mb-1">
                         <InfoCardItem
-                            description={formatAmount(summary?.totalAmount ?? '0')}
+                            description={formatAmount(formatAmountGHS(summary?.totalAmount))}
                             svgPath={Tag} title="Total Amount"
                             customStyles="py-5"
                             customTitleStyles="text-xs font-semibold"

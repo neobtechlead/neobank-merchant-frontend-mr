@@ -5,8 +5,14 @@ export interface ITransactionConfirmation {
     transaction: TransactionType;
     summary?: {
         totalCount: number,
-        duplicates: number,
+        totalUniqueCount: number,
+        totalDuplicateCount: number,
+        totalSuccessfulCount: number,
         totalAmount: number,
+        totalFailedCount: number,
+        totalPendingCount: number,
+        totalTransactionValue: number,
+        totalTransactionCount: number
     };
     customStyles?: string;
     enabled?: boolean;

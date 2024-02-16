@@ -4,17 +4,17 @@ import ProfileListItem from "@/components/profile/ProfileListItem";
 const ProfileList: React.FC<IProfileListProps> = ({onClick}) => {
     const profileItems = [
         {
-            href: '#',
+            href: '#profile',
             label: 'profile',
             iconSrc: '/assets/icons/user-circle.svg',
         },
         {
-            href: '#',
+            href: '#settings',
             label: 'settings',
             iconSrc: '/assets/icons/settings.svg',
         },
         {
-            href: '/',
+            href: '',
             label: 'logout',
             iconSrc: '/assets/icons/logout.svg',
         },

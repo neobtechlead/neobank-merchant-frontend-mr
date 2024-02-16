@@ -265,12 +265,3 @@ export const convertDateTimeToISOFormat = (dateTimeString: string = '', format: 
     const luxonDateTime = DateTime.fromFormat(dateTimeString, format);
     return !luxonDateTime.isValid ? '' : luxonDateTime.toFormat("yyyy-MM-dd'T'HH:mm:ss");
 }
-
-export const objectToFormData = (data: object) => {
-    const formData = new FormData();
-    Object.entries(data).forEach(([key, value]) => {
-        formData.append(key, value);
-    });
-
-    return formData;
-}

@@ -92,7 +92,7 @@ const OverviewContent: React.FC = () => {
                     const pagination = extractPaginationData(feedback.data)
                     if (transactions.length > 0) {
                         if (setTransactions) setTransactions({pagination, data: [...transactions]})
-                        setRecentTransactions(transactions.slice(-4))
+                        setRecentTransactions(transactions)
                     }
                 }
             })
@@ -266,7 +266,7 @@ const OverviewContent: React.FC = () => {
                                                 </div>
                                             </EmptyTransactionCardContent>}
 
-                                        <div className="mt-4">
+                                        <div>
                                             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                                 {recentTransactions?.map((transaction) => (
                                                     <RecentTransactionCard transaction={transaction}
@@ -383,7 +383,7 @@ const OverviewContent: React.FC = () => {
                                                 </div>
                                             </EmptyTransactionCardContent>}
 
-                                        <div className="">
+                                        <div>
                                             <div className="grid grid-cols-2 gap-x-10 gap-y-5">
                                                 {recentTransactions?.map((transaction) => (
                                                     <RecentTransactionCard transaction={transaction}

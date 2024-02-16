@@ -12,7 +12,7 @@ const OverlayDetailContainer: React.FC<IOverlayDetailContainerProps> = ({
 
     return (
         <Transition.Root show={open} as={Fragment}>
-            <Dialog as="div" className="relative z-10" onClose={handleOpen}>
+            <Dialog as="div" className="relative z-50" onClose={handleOpen}>
                 <div className="fixed inset-0 bg-gray-500 bg-opacity-75 "/>
 
                 <div className="fixed inset-0 overflow-hidden">
