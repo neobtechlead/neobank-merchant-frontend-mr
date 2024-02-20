@@ -122,7 +122,9 @@ const ReportContent: React.FC<IReportContentProps> = ({
         const queryParams = filterQueryString.split('&')
             .map(param => param.split('='))
             .reduce((obj: Record<string, string>, [key, value]) => {
-                obj[key] = value;
+                if (key !== '' && value != undefined)
+                    return {...obj, [key]: value};
+
                 return obj;
             }, {});
 

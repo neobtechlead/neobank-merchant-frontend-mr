@@ -15,8 +15,6 @@ const ReportFilter: React.FC<IReportFilterProps> = ({onSubmit, onReset}) => {
         externalId: '',
         startDate: '',
         endDate: '',
-        // startDate: new Date().toLocaleDateString(),
-        // endDate: new Date().toLocaleDateString(),
         status: ''
     });
 
@@ -109,6 +107,7 @@ const ReportFilter: React.FC<IReportFilterProps> = ({onSubmit, onReset}) => {
         }
 
         if (Object.values(formData).every(value => value === '')) return
+
         if (onSubmit) onSubmit(data);
     }
 
