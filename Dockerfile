@@ -41,6 +41,7 @@ RUN rm -rf /usr/share/nginx/html/*
 
 # copy build files to nginx delivery directory
 COPY --from=builder /home/node/app/build /usr/share/nginx/html
+COPY --from=builder /home/node/app/public/assets /usr/share/nginx/html/assets
 EXPOSE 3000 80
 
 CMD ["nginx", "-g", "daemon off;"]

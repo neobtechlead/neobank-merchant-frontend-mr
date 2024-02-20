@@ -34,7 +34,7 @@ const ListBox: React.FC<IListBoxProps> = ({
                         leaveTo="opacity-0"
                     >
                         <Listbox.Options
-                            className="absolute mt-2 w-full overflow-scroll rounded-md bg-white text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
+                            className="absolute mt-2 w-full overflow-scroll rounded-md bg-white text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm z-10"
                         >
                             {data?.map((item, key) => (
                                 <Listbox.Option key={key} value={item} disabled={disableFirstKey ? key === 0 : false}>

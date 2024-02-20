@@ -22,14 +22,12 @@ export async function listScheduledPayments(merchant?: string, authToken: string
 export async function disburse(type: string = 'single', authToken?: string, data?: object) {
     let requestBody: Record<string, string> | FormData | string | undefined;
     let requestHeaders: Record<string, string> = {'Authorization': `Bearer ${authToken}`};
+    const bulkRequestBody = new FormData()
 
     if (type === 'bulk') {
-        requestBody = new FormData();
-        if (data && typeof data === 'object') {
-            Object.entries(data).forEach(([key, value]) => {
-                (requestBody as FormData).append(key, value as string | Blob);
-            });
-        }
+        if (data && typeof data === 'object') Object.entries(data).forEach(([key, value]) => {
+            bulkRequestBody.append(key, value instanceof Blob ? value : String(value));
+        });
     } else {
         requestBody = JSON.stringify(data);
         requestHeaders['Content-Type'] = 'application/json';
@@ -38,7 +36,7 @@ export async function disburse(type: string = 'single', authToken?: string, data
     return await fetcher(`api/v1/merchants/${type}-disbursements`, {
         method: 'POST',
         headers: {...requestHeaders},
-        body: requestBody
+        body: type === 'bulk' ? bulkRequestBody : requestBody
     });
 }
 

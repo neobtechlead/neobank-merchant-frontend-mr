@@ -4,7 +4,6 @@ import {useUserStore} from "@/store/UserStore";
 import {useUtilsStore} from "@/store/UtilsStore";
 import {createPassword, resendOtp, verifyEmailLink, verifyOtp} from "@/api/auth";
 import {getError} from "@/utils/lib";
-import Loader from "@/components/Loader";
 import VerifyOtp from "@/components/VerifyOtp";
 import CreatePassword from "@/components/CreatePassword";
 import AuthContentWrapper from "@/components/auth/AuthContentWrapper";
@@ -56,11 +55,11 @@ const VerifyUserContent: React.FC = () => {
     }
 
     const handleVerifyOtp = async (otp: string) => {
-        if (setLoading) setLoading(true);
+        if (setLoading) setLoading(true)
         verifyOtp(user?.accessKey, otp)
             .then(async (response) => {
                 const feedback = await response.json()
-                if (setLoading) setLoading(false);
+                if (setLoading) setLoading(false)
                 if (response.ok) {
                     setError('')
                     setOtpVerified(true)
@@ -122,18 +121,11 @@ const VerifyUserContent: React.FC = () => {
     const handleError = (error: string) => setError(error)
 
     return (
-        <>
-            {loading && (
-                <Loader type="default"
-                        customWrapperClasses="pt-64"
-                        customAnimationClasses="w-10 h-10 text-purple-200 dark:text-gray-600 fill-purple-900"/>
-            )}
-
-            <AuthContentWrapper title={title} description={description} error={error}>
-                {!otpVerified && <VerifyOtp handleSubmit={handleVerifyOtp} handleResend={handleResendOtp} otpLength={6} loading/>}
-                {otpVerified && <CreatePassword handleError={handleError} handleSubmit={handlePasswordCreate}/>}
-            </AuthContentWrapper>
-        </>
+        <AuthContentWrapper title={title} description={description} error={error}>
+            {!otpVerified && <VerifyOtp handleSubmit={handleVerifyOtp} handleResend={handleResendOtp} otpLength={6}
+                                        loading={loading ?? false}/>}
+            {otpVerified && <CreatePassword handleError={handleError} handleSubmit={handlePasswordCreate}/>}
+        </AuthContentWrapper>
     );
 }
 

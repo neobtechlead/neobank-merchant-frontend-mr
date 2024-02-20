@@ -24,7 +24,14 @@ import {useDisbursementStore} from "@/store/DisbursementStore";
 import {DateTime} from "luxon";
 import {TransactionType} from "@/utils/types/TransactionType";
 import {disburse, downloadBulkDisbursementTemplate} from "@/api/disbursement";
-import {formatAmount, getCurrentDateTimeString, getError, getInitials, toMinorDigits} from "@/utils/lib";
+import {
+    convertDateTimeToISOFormat,
+    formatAmount, formatAmountGHS,
+    getCurrentDateTimeString,
+    getError,
+    getInitials,
+    toMinorDigits
+} from "@/utils/lib";
 import {useUserStore} from "@/store/UserStore";
 import {useTransactionStore} from "@/store/TransactionStore";
 import Alert from "@/components/Alert";
@@ -50,7 +57,18 @@ const DisbursementActionContent: React.FC<IDisbursementActionContent> = ({
     const [transactionSuccessful, setTransactionSuccessful] = useState<boolean>(false);
     const [overlayDetailContainerDescription, setOverlayDetailContainerDescription] = useState<string>('');
     const [uploadedFileName, setUploadedFileName] = useState<string>('');
-    const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+    const [uploadedFile, setUploadedFile] = useState<Blob | undefined>(undefined);
+    const [transactionSummary, setTransactionSummary] = useState({
+        totalCount: 0,
+        totalUniqueCount: 0,
+        totalDuplicateCount: 0,
+        totalSuccessfulCount: 0,
+        totalAmount: 0,
+        totalFailedCount: 0,
+        totalPendingCount: 0,
+        totalTransactionValue: 0,
+        totalTransactionCount: 0
+    });
 
     const providers: DropdownInputItemType[] = [
         {id: 0, name: 'Select Provider', code: ''},
@@ -87,11 +105,34 @@ const DisbursementActionContent: React.FC<IDisbursementActionContent> = ({
         return setProvider(provider)
     };
 
-    const handleDisbursementConfirmation: React.FormEventHandler<HTMLFormElement> = (event) => {
+    const handleDisbursementConfirmation: React.FormEventHandler<HTMLFormElement> = async (event) => {
         event.preventDefault();
         setOverlayDetailContainerDescription('Here are the details of your transaction.')
-        setOpenOverlay(true)
         !toggleEnabled ? handleToggle(false) : setFormData({...formData, date: new Date().toLocaleDateString(),})
+
+        if (actionType === 'bulk') {
+            const currentDateTimeString = getCurrentDateTimeString();
+            const merchantInitials = getInitials(merchant?.businessName);
+            setHasError(true)
+            if (setLoading) setLoading(true)
+
+            await disburse(actionType, user?.authToken, {
+                merchantId: merchant?.externalId,
+                batchDescription: formData.description,
+                batchName: `${merchantInitials}-BD-${currentDateTimeString}`,
+                file: uploadedFile,
+                summary: true
+            }).then(async response => {
+                if (response.ok) {
+                    setHasError(false)
+                    if (setLoading) setLoading(false)
+                    const feedback = await response.json()
+                    setTransactionSummary(feedback.data)
+                }
+            });
+        }
+
+        setOpenOverlay(true)
     };
 
     const handleToggle = (toggle: boolean) => {
@@ -146,9 +187,7 @@ const DisbursementActionContent: React.FC<IDisbursementActionContent> = ({
 
     const {disbursements, setDisbursements, loading, setLoading} = useTransactionStore();
 
-    const handleTransactionConfirmation = () => {
-        setModalOpen(true)
-    }
+    const handleTransactionConfirmation = () => setModalOpen(true)
 
     const handleModalOpen = (openModal: boolean) => {
         setModalOpen(openModal)
@@ -156,8 +195,6 @@ const DisbursementActionContent: React.FC<IDisbursementActionContent> = ({
     }
 
     const handleDisbursementTransaction = async () => {
-        if (provider.code === '') return
-
         if (!transactionSuccessful) {
             if (setLoading) setLoading(true)
             let payload = {}
@@ -169,7 +206,7 @@ const DisbursementActionContent: React.FC<IDisbursementActionContent> = ({
                     accountName: formData.recipient,
                     narration: formData.description,
                     amount: toMinorDigits(formData.amount),
-                    processAt: toggleEnabled ? convertDateTimeToISOFormat() : null
+                    processAt: toggleEnabled ? handleConvertDateTimeToISOFormat() : null
                 };
             } else if (actionType === 'bulk') {
                 const currentDateTimeString = getCurrentDateTimeString();
@@ -181,12 +218,11 @@ const DisbursementActionContent: React.FC<IDisbursementActionContent> = ({
                     batchName: `${merchantInitials}-BD-${currentDateTimeString}`,
                     file: uploadedFile,
                 }
-
-                await getBulkDisbursementFileSummary()
             }
 
             const response = await disburse(actionType, user?.authToken, {...payload});
-            const {data} = await response.json();
+            const feedback = await response.json()
+            const {data} = feedback
 
             if (setLoading) setLoading(false)
             if (response.ok) {
@@ -204,23 +240,17 @@ const DisbursementActionContent: React.FC<IDisbursementActionContent> = ({
             }
 
             setHasError(true)
-            return setError(getError(data))
+            return setError(getError(feedback))
         }
         setModalOpen(false)
         resetDisbursementStore()
     }
 
-
-    const convertDateTimeToISOFormat = () => {
+    const handleConvertDateTimeToISOFormat = () => {
         const timeString = formData.time?.trim().replace(/\s+/g, '');
         const dateTimeString = `${formData.date} ${timeString}`.trim();
-        const luxonDateTime = DateTime.fromFormat(dateTimeString, "dd/MM/yyyy h:mma");
 
-        return !luxonDateTime.isValid ? null : luxonDateTime.toFormat("yyyy-MM-dd'T'HH:mm:ss");
-    }
-
-    const getBulkDisbursementFileSummary = async () => {
-        // make an api call to get file summary
+        return convertDateTimeToISOFormat(dateTimeString)
     }
 
     const resetDisbursementStore = () => {
@@ -235,9 +265,7 @@ const DisbursementActionContent: React.FC<IDisbursementActionContent> = ({
         setUploadedFileName('')
     }
 
-    const handleTemplateDownload = async () => {
-        return await downloadBulkDisbursementTemplate(merchant?.externalId)
-    }
+    const handleTemplateDownload = async () => await downloadBulkDisbursementTemplate(merchant?.externalId)
 
     const handleFileUploaded = (files: FileList) => {
         setUploadedFile(files[0])
@@ -406,7 +434,12 @@ const DisbursementActionContent: React.FC<IDisbursementActionContent> = ({
                                 <Button styleType="primary" customStyles="justify-center p-4 md:p-5 rounded-lg"
                                         buttonType="submit"
                                         disabled={hasError}>
-                                    <span className="flex self-center">Continue</span>
+                                    {!loading && <span className="flex self-center">Continue</span>}
+                                    {loading && <>
+                                        <Loader type="default"
+                                                customClasses="relative"
+                                                customAnimationClasses="w-10 h-10 text-white dark:text-gray-600 fill-purple-900"
+                                        /> Analysing</>}
                                 </Button>
                             </div>
                         </div>
@@ -422,10 +455,12 @@ const DisbursementActionContent: React.FC<IDisbursementActionContent> = ({
                                          transaction={formData}
                                          handleConfirmation={handleTransactionConfirmation}
                                          handleCancel={setOpenOverlay}
+                                         summary={transactionSummary}
                 />
             </OverlayDetailContainer>
 
-            <Modal showCloseButton={true} setModalOpen={handleModalOpen} showModal={openModal} customClasses="relative">
+            <Modal showCloseButton={true} setModalOpen={handleModalOpen} showModal={openModal}
+                   customClasses="relative z-50">
                 {transactionSuccessful && <div>
                     <div className="absolute">
                         <Image className="-ml-5 mt-10" src="/assets/images/confetti.svg" alt="confetti" width={765}
@@ -465,7 +500,10 @@ const DisbursementActionContent: React.FC<IDisbursementActionContent> = ({
                             <InfoCardItem description={formData.description ?? ''} title="Description"
                                           customStyles="my-2"
                                           customTitleStyles="mt-5 text-xs"/>
-                            <InfoCardItem description={formatAmount(formData.amount)} title="Total Amount"
+                            <InfoCardItem description={actionType === 'single'
+                                ? formatAmount(formData.amount)
+                                : formatAmount(formatAmountGHS(transactionSummary?.totalAmount))}
+                                          title="Total Amount"
                                           customStyles="my-2"
                                           customTitleStyles="mt-5 text-xs"/>
                             {formData.date &&

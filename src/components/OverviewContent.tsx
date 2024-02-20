@@ -36,6 +36,8 @@ const OverviewContent: React.FC = () => {
     const [showBalance, setShowBalance] = useState<boolean | null>(true);
     const [activeNav, setActiveNav] = useState<string>('collections');
     const [recentScheduledPayment, setRecentScheduledPayment] = useState<TransactionType | null>(null);
+    const [recentTransactions, setRecentTransactions] = useState<TransactionType[] | null>([]);
+    const [relativeTime, setRelativeTime] = useState<string>('');
 
     const {
         transactions,
@@ -90,6 +92,7 @@ const OverviewContent: React.FC = () => {
                     const pagination = extractPaginationData(feedback.data)
                     if (transactions.length > 0) {
                         if (setTransactions) setTransactions({pagination, data: [...transactions]})
+                        setRecentTransactions(transactions)
                     }
                 }
             })
@@ -173,6 +176,7 @@ const OverviewContent: React.FC = () => {
         fetchScheduledPayments()
         fetchDisbursements()
         fetchCollections()
+        getRelativeTime()
     }, []);
 
     const handleToggleBalance = () => {
@@ -198,6 +202,12 @@ const OverviewContent: React.FC = () => {
 
     const handleNavClick = (activeTab: string) => {
         setActiveNav(activeTab)
+    }
+
+    const getRelativeTime = () => {
+        setInterval(() => {
+            setRelativeTime(formatRelativeTime(recentScheduledPayment?.processAt ?? ''))
+        }, 1000);
     }
 
     return (
@@ -236,7 +246,7 @@ const OverviewContent: React.FC = () => {
                         <div className="w-full">
                             <div className="hidden md:flex">
                                 <Card
-                                    customStyles={`lg:w-2/3 flex flex-col p-3 w-full border border-purple-900 rounded-l-2xl rounded-r-0 h-[197px] `}>
+                                    customStyles={`lg:w-2/3 flex flex-col p-3 w-full border border-purple-900 rounded-l-2xl rounded-r-0 h-[197px]`}>
                                     <div className="flex flex-col h-full">
                                         <h5 className="text-sm md:font-medium leading-6">Recent Transactions</h5>
                                         {transactions?.data?.length === 0 &&
@@ -256,9 +266,9 @@ const OverviewContent: React.FC = () => {
                                                 </div>
                                             </EmptyTransactionCardContent>}
 
-                                        <div className="">
+                                        <div>
                                             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                                                {transactions?.data?.map((transaction) => (
+                                                {recentTransactions?.map((transaction) => (
                                                     <RecentTransactionCard transaction={transaction}
                                                                            key={transaction.internalId}
                                                                            customStyles="space-x-3 rounded-lg hover:border-gray-400"/>
@@ -297,8 +307,7 @@ const OverviewContent: React.FC = () => {
                                                     <Image src="/assets/icons/clock.svg" alt="clock" width={16}
                                                            height={16} style={{width: 'auto', height: 16}}
                                                            className="pr-1"/>
-                                                    {formatRelativeTime(
-                                                        recentScheduledPayment.processAt ?? now().toString())}
+                                                    {formatRelativeTime(recentScheduledPayment.processAt ?? '')}
                                                 </div>
                                             </div>
                                         </div>
@@ -307,7 +316,7 @@ const OverviewContent: React.FC = () => {
                                             <div className="flex flex-row my-2 pt-1">
                                                 <div className="basis-1/2">
                                                     <InfoCardItem
-                                                        description={splitDateAndTime(recentScheduledPayment.createdAt?.toString()).date}
+                                                        description={splitDateAndTime(recentScheduledPayment?.processAt?.toString()).date}
                                                         title="Date"
                                                         customStyles=""
                                                         customTitleStyles=""
@@ -318,7 +327,7 @@ const OverviewContent: React.FC = () => {
                                                 </div>
                                                 <div className="basis-1/2">
                                                     <InfoCardItem
-                                                        description={splitDateAndTime(recentScheduledPayment.createdAt?.toString()).time}
+                                                        description={splitDateAndTime(recentScheduledPayment?.processAt?.toString()).time}
                                                         title="Time"
                                                         customStyles="flex"
                                                         customTitleStyles=""
@@ -374,9 +383,9 @@ const OverviewContent: React.FC = () => {
                                                 </div>
                                             </EmptyTransactionCardContent>}
 
-                                        <div className="">
+                                        <div>
                                             <div className="grid grid-cols-2 gap-x-10 gap-y-5">
-                                                {transactions?.data?.map((transaction) => (
+                                                {recentTransactions?.map((transaction) => (
                                                     <RecentTransactionCard transaction={transaction}
                                                                            key={transaction.internalId}
                                                                            customStyles="flex-grow space-x-3 rounded-lg hover:border-gray-400"/>
@@ -431,7 +440,7 @@ const OverviewContent: React.FC = () => {
                                                 <div className="flex flex-row my-2 pt-1">
                                                     <div className="basis-1/2">
                                                         <InfoCardItem
-                                                            description={splitDateAndTime(recentScheduledPayment?.createdAt?.toString()).date}
+                                                            description={splitDateAndTime(recentScheduledPayment?.processAt?.toString()).date}
                                                             title="Date"
                                                             customStyles=""
                                                             customTitleStyles=""
@@ -442,7 +451,7 @@ const OverviewContent: React.FC = () => {
                                                     </div>
                                                     <div className="basis-1/2">
                                                         <InfoCardItem
-                                                            description={splitDateAndTime(recentScheduledPayment?.createdAt?.toString()).time}
+                                                            description={splitDateAndTime(recentScheduledPayment?.processAt?.toString()).time}
                                                             title="Time"
                                                             customStyles="flex"
                                                             customTitleStyles=""
@@ -495,7 +504,7 @@ const OverviewContent: React.FC = () => {
                             </div>}
                     </div>
 
-                    {transactions?.data ?.length === 0 && <EmptyTransactionCardContent showContent={false}>
+                    {transactions?.data?.length === 0 && <EmptyTransactionCardContent showContent={false}>
                         <div
                             className="flex flex-col justify-center items-center h-full w-full">
                             <div className="flex justify-between my-4">

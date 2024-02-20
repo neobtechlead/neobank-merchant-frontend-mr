@@ -43,6 +43,8 @@ export const normalizeDate = (date: string = now().toString(), includeTime: bool
     return DateTime.fromISO(date).toLocaleString(dateTimeOptions);
 };
 
+export const getTimestamp = (dateTimeString: string = now().toString()) => (DateTime.fromISO(dateTimeString)).toMillis();
+
 export const splitDateAndTime = (date: string = now().toString()) => {
     const dateTime = DateTime.fromISO(date);
     return {
@@ -65,9 +67,9 @@ export const calculateDateRange = (range: number = 5, customStart: boolean = fal
     };
 }
 
-export const camelCaseToWords = (text: string = '') => {
-    return text.replace(/([A-Z])/g, ' $1').toLowerCase();
-}
+export const camelCaseToWords = (text: string = '') => text.replace(/([A-Z])/g, ' $1').toLowerCase()
+
+export const camelToKebab = (text: string = '') => text.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase()
 
 export const downloadFile = async (response: Response | Blob, fileName: string = 'sample.txt') => {
     try {
@@ -95,7 +97,6 @@ export const getError = (error: ErrorResponse): string => {
         const {violations} = error.data;
         if (violations) return `${violations[0].field} ${violations[0].message}`;
     }
-
 
     if (isErrorStringFormat(error.message)) {
         const dataRegex = /data=([^,]*)/;
@@ -224,14 +225,14 @@ export const isValidEmail = (email: string): boolean => {
 export const extractPaginationData = (data: { meta: ApiMetaType, pagination: ApiPaginationType, transactions: [] }): PaginationType => {
     const {meta, pagination} = data;
     return {
-        firstPage: pagination.firstPage,
-        lastPage: pagination.lastPage,
-        pageNumber: meta.pageNumber,
-        offset: meta.offset,
-        size: pagination.size,
-        sorting: {...pagination.sorting},
-        totalElements: pagination.totalElements,
-        totalPages: pagination.totalPages
+        firstPage: pagination?.firstPage ?? false,
+        lastPage: pagination?.lastPage ?? false,
+        pageNumber: meta?.pageNumber ?? 0,
+        offset: meta?.offset ?? 0,
+        size: pagination?.size ?? 0,
+        sorting: pagination?.sorting,
+        totalElements: pagination?.totalElements ?? 0,
+        totalPages: pagination?.totalPages ?? 0,
     };
 };
 
@@ -240,18 +241,27 @@ export const formatRelativeTime = (dateString: string) => {
     const now = DateTime.now();
     const diff = now.diff(dateTime);
 
+    let response;
+
     if (diff.as('milliseconds') < 0) {
         const futureDiff = dateTime.diff(now);
 
-        if (futureDiff.as('days') >= 1) return `${Math.floor(futureDiff.as('days'))} days left`
-        if (futureDiff.as('hours') >= 1) return `${Math.floor(futureDiff.as('hours'))} hours left`
-        return `${Math.floor(futureDiff.as('minutes'))} minutes left`
+        if (futureDiff.as('days') >= 1) response = `${Math.floor(futureDiff.as('days'))} days left`;
+        else if (futureDiff.as('hours') >= 1) response = `${Math.floor(futureDiff.as('hours'))} hours left`;
+        else if (futureDiff.as('minutes') >= 1) response = `${Math.floor(futureDiff.as('minutes'))} minutes left`;
+        else response = `${Math.floor(futureDiff.as('seconds'))} seconds left`;
+    } else {
+        if (diff.as('days') >= 1) response = `${Math.floor(diff.as('days'))} days ago`;
+        else if (diff.as('hours') >= 1) response = `${Math.floor(diff.as('hours'))} hours ago`;
+        else if (diff.as('minutes') >= 1) response = `${Math.floor(diff.as('minutes'))} minutes ago`;
+        else response = `${Math.floor(diff.as('seconds'))} seconds ago`;
     }
 
-    if (diff.as('days') >= 1) return `${Math.floor(diff.as('days'))} days ago`
-    if (diff.as('hours') >= 1) return `${Math.floor(diff.as('hours'))} hours ago`
-    return `${Math.floor(diff.as('minutes'))} minutes ago`
+    return response
 };
 
 
-
+export const convertDateTimeToISOFormat = (dateTimeString: string = '', format: string = 'dd/MM/yyyy h:mma') => {
+    const luxonDateTime = DateTime.fromFormat(dateTimeString, format);
+    return !luxonDateTime.isValid ? '' : luxonDateTime.toFormat("yyyy-MM-dd'T'HH:mm:ss");
+}

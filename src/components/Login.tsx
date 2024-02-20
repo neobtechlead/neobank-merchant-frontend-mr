@@ -8,7 +8,7 @@ import CheckboxInput from '@/components/forms/CheckboxInput';
 import Carousel from '@/components/Carousel';
 import Alert from '@/components/Alert';
 import Button from '@/components/forms/Button';
-import {login, logout} from "@/api/auth";
+import {login} from "@/api/auth";
 import {useUserStore} from "@/store/UserStore";
 import {getError} from "@/utils/lib";
 import Logo from "@/assets/images/logo.svg";
@@ -29,17 +29,15 @@ export default function Login() {
     const {resetTransactionStore} = useTransactionStore();
 
     useEffect(() => {
-        if (user?.authToken) {
-            logout(user?.authToken).then(async (response) => {
-                if (response.ok && await response.json()) {
-                    if (resetUserStore) resetUserStore()
-                    if (resetTransactionStore) resetTransactionStore()
-                }
-            }).catch(error => {
-                console.log(error)
-            })
-        }
+        handleUserLogout()
     }, [])
+
+    const handleUserLogout = () => {
+        if (user?.authToken) {
+            if (resetTransactionStore) resetTransactionStore()
+            if (resetUserStore) resetUserStore()
+        }
+    }
 
     const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const {name, value} = event.target;
@@ -72,7 +70,6 @@ export default function Login() {
                 return setError(getError(feedback))
             })
             .catch((error) => {
-                console.log('error:', error)
                 setError(error.message)
             })
     };

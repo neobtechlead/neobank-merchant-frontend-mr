@@ -1,4 +1,4 @@
-import React, {ChangeEvent, useState} from 'react';
+import React, {ChangeEvent, WheelEventHandler, useState} from 'react';
 import Svg from '@/components/Svg';
 import {EyeOpened, EyeClosed} from '@/assets/icons/eye';
 import {ITextInput} from "@/utils/interfaces/ITextInput";
@@ -20,7 +20,9 @@ const TextInput: React.FC<ITextInput> = ({
                                              children,
                                              customClasses,
                                              customInputClasses,
-                                             customLabelClasses= 'capitalize',
+                                             customLabelClasses = 'capitalize',
+                                             min,
+                                             max
                                          }) => {
     const [inputValue, setInputValue] = useState('');
     const [error, setError] = useState<string | null>(null);
@@ -52,6 +54,18 @@ const TextInput: React.FC<ITextInput> = ({
         return setShowPassword(!showPassword);
     };
 
+    const isNumberInput = () => {
+        return type === 'number'
+    };
+
+    const numberInputOnWheelPreventChange: WheelEventHandler<HTMLInputElement> = (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        const input = event.currentTarget;
+        input.blur();
+        setTimeout(() => input.focus(), 0);
+    }
+
     return (
         <div className={`mb-4 ${customClasses}`}>
             <label htmlFor={id} className={`block text-sm font-medium leading-6 text-gray-900 ${customLabelClasses}`}>
@@ -73,12 +87,15 @@ const TextInput: React.FC<ITextInput> = ({
                             placeholder={placeholder}
                             onBlur={handleBlur}
                             onInput={handleInputChange}
+                            min={isNumberInput() ? min : ''}
+                            max={isNumberInput() ? max : ''}
                             className={`block w-full rounded-md py-1.5 px-3 text-gray-900 placeholder-gray-900
                                     border-gray-300 placeholder:text-gray-600 focus:outline-none
                                     sm:text-sm sm:leading-6 h-[${height}px] ${disabled ? 'cursor-not-allowed' : ''} 
                                     ${customInputClasses}`}
                             disabled={disabled}
                             style={{backgroundColor: "#EFEFEF"}}
+                            onWheel={numberInputOnWheelPreventChange}
                         />
 
                         {children?.right && (

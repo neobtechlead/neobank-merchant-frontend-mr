@@ -14,26 +14,41 @@ node {
             //Copy .env file from workspace to project
 
             sh 'cp ../cf_neobank_merchant_frontend.env .'
-            sh 'mv cf_neobank_merchant_frontend.env  .env.development.local'
+            sh 'mv cf_neobank_merchant_frontend.env  .env.local'
 
             if(env.BRANCH_NAME == 'develop'){
-                
                 withCredentials([
                     string(credentialsId: 'merchant-api-base-url-staging', variable: 'API_BASE_URL')
                 ]) {
-                     sh ('sed -i "s|API_BASE_URL|${API_BASE_URL}|" .env.development.local')
+                     sh ('sed -i "s|MERCHANT_URL|${API_BASE_URL}|" .env.local')
                 }
 
             } else if(env.BRANCH_NAME == 'main') {
-            
-                 withCredentials([
+                withCredentials([
                     string(credentialsId: 'merchant-api-base-url-prod', variable: 'API_BASE_URL')
                 ]) {
-                    sh ('sed -i "s|API_BASE_URL|${API_BASE_URL}|" .env.development.local')
+                    sh ('sed -i "s|MERCHANT_URL|${API_BASE_URL}|" .env.local')
                 }
             }
        
         }
+        stage('SonarQube Analysis'){
+                withSonarQubeEnv('Sonarqube'){
+                    sh "sonar-scanner \
+                        -Dsonar.projectKey=cf-neobank-merchant-frontend \
+                        -Dsonar.sources=. \
+                        -Dsonar.host.url=${env.SONARQUBE_URL} \
+                        -Dsonar.login=${env.NEOBANK_MERCHANT_FRONTNED_SONARQUBE_TOKEN}"
+                    }
+            }
+        stage('Quality Gateway'){
+                timeout(time: 1, unit: 'HOURS'){
+                    def qualityGate = waitForQualityGate()
+                    if (qualityGate.status != 'OK'){
+                        error "Pipeline aborted due to quality gate failure: ${qualityGate.status}"
+                    }
+                }
+            }
 
         stage('Build image') {
             /**

@@ -93,11 +93,12 @@ const CollectionForm: React.FC<ICollectionForm> = ({onSubmit}) => {
                         id="phone"
                         name="phone"
                         type="number"
-                        placeholder="+233"
+                        placeholder="02XXXXXXXX"
                         required={false}
                         onInputChange={handleInputChange}
                         hasError={setHasError} autoComplete=""
                         customClasses="w-full md:w-2/3 lg:w-1/3"
+                        min={0}
                     >
                         {{
                             left: <div
@@ -121,6 +122,7 @@ const CollectionForm: React.FC<ICollectionForm> = ({onSubmit}) => {
                         onInputChange={handleInputChange}
                         hasError={setHasError} autoComplete=""
                         customClasses="w-full md:w-2/3 lg:w-1/3"
+                        min={1}
                     >
                         {{
                             left: <div className="">
