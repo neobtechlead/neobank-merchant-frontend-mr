@@ -6,7 +6,6 @@ import Svg from "@/components/Svg";
 import {ArrowLeft} from "@/assets/icons/ArrowLeft";
 import ReportContent from "@/components/ReportContent";
 import {useAuthHelper} from "@/hooks/useAuthEffect";
-import {useUserStore} from "@/store/UserStore";
 import {useTransactionStore} from "@/store/TransactionStore";
 
 const ReportsPage: React.FC = () => {
@@ -25,10 +24,6 @@ const ReportsPage: React.FC = () => {
     const [hasActivity, setHasActivity] = useState<boolean>(false);
     const [showEmptyState, setShowEmptyState] = useState<boolean>(false);
     const {transactions} = useTransactionStore();
-    const {
-        isAuthenticated,
-        setIsAuthenticated,
-    } = useUserStore();
 
     const setHeaderDetails = () => {
         setShowLogo(true)
@@ -41,15 +36,8 @@ const ReportsPage: React.FC = () => {
         transactions && transactions?.data?.length > 0 ? setHasActivity(true) : setShowEmptyState(false)
     }
 
-    useAuthHelper({
-        isAuthenticated,
-        setHeaderDetails,
-        setIsAuthenticated
-    })
-
-    const handleBackButtonClicked = () => {
-        setHeaderDetails()
-    }
+    useAuthHelper({setHeaderDetails})
+    const handleBackButtonClicked = () => setHeaderDetails()
 
     return (
         <DashboardLayout>

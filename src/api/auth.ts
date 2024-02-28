@@ -37,8 +37,8 @@ export async function createPassword(password: string, confirmPassword: string, 
     });
 }
 
-export async function resendOtp(accessKey: string | undefined) {
-    return await fetcher(`api/v1/auth/resend-otp?accessKey=${accessKey}`, {
+export async function resendOtp(accessKey: string | undefined, channel: string | undefined = 'EMAIL') {
+    return await fetcher(`api/v1/auth/resend-otp?accessKey=${accessKey}&channel=${channel}`, {
         headers: {
             'Content-Type': 'application/json'
         },

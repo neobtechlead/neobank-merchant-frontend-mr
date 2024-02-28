@@ -6,6 +6,7 @@ import {TransactionType} from "@/utils/types/TransactionType";
 import {PaginationType} from "@/utils/types/PaginationType";
 import {ApiMetaType} from "@/utils/types/ApiMetaType";
 import {ApiPaginationType} from "@/utils/types/ApiPaginationType";
+import {UserType} from "@/utils/types/UserType";
 
 export const formatAmountGHS = (amount: number | string = ''): string => {
     return (parseFloat(<string>amount) / 100).toFixed(2);
@@ -260,8 +261,11 @@ export const formatRelativeTime = (dateString: string) => {
     return response
 };
 
-
 export const convertDateTimeToISOFormat = (dateTimeString: string = '', format: string = 'dd/MM/yyyy h:mma') => {
     const luxonDateTime = DateTime.fromFormat(dateTimeString, format);
     return !luxonDateTime.isValid ? '' : luxonDateTime.toFormat("yyyy-MM-dd'T'HH:mm:ss");
 }
+
+export const isAdmin = (user?: UserType) => user && user.roles?.includes("ADMIN")
+export const isInitiator = (user?: UserType) => user && user.roles?.includes("INITIATOR")
+export const isPayer = (user?: UserType) => user && user.roles?.includes("PAYER")

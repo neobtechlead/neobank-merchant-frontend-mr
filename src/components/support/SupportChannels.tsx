@@ -15,19 +15,19 @@ const cards = [
     {
         name: 'Call Us',
         description: 'Mon-Fri  from 8am - 5pm',
-        cta: '+233 30 33 333 3333',
+        cta: '',
         icon: Phone,
     },
     {
         name: 'Email Us',
         description: 'Email Us On',
-        cta: 'neobank@gmail.com',
+        cta: 'neobank@completefarmer.com',
         icon: EnvelopeOpen,
     },
     {
         name: 'Chat Us',
         description: 'Chat with our tech support.',
-        cta: 'chat@neobank.com',
+        cta: '',
         icon: ChatCircle,
     },
 ]

@@ -7,7 +7,6 @@ import {ArrowLeft} from "@/assets/icons/ArrowLeft";
 import CollectionContent from "@/components/CollectionContent";
 import {useTransactionStore} from "@/store/TransactionStore";
 import {useAuthHelper} from "@/hooks/useAuthEffect";
-import {useUserStore} from "@/store/UserStore";
 
 const CollectionPage: React.FC = () => {
     const {
@@ -22,13 +21,7 @@ const CollectionPage: React.FC = () => {
         setShowSupportButton
     } = useDashboardStore();
 
-    const {
-        collections
-    } = useTransactionStore();
-
-    const {
-        isAuthenticated, setIsAuthenticated
-    } = useUserStore();
+    const {collections} = useTransactionStore();
 
     const [showPaymentLinkForm, setShowPaymentLinkForm] = useState<boolean>(false);
     const [hasActivity, setHasActivity] = useState<boolean>(false);
@@ -45,11 +38,7 @@ const CollectionPage: React.FC = () => {
         setShowPaymentLinkForm(false)
     }
 
-    useAuthHelper({
-        isAuthenticated,
-        setHeaderDetails,
-        setIsAuthenticated
-    })
+    useAuthHelper({setHeaderDetails})
 
     const handleBackButtonClicked = () => {
         setNavTitle('')

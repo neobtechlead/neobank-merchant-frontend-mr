@@ -13,30 +13,35 @@ const FAQs = () => {
 
     const faqs = [
         {
-            question: "What's the best thing about Switzerland?",
+            question: "Can I schedule future fund disbursements for specific dates and times?",
             answer:
-                "I don't know, but the flag is a big plus. Lorem ipsum dolor sit amet consectetur adipisicing elit. Quas cupiditate laboriosam fugiat.",
+                "Yes, you can schedule future fund disbursements by accessing the Schedule Payments section under disbursement and providing the desired date and time.",
         },
         {
-            question: "What's the best thing about Switzerland?",
+            question: "What is a Payment link?",
             answer:
-                "I don't know, but the flag is a big plus. Lorem ipsum dolor sit amet consectetur adipisicing elit. Quas cupiditate laboriosam fugiat.",
+                "A payment link is created within the Collections section by furnishing essential details such as description and amount, alongside necessary payment information including the recipient's name, contact number, email, and address.",
         },
         {
-            question: "What's the best thing about Switzerland?",
+            question: "How does the Payment Link Fulfillment process work for clients?",
             answer:
-                "I don't know, but the flag is a big plus. Lorem ipsum dolor sit amet consectetur adipisicing elit. Quas cupiditate laboriosam fugiat.",
+                "Clients receive an email with the payment request, review the details, click the confirm button, select their preferred payment option, and provide payment details for authentication. Completing the payment triggers confirmation notifications to both the client and merchant.",
         },
         {
-            question: "What's the best thing about Switzerland?",
+            question: "What products or services does CFT offer?",
             answer:
-                "I don't know, but the flag is a big plus. Lorem ipsum dolor sit amet consectetur adipisicing elit. Quas cupiditate laboriosam fugiat.",
+                "CFT offers a Merchant Portal that plugs into a licensed aggregator for managing transactions, a secure USSD system for customers, and features such as scheduled payments, payment link generation, and detailed reporting for enhanced financial control.",
+        },
+        {
+            question: "What geographical regions does CFT operate in?",
+            answer:
+                "We currently operate in Ghana. However, collections can be made from all over the world via card payments processed through our licensed aggregators.",
         },
     ]
 
     return (
         <div className="bg-white">
-            <div className="mx-auto max-w-7xl px-6 py-24 sm:py-16 lg:px-8 lg:py-0">
+            <div className="mx-auto max-w-7xl px-6 py-24 sm:py-16 lg:px-8 lg:pb-10 lg:pt-0">
                 <div className="mx-auto max-w-4xl divide-y divide-gray-900/10">
                     <h2 className="text-4xl font-bold leading-10 tracking-tight text-gray-900 text-center">
                         Frequently Asked Questions

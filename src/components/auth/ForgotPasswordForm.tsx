@@ -56,8 +56,8 @@ const ForgotPasswordForm: React.FC<IForgotPasswordForm> = () => {
     const handleReturnToLogin = () => router.push("/")
 
     return (
-        <AuthContentWrapper title={title} description={description} error={error}>
-            <form method="POST" onSubmit={handleSubmit} className="">
+        <AuthContentWrapper title={title} description={description} error={error} customClasses={emailSent ? 'mt-20' : 'py-10'}>
+            <form method="POST" onSubmit={handleSubmit} className={emailSent ? 'py-10' : ''}>
                 {!emailSent && <div className="flex">
                     <TextInput
                         label="email address"
@@ -74,9 +74,9 @@ const ForgotPasswordForm: React.FC<IForgotPasswordForm> = () => {
                     />
                 </div>}
 
-                <div className="mt-2 sm:grid-cols-10 relative">
+                <div className={`mt-2 sm:grid-cols-10 relative ${emailSent ? 'my-5' : ''}`}>
                     {!emailSent && <Button styleType="primary"
-                                           customStyles="justify-center p-4 md:p-5 rounded-lg my-4 relative"
+                                           customStyles="justify-center p-4 md:p-5 rounded-lg my-4 relative w-full"
                                            buttonType="submit"
                                            disabled={hasError || loading}>
                         {!loading && <span className="flex self-center">Reset password</span>}
@@ -87,7 +87,7 @@ const ForgotPasswordForm: React.FC<IForgotPasswordForm> = () => {
                     </Button>}
 
                     <Button styleType="tertiary"
-                            customStyles="justify-center p-4 md:p-5 rounded-lg"
+                            customStyles="justify-center p-4 md:p-5 rounded-lg w-full"
                             buttonType="button"
                             onClick={handleReturnToLogin}
                     >

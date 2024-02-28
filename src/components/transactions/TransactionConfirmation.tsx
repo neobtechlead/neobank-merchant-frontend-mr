@@ -115,14 +115,14 @@ const TransactionConfirmation: React.FC<ITransactionConfirmation> = ({
 
             <div className="">
                 <Button buttonType="button" styleType="primary"
-                        customStyles="mt-10 justify-center p-4 md:p-5 rounded-lg"
+                        customStyles="mt-10 justify-center p-4 md:p-5 rounded-lg w-full"
                         onClick={() => handleConfirmation(transactionType)}
                 >
                     <div className="flex items-center justify-center gap-2">Proceed</div>
                 </Button>
 
                 <Button buttonType="button" styleType="tertiary"
-                        customStyles="mt-4 justify-center p-4 md:p-5 border border-red-500 rounded-lg"
+                        customStyles="mt-4 justify-center p-4 md:p-5 border border-red-500 rounded-lg w-full"
                         onClick={() => handleCancel(false)}
                 >
                     <div className="flex items-center justify-center gap-2 text-red-500">Cancel</div>

@@ -4,6 +4,7 @@ import {Clock} from '@/assets/icons/Clock';
 import {XCircle} from '@/assets/icons/XCircle';
 import Svg from '@/components/Svg';
 import {IAlert} from '@/utils/interfaces/IAlert';
+import {InfoCircle, InfoCircleI} from "@/assets/icons/InfoCircle";
 
 const Alert: React.FC<IAlert> = ({
                                      alertType,
@@ -15,7 +16,7 @@ const Alert: React.FC<IAlert> = ({
     const alertIcons: Record<string, string> = {
         success: CheckCircle,
         successful: CheckCircle,
-        info: CheckCircle,
+        info: InfoCircle,
         initiated: CheckCircle,
         warning: Clock,
         queued: Clock,
@@ -28,7 +29,7 @@ const Alert: React.FC<IAlert> = ({
     const alertIconColors: Record<string, string> = {
         success: '#008000',
         successful: '#008000',
-        info: '#06b6d4',
+        info: '#000000',
         initiated: '#06b6d4',
         warning: '#F29339',
         queued: '#F29339',
@@ -41,7 +42,7 @@ const Alert: React.FC<IAlert> = ({
     const alertBackgroundColors: Record<string, string> = {
         success: '#0080001A',
         successful: '#0080001A',
-        info: '#ECFEFF',
+        info: '#FDF2DC',
         initiated: '#ECFEFF',
         warning: '#F293391A',
         queued: '#F293391A',
@@ -61,15 +62,18 @@ const Alert: React.FC<IAlert> = ({
         <div className={`rounded p-1 ${customClasses}`} style={{background: alertBackgroundColors[alertTypeKey]}}>
             <div className="flex items-center justify-between">
                 <div className="flex-shrink-0 mx-1">
-                    {alertType && <Svg fill={alertIconColors[alertTypeKey]} path={alertIcons[alertTypeKey]}/>}
+                    {alertType &&
+                        <Svg fill={alertIconColors[alertTypeKey]} path={alertIcons[alertTypeKey]}
+                             otherPath={alertType === 'info' ? InfoCircleI : ''}
+                             style={{display: "flex", alignItems: "center"}}/>}
                 </div>
                 {description && (
-                    <p
-                        className={`flex items-center gap-1 ${descriptionClasses}`}
+                    <div
+                        className={`flex items-center gap-1 whitespace-normal ${descriptionClasses}`}
                         style={{color: alertIconColors[alertTypeKey]}}
                     >
                         {description}
-                    </p>
+                    </div>
                 )}
                 <div className="flex-1 md:flex md:justify-between">{children}</div>
             </div>

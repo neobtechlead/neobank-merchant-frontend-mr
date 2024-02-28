@@ -62,13 +62,13 @@ const VerificationContent: React.FC = () => {
         if (setLoading) setLoading(false);
         setError('')
 
-        resendOtp(token ?? user?.authToken)
+        resendOtp(token ?? user?.authToken, 'EMAIL')
             .then(async (response) => {
+                const feedback = await response.json()
                 if (response.ok) {
-
-                    const data = await response.json()
-                    if (setUser) return setUser({accessKey: data.accessKey})
+                    if (setUser) return setUser({accessKey: feedback.accessKey})
                 }
+                setError(feedback.message)
             })
             .catch((error) => {
                 if (setLoading) setLoading(false);
@@ -77,14 +77,15 @@ const VerificationContent: React.FC = () => {
     };
 
     const handlePasswordCreate = (password: string) => {
+        setError('')
         if (setLoading) setLoading(true);
 
-        resetPassword(password, user?.authToken)
+        resetPassword(password, user?.authToken ?? user?.accessKey)
             .then(async (response) => {
                 const feedback = await response.json()
                 if (setLoading) setLoading(false);
 
-                if (!response.ok) return setError(getError(feedback))
+                if (!response.ok) return setError(feedback.message ?? getError(feedback))
                 setError('')
 
                 const {data} = feedback
@@ -110,12 +111,12 @@ const VerificationContent: React.FC = () => {
     const handleError = (error: string) => setError(error)
 
     return (
-        <AuthContentWrapper title={title} description={description} error={error}>
-            <div className="min-w-[27rem]">
+        <AuthContentWrapper title={title} description={description} error={error} customClasses="py-10 min-w-full mx-10">
+            <div className="">
                 {!otpVerified &&
                     <VerifyOtp handleSubmit={handleVerifyOtp} handleResend={handleResendOtp} otpLength={6}
                                loading={loading ?? false}/>}
-                {otpVerified && <CreatePassword handleError={handleError} handleSubmit={handlePasswordCreate}/>}
+                {otpVerified && <CreatePassword handleError={handleError} handleSubmit={handlePasswordCreate} loading={loading ?? false}/>}
             </div>
         </AuthContentWrapper>);
 };

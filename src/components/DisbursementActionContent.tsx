@@ -39,10 +39,7 @@ import {DropdownInput} from "@/components/forms/DropdownInput";
 import {DropdownInputItemType} from "@/utils/types/DropdownInputItemType";
 import Loader from "@/components/Loader";
 
-const DisbursementActionContent: React.FC<IDisbursementActionContent> = ({
-                                                                             contentType,
-                                                                             resetDashboard
-                                                                         }) => {
+const DisbursementActionContent: React.FC<IDisbursementActionContent> = ({resetDashboard}) => {
     const [hasError, setHasError] = useState<boolean>(true);
     const [error, setError] = useState<string | null>('');
     const [toggleEnabled, setToggleEnabled] = useState<boolean>(false);
@@ -276,21 +273,20 @@ const DisbursementActionContent: React.FC<IDisbursementActionContent> = ({
     return (
         <div className="w-full h-full">
             <div className={`pt-10 ${toggleEnabled ? 'mb-50' : ''}`}>
-                {contentType === 'initiate' &&
-                    <div
-                        className="flex justify-center border border-gray-100 rounded-lg text-center mb-10 max-w-xs mx-auto">
-                        <TabsNav
-                            tabs={[
-                                {item: 'single', label: 'single disbursement'},
-                                {item: 'bulk', label: 'bulk disbursement'}
-                            ]}
-                            handleClick={setActionType}
-                            customClasses="text-xs" activeTab={actionType}/>
-                    </div>}
+                <div
+                    className="flex justify-center border border-gray-100 rounded-lg text-center mb-10 max-w-xs mx-auto">
+                    <TabsNav
+                        tabs={[
+                            {item: 'single', label: 'single disbursement'},
+                            {item: 'bulk', label: 'bulk disbursement'}
+                        ]}
+                        handleClick={setActionType}
+                        customClasses="text-xs" activeTab={actionType}/>
+                </div>
 
                 <form method="POST" onSubmit={handleDisbursementConfirmation}
                       className="flex justify-center overflow-y-auto min-h-[50vh]">
-                    <div className="grid grid-cols-3">
+                    <div className="flex flex-col max-w-lg">
                         {actionType === 'single' && <TextInput
                             label="recipient's name"
                             id="recipient"
@@ -304,18 +300,24 @@ const DisbursementActionContent: React.FC<IDisbursementActionContent> = ({
                             customClasses="col-span-full"
                         />}
 
-                        {actionType === 'single' && <TextInput
-                            label="recipient's phone number"
-                            id="phone"
-                            name="phone"
-                            type="number"
-                            placeholder="Enter phone number"
-                            required={true}
-                            onInputChange={handleInputChange}
-                            hasError={setHasError}
-                            autoComplete=""
-                            customClasses="col-span-full"
-                        />}
+                        <Alert alertType="info"
+                               description="Funds will be disbursed into recipient's CF Transact wallet if recipient does not have a CF Transact wallet, disbursement will be made into their mobile wallet"
+                               customClasses="text-xs mb-4 mt-1"
+                        />
+
+                        {actionType === 'single' &&
+                            <TextInput
+                                label="recipient's phone number"
+                                id="phone"
+                                name="phone"
+                                type="number"
+                                placeholder="Enter phone number"
+                                required={true}
+                                onInputChange={handleInputChange}
+                                hasError={setHasError}
+                                autoComplete=""
+                                customClasses="col-span-full"
+                            />}
 
                         {actionType === 'single' &&
                             <DropdownInput label="Provider" selected={provider} setSelected={handleSetProvider}
@@ -349,7 +351,7 @@ const DisbursementActionContent: React.FC<IDisbursementActionContent> = ({
                             required={false}
                             onInputChange={handleInputChange}
                             hasError={setHasError} autoComplete=""
-                            customClasses="col-span-full"
+                            customClasses=""
                         />
 
                         {actionType === 'bulk' && <div className="col-span-full">
@@ -398,15 +400,15 @@ const DisbursementActionContent: React.FC<IDisbursementActionContent> = ({
                             </div>
                         </div>}
 
-                        <div className="flex gap-x-4 relative mt-4">
+                        <div className="flex flex-end gap-x-4 relative mt-4">
                             <div className="flex text-sm">Schedule disbursement</div>
-                            <div className="absolute right-[-310px]">
+                            <div className="flex ml-auto">
                                 <Toggle enabled={toggleEnabled} handleToggle={handleToggle}/>
                             </div>
                         </div>
 
                         {toggleEnabled && (
-                            <div className="col-span-full">
+                            <div className="">
                                 <div className="grid grid-cols-2 gap-4 my-4">
                                     <div
                                         className={`flex flex-col transition-opacity ${toggleEnabled ? 'opacity-100 duration-500 ease-in-out' : 'opacity-0 duration-500 ease-in-out'}`}>
@@ -431,7 +433,7 @@ const DisbursementActionContent: React.FC<IDisbursementActionContent> = ({
 
                         <div className="col-span-full mt-5">
                             <div className="my-10 sm:grid-cols-10">
-                                <Button styleType="primary" customStyles="justify-center p-4 md:p-5 rounded-lg"
+                                <Button styleType="primary" customStyles="justify-center p-4 md:p-5 rounded-lg w-full"
                                         buttonType="submit"
                                         disabled={hasError}>
                                     {!loading && <span className="flex self-center">Continue</span>}
@@ -517,7 +519,7 @@ const DisbursementActionContent: React.FC<IDisbursementActionContent> = ({
 
                     <div
                         className={`sm:mt-4 sm:flex sm:flex-row-reverse ${transactionSuccessful ? 'pt-[50px]' : 'mt6'}`}>
-                        <Button buttonType="button" styleType="primary" customStyles="p-4 md:p-5 rounded-lg"
+                        <Button buttonType="button" styleType="primary" customStyles="p-4 md:p-5 rounded-lg w-full"
                                 onClick={handleDisbursementTransaction} disabled={loading}>
                             {!loading && <>
                                 {modalButtonText} {transactionSuccessful &&

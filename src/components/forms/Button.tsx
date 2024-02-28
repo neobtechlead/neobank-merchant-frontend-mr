@@ -24,7 +24,6 @@ const Button: React.FC<ButtonType> = ({
     const getHoverTextColor = (styleType: string) => styleType === 'secondary' ? 'text-purple-800 hover:text-purple-900' : 'text-white hover:text-white';
 
     const defaultStyles: React.CSSProperties = {
-        width: '100%',
         maxHeight: '56px',
         display: 'flex',
         alignItems: 'center',

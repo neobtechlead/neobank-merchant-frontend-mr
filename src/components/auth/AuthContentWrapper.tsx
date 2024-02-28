@@ -6,12 +6,13 @@ const AuthContentWrapper: React.FC<IAuthContentWrapper> = ({
                                                                title,
                                                                description,
                                                                error,
-                                                               children
+                                                               children,
+                                                               customClasses
                                                            }) => {
     return (
-        <div className="flex justify-center items-center h-[60vh]">
-            <div className="bg-white rounded-xl shadow-lg h-full max-w-lg flex justify-center items-center">
-                <div className="flex flex-col justify-center items-center space-y-2 my-10 px-10">
+        <div className="flex justify-center items-center">
+            <div className="bg-white rounded-xl shadow-lg h-full flex justify-center items-center">
+                <div className={`flex flex-col justify-center items-center space-y-2 my-10 px-10 max-w-lg ${customClasses}`}>
                     <div className="flex flex-col items-center justify-center text-center space-y-2">
                         <div className="font-semibold text-3xl">
                             <p>{title}</p>

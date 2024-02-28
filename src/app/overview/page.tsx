@@ -21,9 +21,7 @@ const Overview: React.FC = () => {
         setNavTitle,
         setShowSupportButton,
     } = useDashboardStore();
-    const {isAuthenticated, setIsAuthenticated} = useUserStore();
-
-    const {user} = useUserStore();
+    const {isAuthenticated, setIsAuthenticated, user} = useUserStore();
     const pageTitle = `Hello ${user?.firstName} ${user?.lastName}`;
     const pageDescription = 'Welcome to your dashboard';
 
@@ -38,11 +36,7 @@ const Overview: React.FC = () => {
         setShowSupportButton(true)
     }
 
-    useAuthHelper({
-        isAuthenticated,
-        setHeaderDetails,
-        setIsAuthenticated
-    })
+    useAuthHelper({setHeaderDetails})
 
     const handleBackButtonClicked = () => {
         setHeaderDetails()
