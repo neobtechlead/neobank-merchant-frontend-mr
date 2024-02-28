@@ -1,5 +1,5 @@
 "use client"
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import {useRouter} from 'next/navigation';
@@ -8,27 +8,70 @@ import CheckboxInput from '@/components/forms/CheckboxInput';
 import Carousel from '@/components/Carousel';
 import Alert from '@/components/Alert';
 import Button from '@/components/forms/Button';
+import {login} from "@/api/auth";
+import {useUserStore} from "@/store/UserStore";
+import {getError} from "@/utils/lib";
+import Logo from "@/assets/images/logo.svg";
+import {useTransactionStore} from "@/store/TransactionStore";
 
 export default function Login() {
     const router = useRouter();
     const [formData, setFormData] = useState({email: '', password: ''});
-    const [hasError, setHasError] = useState<boolean | null>(null);
+    const [hasError, setHasError] = useState<boolean | undefined>(false);
     const [error, setError] = useState<string | null>(null);
+    const {
+        user,
+        setUser,
+        setMerchant,
+        setIsAuthenticated,
+        resetUserStore
+    } = useUserStore();
+    const {resetTransactionStore} = useTransactionStore();
 
-    const handleInputChange = (event) => {
+    useEffect(() => {
+        handleUserLogout()
+    }, [])
+
+    const handleUserLogout = () => {
+        if (user?.authToken) {
+            if (resetTransactionStore) resetTransactionStore()
+            if (resetUserStore) resetUserStore()
+        }
+    }
+
+    const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const {name, value} = event.target;
         setFormData({...formData, [name]: value});
     };
 
-    const handleSubmit = (event) => {
+    const handleSubmit: React.FormEventHandler<HTMLFormElement> = (event) => {
         event.preventDefault();
 
         if (hasError) return;
-        if (formData.email !== 'jonadab.kwamlah@completefarmer.com') {
-            return setError('Incorrect user details');
-        }
+        setError('')
+        login(formData.email, formData.password)
+            .then(async (response) => {
+                const feedback = (await response.json())
+                if (response.ok) {
+                    const {data} = feedback;
+                    if (setUser) setUser({
+                        externalId: data.id,
+                        email: data.email,
+                        firstName: data.firstName,
+                        lastName: data.lastName,
+                        authToken: data.token,
+                        roles: data.roles
+                    })
+                    if (setIsAuthenticated) setIsAuthenticated(true)
+                    if (setMerchant) setMerchant(data.merchant)
+                    return router.push('/overview')
+                }
 
-        router.push('/overview');
+                return setError(getError(feedback))
+            })
+            .catch((error) => {
+                setError(error.message)
+            })
     };
 
     return (
@@ -36,7 +79,7 @@ export default function Login() {
             <div className="lg-w-3/5 m-auto">
                 <div className="w-full h-full max-w-sm px-3">
                     <div className="m-auto">
-                        <Image src="/assets/images/logo.png" width={172} height={70} alt="logo"/>
+                        <Image src={Logo} width={257} height={34} alt="CF Transact" style={{width: "auto"}}/>
 
                         <div className="my-8">
                             <h1 className="text-xl font-semibold">Sign in to your account</h1>
@@ -46,12 +89,7 @@ export default function Login() {
                         </div>
                     </div>
                     <div className="">
-                        {error && (
-                            <Alert backgroundColor="bg-red-100" iconSrc="/assets/icons/x-circle.svg"
-                                   customClasses="rounded-lg">
-                                <p className="flex items-center text-sm text-red-500">{error}</p>
-                            </Alert>
-                        )}
+                        {error && <Alert alertType="error" description={error} customClasses="rounded-lg"/>}
 
                         <div className="mt-8">
                             <form onSubmit={handleSubmit} className="space-y-6 flex flex-col">
@@ -62,7 +100,6 @@ export default function Login() {
                                     type="email"
                                     placeholder="email"
                                     required={true}
-                                    value={formData.email}
                                     onInputChange={handleInputChange}
                                     hasError={setHasError} autoComplete="false"/>
                                 <TextInput
@@ -72,7 +109,6 @@ export default function Login() {
                                     type="password"
                                     placeholder="password"
                                     required={true}
-                                    value={formData.password}
                                     onInputChange={handleInputChange}
                                     hasError={setHasError} autoComplete="false"/>
 
@@ -82,7 +118,7 @@ export default function Login() {
                                     </div>
 
                                     <div className="text-sm leading-6">
-                                        <Link href="#"
+                                        <Link href="auth/forgot-password"
                                               className="font-semibold text-purple-900 hover:text-purple-500 text-md">
                                             Forgot password?
                                         </Link>
@@ -90,7 +126,8 @@ export default function Login() {
                                 </div>
 
                                 <div className="flex flex-col gap-y-2">
-                                    <Button styleType="primary" customStyles="justify-center" buttonType="submit"
+                                    <Button styleType="primary" customStyles="justify-center p-4 md:p-5 rounded-lg"
+                                            buttonType="submit"
                                             disabled={hasError}>
                                         <span className="flex self-center">Sign in</span>
                                     </Button>

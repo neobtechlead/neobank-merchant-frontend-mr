@@ -1,11 +1,8 @@
 import React, {useState} from 'react';
 import Svg from '@/components/Svg';
+import {ICheckboxProps} from "@/utils/interfaces/ICheckboxProps";
 
-interface CheckboxProps {
-    label: string;
-}
-
-const CheckboxInput: React.FC<CheckboxProps> = ({
+const CheckboxInput: React.FC<ICheckboxProps> = ({
                                                     label,
                                                     width = 28,
                                                     height = 28,

@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: cf-neobank-merchant-frontend
+  labels:
+    app.kubernetes.io/name: neobank-merchant-frontend
+    app.kubernetes.io/instance: wordpress-abcxzy
+    app.kubernetes.io/version: "0.0.1"
+    app.kubernetes.io/component: api
+    app.kubernetes.io/part-of: cf-neobank-services
+    app.kubernetes.io/managed-by: helm
+    alb.ingress.kubernetes.io/healthcheck-path: ""
+spec:
+  selector:
+    app: neobank-merchant-frontend
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: ClusterIP

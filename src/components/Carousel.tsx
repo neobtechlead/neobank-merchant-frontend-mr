@@ -25,12 +25,11 @@ const Carousel: React.FC = () => {
 
     useEffect(() => {
         const interval = setInterval(() => {
-            // Calculate the index of the next slide
             const nextSlideIndex = (activeSlide + 1) % slides.length;
             setActiveSlide(nextSlideIndex);
         }, 5000);
 
-        return () => clearInterval(interval); // Cleanup on component unmount
+        return () => clearInterval(interval);
     }, [activeSlide, slides.length]);
 
     const handleSlideChange = (index: number) => {
@@ -60,8 +59,7 @@ const Carousel: React.FC = () => {
                 {slides.map((slide, index) => (
                     <div
                         key={slide.id}
-                        className={`relative float-left -mr-[100%] w-full transition-transform duration-600 ease-in-out motion-reduce:transition-none
-                         transition-opacity duration-1000 ease-in-out ${
+                        className={`relative float-left -mr-[100%] w-full transition-transform duration-600 motion-reduce:transition-none duration-1000 ease-in-out ${
                             activeSlide === index ? 'opacity-100' : 'opacity-0'
                         }`}
                     >

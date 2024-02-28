@@ -1,35 +1,34 @@
 import React from 'react';
+import {ButtonType} from "@/utils/types/ButtonType";
 
-interface ButtonProps {
-    children: React.ReactNode;
-    customStyles?: string;
-    buttonType: 'submit' | 'button' | 'reset';
-    styleType: string;
-    disabled?: boolean;
-}
+const Button: React.FC<ButtonType> = ({
+                                          children,
+                                          buttonType,
+                                          styleType,
+                                          customStyles,
+                                          disabled,
+                                          onClick
+                                      }) => {
+    const getBackgroundColor = (styleType: string) => {
+        return styleType === 'secondary' ? '#EFEFEF' : styleType === 'tertiary' ? 'transparent' : '#652D90';
+    }
 
-const getBackgroundColor = (styleType: string) => {
-    return styleType === 'secondary' ? '#EFEFEF' : styleType === 'tertiary' ? 'transparent' : '#652D90';
-}
+    const getTextColor = (styleType: string, disabled: boolean | undefined) => {
+        if (disabled) return styleType === 'secondary' ? '#4F4F4F' : styleType === 'tertiary' ? '#652D90' : '#FFFFFF';
+        return styleType === 'primary' ? '#FFFFFF' : '#652D90';
+    }
 
-const getTextColor = (styleType: string, disabled: boolean | undefined) => {
-    if (disabled) return styleType === 'secondary' ? '#4F4F4F' : styleType === 'tertiary' ? '#652D90' : '#FFFFFF';
-    return styleType === 'primary' ? '#FFFFFF' : '#652D90';
-}
+    const getHoverBackgroundColor = (styleType: string) => styleType === 'secondary' ? 'bg-gray-200 hover:bg-gray-300'
+        : styleType === 'tertiary' ? 'bg-white hover:bg-white' : 'bg-purple-800 hover:bg-purple-900';
 
-const getHoverBackgroundColor = (styleType: string) => styleType === 'secondary' ? 'bg-gray-200 hover:bg-gray-300'
-    : styleType === 'tertiary' ? 'bg-white hover:bg-white' : 'bg-purple-800 hover:bg-purple-900';
+    const getHoverTextColor = (styleType: string) => styleType === 'secondary' ? 'text-purple-800 hover:text-purple-900' : 'text-white hover:text-white';
 
-const getHoverTextColor = (styleType: string) => styleType === 'secondary' ? 'text-purple-800 hover:text-purple-900' : 'text-white hover:text-white';
-
-const Button: React.FC<ButtonProps> = ({children, buttonType, styleType, customStyles, disabled}) => {
     const defaultStyles: React.CSSProperties = {
         width: '100%',
-        height: '56px',
-        padding: '16px 20px',
-        borderRadius: '5px',
+        maxHeight: '56px',
         display: 'flex',
         alignItems: 'center',
+        justifyContent: 'center',
         cursor: disabled ? 'not-allowed' : 'pointer',
         background: getBackgroundColor(styleType),
         color: getTextColor(styleType, disabled),
@@ -43,6 +42,7 @@ const Button: React.FC<ButtonProps> = ({children, buttonType, styleType, customS
             className={`${customStyles} ${disabled ? '' : getHoverBackgroundColor(styleType)} ${disabled ? '' : getHoverTextColor(styleType)}`}
             style={{...defaultStyles}}
             disabled={disabled}
+            onClick={onClick}
         >
             {children}
         </button>

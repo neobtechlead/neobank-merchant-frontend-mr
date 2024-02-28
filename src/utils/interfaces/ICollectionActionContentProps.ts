@@ -1,0 +1,3 @@
+interface ICollectionActionContentProps {
+    resetDashboard: () => void
+}

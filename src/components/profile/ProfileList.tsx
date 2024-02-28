@@ -1,20 +1,20 @@
 import React from 'react';
-import ProfileListItem from './ProfileListItem';
+import ProfileListItem from "@/components/profile/ProfileListItem";
 
-const ProfileList: React.FC = () => {
+const ProfileList: React.FC<IProfileListProps> = ({onClick}) => {
     const profileItems = [
         {
-            href: '#',
+            href: '#profile',
             label: 'profile',
             iconSrc: '/assets/icons/user-circle.svg',
         },
         {
-            href: '/settings',
+            href: '#settings',
             label: 'settings',
             iconSrc: '/assets/icons/settings.svg',
         },
         {
-            href: '/',
+            href: '',
             label: 'logout',
             iconSrc: '/assets/icons/logout.svg',
         },
@@ -28,6 +28,7 @@ const ProfileList: React.FC = () => {
                     to={item.href}
                     label={item.label}
                     iconSrc={item.iconSrc}
+                    onClick={onClick}
                 />
             ))}
         </div>

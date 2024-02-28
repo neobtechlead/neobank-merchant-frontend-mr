@@ -1,0 +1,3 @@
+interface IProfileContentProps {
+    // onSubmit: () => void
+}

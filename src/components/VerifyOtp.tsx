@@ -1,14 +1,11 @@
 import React, { useRef, useState} from 'react';
 import Link from "next/link";
 import Button from "@/components/forms/Button";
+import {IVerifyOtpProps} from "@/utils/interfaces/IVerifyOtpProps";
+import Loader from "@/components/Loader";
 
-interface VerifyOtpProps {
-    handleSubmit: (otp: string) => void;
-}
-
-const VerifyOtp: React.FC<VerifyOtpProps> = ({handleSubmit, apiError}) => {
+const VerifyOtp: React.FC<IVerifyOtpProps> = ({handleSubmit, handleResend, loading = false, otpLength = 6}) => {
     const [error, setError] = useState<string | null>(null);
-    const otpLength = 6;
     const [otp, setOtp] = useState<string[]>(Array(otpLength).fill(''));
     const inputRefs = useRef<Array<HTMLInputElement | null>>(Array(otpLength).fill(null));
 
@@ -36,8 +33,8 @@ const VerifyOtp: React.FC<VerifyOtpProps> = ({handleSubmit, apiError}) => {
             const prevInput = inputRefs.current[index - 1];
 
             if (prevInput) {
-                const len = prevInput.value.length;
-                prevInput.setSelectionRange(len, len);
+                const length = prevInput.value.length;
+                prevInput.setSelectionRange(length, length);
             }
         } else if (event.key === 'Backspace' && index > 0) {
             inputRefs.current[index - 1]?.focus();
@@ -47,14 +44,14 @@ const VerifyOtp: React.FC<VerifyOtpProps> = ({handleSubmit, apiError}) => {
         }
     };
 
-    const handleResend = () => {
+    const handleResendOtp = () => {
         setError('')
         setOtp(Array(otpLength).fill(''));
+        if (handleResend) handleResend()
     };
 
-    const handleVerify = (event) => {
+    const handleVerify: React.FormEventHandler<HTMLFormElement> = (event) => {
         event.preventDefault();
-
         const otpCode = otp.join('');
         return handleSubmit(otpCode)
     };
@@ -63,10 +60,10 @@ const VerifyOtp: React.FC<VerifyOtpProps> = ({handleSubmit, apiError}) => {
 
     return (
         <>
-            <form onSubmit={handleVerify}>
-                <div className="flex flex-col">
+            <form onSubmit={handleVerify} className="min-w-full">
+                <div className="flex flex-col w-full">
                     <div
-                        className="flex flex-row items-center justify-between mx-auto w-full max-w-md gap-2">
+                        className="flex flex-row items-center justify-between mx-auto w-full gap-2">
                         {otp.map((value, index) => (
                             <div className="w-14 h-14" key={index}>
                                 <input
@@ -90,15 +87,19 @@ const VerifyOtp: React.FC<VerifyOtpProps> = ({handleSubmit, apiError}) => {
                             <Link
                                 className="flex flex-row items-center text-purple-900"
                                 href="#"
-                                onClick={handleResend}
+                                onClick={handleResendOtp}
                             >
                                 Resend
                             </Link>
                         </div>
 
-                        <Button buttonType="submit" styleType="primary" disabled={otp.some(value => value === '')}
-                                customStyles={`shadow-sm justify-center ${isFilled ? 'bg-purple-900 cursor-pointer' : 'bg-purple-200 cursor-not-allowed'}`}>
-                            Verify
+                        <Button buttonType="submit" styleType="primary" disabled={otp.some(value => value === '') || loading}
+                                customStyles={`shadow-sm justify-center p-4 md:p-5 rounded-lg ${isFilled() ? 'bg-purple-900 cursor-pointer' : 'bg-purple-200 cursor-not-allowed'}`}>
+                            {!loading && <span className="flex self-center">Verify</span>}
+                            {loading && <Loader type="default"
+                                                customClasses="relative"
+                                                customAnimationClasses="w-10 h-10 text-white dark:text-gray-600 fill-purple-900"
+                            />}
                         </Button>
                     </div>
                 </div>
