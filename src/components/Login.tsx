@@ -13,12 +13,14 @@ import {useUserStore} from "@/store/UserStore";
 import {getError} from "@/utils/lib";
 import Logo from "@/assets/images/logo.svg";
 import {useTransactionStore} from "@/store/TransactionStore";
+import Loader from "@/components/Loader";
 
 export default function Login() {
     const router = useRouter();
     const [formData, setFormData] = useState({email: '', password: ''});
     const [hasError, setHasError] = useState<boolean | undefined>(false);
     const [error, setError] = useState<string | null>(null);
+    const [loading, setLoading] = useState<boolean>(false);
     const {
         user,
         setUser,
@@ -46,6 +48,7 @@ export default function Login() {
 
     const handleSubmit: React.FormEventHandler<HTMLFormElement> = (event) => {
         event.preventDefault();
+        setLoading(true)
 
         if (hasError) return;
         setError('')
@@ -66,7 +69,7 @@ export default function Login() {
                     if (setMerchant) setMerchant(data.merchant)
                     return router.push('/overview')
                 }
-
+                setLoading(false)
                 return setError(getError(feedback))
             })
             .catch((error) => {
@@ -110,7 +113,7 @@ export default function Login() {
                                     placeholder="password"
                                     required={true}
                                     onInputChange={handleInputChange}
-                                    hasError={setHasError} autoComplete="false"/>
+                                    hasError={setHasError} autoComplete="false" passwordIcon/>
 
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center">
@@ -128,8 +131,13 @@ export default function Login() {
                                 <div className="flex flex-col gap-y-2">
                                     <Button styleType="primary" customStyles="justify-center p-4 md:p-5 rounded-lg"
                                             buttonType="submit"
-                                            disabled={hasError}>
-                                        <span className="flex self-center">Sign in</span>
+                                            disabled={hasError || loading}>
+
+                                        {!loading && <span className="flex self-center">Sign in</span>}
+                                        {loading && <Loader type="default"
+                                                            customClasses="relative"
+                                                            customAnimationClasses="w-10 h-10 text-white dark:text-gray-600 fill-purple-900"
+                                        />}
                                     </Button>
                                 </div>
                             </form>

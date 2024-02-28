@@ -6,7 +6,6 @@ import {useDashboardStore} from "@/store/DashboardStore";
 import Svg from "@/components/Svg";
 import {ArrowLeft} from "@/assets/icons/ArrowLeft";
 import {useTransactionStore} from "@/store/TransactionStore";
-import {useUserStore} from "@/store/UserStore";
 import {useAuthHelper} from "@/hooks/useAuthEffect";
 
 const DisbursementPage: React.FC = () => {
@@ -26,10 +25,6 @@ const DisbursementPage: React.FC = () => {
     } = useDashboardStore();
 
     const {disbursements} = useTransactionStore();
-    const {
-        isAuthenticated,
-        setIsAuthenticated
-    } = useUserStore();
 
     const [showDisbursementActionContent, setShowDisbursementActionContent] = useState<boolean>(false);
     const [hasActivity, setHasActivity] = useState<boolean>(false);
@@ -46,11 +41,7 @@ const DisbursementPage: React.FC = () => {
         setShowSupportButton(true)
     }
 
-    useAuthHelper({
-        isAuthenticated,
-        setHeaderDetails,
-        setIsAuthenticated
-    })
+    useAuthHelper({setHeaderDetails})
 
     const handleBackButtonClicked = () => {
         setHeaderDetails()

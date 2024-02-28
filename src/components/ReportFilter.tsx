@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import TextInput from "@/components/forms/TextInput";
 import DatePicker from "@/components/forms/DatePicker";
 import Button from "@/components/forms/Button";
@@ -20,7 +20,7 @@ const ReportFilter: React.FC<IReportFilterProps> = ({onSubmit, onReset}) => {
 
     const dropdownData: IListBoxItem[] = [
         {label: 'select status', value: 'select status'},
-        {label: 'in progress', value: 'in progress'},
+        {label: 'initiated', value: 'initiated'},
         {label: 'queued', value: 'queued'},
         {label: 'failed', value: 'failed'},
         {label: 'completed', value: 'completed'},

@@ -2,8 +2,9 @@ import React, {useEffect, useState} from 'react';
 import TextInput from "@/components/forms/TextInput";
 import Button from "@/components/forms/Button";
 import {ICreatePasswordProps} from "@/utils/interfaces/ICreatePasswordProps";
+import Loader from "@/components/Loader";
 
-const CreatePassword: React.FC<ICreatePasswordProps> = ({handleSubmit, handleError, buttonText = 'Create Password'}) => {
+const CreatePassword: React.FC<ICreatePasswordProps> = ({handleSubmit, handleError, buttonText = 'Create Password', loading= false}) => {
     const [formData, setFormData] = useState({password: "", confirmPassword: ""});
     const [hasError, setHasError] = useState<boolean>(false);
 
@@ -60,9 +61,13 @@ const CreatePassword: React.FC<ICreatePasswordProps> = ({handleSubmit, handleErr
                     />
                 </div>
 
-                <Button buttonType="submit" styleType="primary" disabled={hasError}
+                <Button buttonType="submit" styleType="primary" disabled={hasError || loading}
                         customStyles={`shadow-sm justify-center mt-[50px] p-4 md:p-5 rounded-lg ${hasError ? 'bg-purple-900 cursor-pointer' : 'bg-purple-200 cursor-not-allowed'}`}>
-                    {buttonText}
+                    {!loading && <span className="flex self-center">{buttonText}</span>}
+                    {loading && <Loader type="default"
+                                        customClasses="relative"
+                                        customAnimationClasses="w-10 h-10 text-white dark:text-gray-600 fill-purple-900"
+                    />}
                 </Button>
             </form>
         </>

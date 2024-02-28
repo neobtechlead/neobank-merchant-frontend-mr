@@ -13,11 +13,9 @@ import {downloadReport, listTransactions} from "@/api/transaction";
 import {useUserStore} from "@/store/UserStore";
 import {
     camelToKebab,
-    convertDateTimeToISOFormat,
     extractPaginationData,
     formatAmount,
     formatAmountGHS,
-    getTimestamp,
     normalizeDate
 } from "@/utils/lib";
 import {IListBoxItem} from "@/utils/interfaces/IDropdownProps";
@@ -148,7 +146,6 @@ const ReportContent: React.FC<IReportContentProps> = ({
             .join('&');
     };
 
-
     const handleSetPageOption = (pageOption: IListBoxItem) => {
         const queryString = prepareFilterQueryString({rows: pageOption.value})
         setFilterQueryString(queryString);
@@ -164,17 +161,7 @@ const ReportContent: React.FC<IReportContentProps> = ({
 
         if (data.externalId) {
             const filteredTransactions = getTransaction(data.externalId)
-
-            const recentTransaction = filteredTransactions[0]
-            const transactionTimestamp = getTimestamp(recentTransaction?.createdAt)
-
-            const currentDateTimeString = convertDateTimeToISOFormat(new Date().toLocaleString(), 'dd/MM/yyyy, HH:mm:ss')
-            const currentTimestamp = getTimestamp(currentDateTimeString);
-
-            if ((currentTimestamp - transactionTimestamp) < 5 * 60 * 1000)
-                return fetchTransactions(prepareFilterQueryString({externalId: recentTransaction.externalId}))
-
-            if (filteredTransactions.length > 0) return setReports(filteredTransactions)
+            return fetchTransactions(prepareFilterQueryString({externalId: filteredTransactions[0].externalId}))
         }
 
         return fetchTransactions(queryString)

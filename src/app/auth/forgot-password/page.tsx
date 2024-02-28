@@ -19,7 +19,7 @@ const ForgotPassword: React.FC = () => {
 
     return (
         <>
-            {!emailSubmitted && <ForgotPasswordForm />}
+            {!emailSubmitted && <ForgotPasswordForm/>}
             {emailSubmitted && <VerificationContent/>}
         </>
     );

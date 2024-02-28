@@ -39,10 +39,6 @@ const DisbursementContent: React.FC<IDisbursementContent> = ({
         setNavTitle,
         setShowSupportButton,
     } = useDashboardStore();
-
-    const {
-        setActionType
-    } = useDisbursementStore();
     const {disbursements, setDisbursements} = useTransactionStore()
     const {merchant, user} = useUserStore()
 
@@ -65,7 +61,6 @@ const DisbursementContent: React.FC<IDisbursementContent> = ({
             })
     }
 
-    const [contentType, setContentType] = useState<string>('initiate');
     const [openTransactionDetail, setOpenTransactionDetail] = useState<boolean>(false);
     const [transaction, setTransaction] = useState<TransactionType>({
         date: "",
@@ -88,9 +83,6 @@ const DisbursementContent: React.FC<IDisbursementContent> = ({
         {label: 'status', classes: ''},
         {label: ' ', classes: ''}
     ]
-
-    const singleDisbursementActionDescription = "Send funds to a single recipient here."
-    const bulkDisbursementActionDescription = "Send funds to multiple recipients at once."
 
     const setDashboardState = () => {
         getDisbursementTransactions('')
@@ -140,35 +132,20 @@ const DisbursementContent: React.FC<IDisbursementContent> = ({
         setOpenTransactionDetail(true)
     }
 
-    const handleDisbursementActionContent = (actionType = '') => {
-        let pageHeading
-        let pageDescription
+    const handleDisbursementActionContent = () => {
         setShowLogo(false)
         setShowBackButton(true)
         setShowSupportButton(false)
-
-        if (disbursements && !disbursements?.transactions.length) {
-            setNavTitle('single')
-            setContentType('initiate')
-            if (setShowEmptyState) setShowEmptyState(false)
-            pageHeading = 'Disburse Funds'
-            pageDescription = 'A crucial step in ensuring the smooth, seamless and efficient transfer of funds or assets from one source to another.'
-        } else {
-            pageHeading = actionType.charAt(0).toUpperCase() + actionType.slice(1) + " Disbursement";
-            pageDescription = actionType === 'single' ? singleDisbursementActionDescription : bulkDisbursementActionDescription
-            setNavTitle(actionType)
-            setContentType(actionType)
-            setActionType(actionType)
-        }
-
-        setNavTitle(pageHeading)
-        if (setHasActivity) setHasActivity(false)
-        if (setShowDisbursementActionContent) setShowDisbursementActionContent(true)
-
-        setHeaderTitle(pageHeading)
-        setHeaderDescription(pageDescription)
         setShowNavigation(false)
         setShowProfileDropdown(false)
+
+        setNavTitle('Disburse Funds')
+        setHeaderTitle('Initiate Disbursement')
+        setHeaderDescription('A crucial step in ensuring the smooth, seamless and efficient transfer of funds or assets from one source to another.')
+
+        if (setShowEmptyState) setShowEmptyState(false)
+        if (setHasActivity) setHasActivity(false)
+        if (setShowDisbursementActionContent) setShowDisbursementActionContent(true)
     }
 
     return (
@@ -198,57 +175,16 @@ const DisbursementContent: React.FC<IDisbursementContent> = ({
             </EmptyTransactionCardContent>}
 
             <div className="h-full">
-                {hasActivity && <div>
-                    <div className="grid grid-cols-1 mt-4 md:grid-cols-2 lg:grid-cols-2 xl:gap-x-2 gap-4">
-                        <EmptyTransactionCardContent
-                            iconPath="/assets/images/single-disbursement.svg"
-                            iconWidth={200}
-                            iconHeight={97}
-                            iconCustomStyle="mb-[44px]"
-                            customStyles="h-full border rounded-lg ml-5 py-[40px]"
-                            showContent
-                            title="SINGLE DISBURSEMENT"
-                            description="Send funds to a single recipient."
-                        >
-                            <div className="text-center">
-                                <div className="flex flex-col mt-5 mx-2"
-                                     onClick={() => handleDisbursementActionContent('single')}>
-
-                                    <Button styleType="secondary" customStyles="justify-center p-4 md:p-5 rounded"
-                                            buttonType="button">
-                                        <div className="flex items-center font-semibold">
-                                            <Svg customClasses="mr-1 flex items-center" fill="#652D90" path={Plus}/>
-                                            <span className="uppercase flex text-sm">make a single disbursement</span>
-                                        </div>
-                                    </Button>
-                                </div>
-                            </div>
-                        </EmptyTransactionCardContent>
-                        <EmptyTransactionCardContent
-                            iconPath="/assets/images/bulk-disbursement.svg"
-                            iconWidth={125}
-                            iconHeight={125}
-                            iconCustomStyle="mb-[17px]"
-                            customStyles="h-full border rounded-lg mr-5 py-[40px]"
-                            showContent
-                            title="BULK DISBURSEMENT"
-                            description="Send funds to multiple recipients at once."
-                        >
-                            <div className="text-center">
-                                <div className="flex flex-col mt-5"
-                                     onClick={() => handleDisbursementActionContent('bulk')}>
-                                    <Button styleType="secondary" customStyles="justify-center p-4 md:p-5 rounded"
-                                            buttonType="button">
-                                        <div className="flex items-center font-semibold">
-                                            <Svg customClasses="mr-1 flex items-center" fill="#652D90" path={Plus}/>
-                                            <span className="uppercase flex text-sm">make a bulk disbursement</span>
-                                        </div>
-                                    </Button>
-                                </div>
-                            </div>
-                        </EmptyTransactionCardContent>
-                    </div>
-                    <div className=" overflow-hidden rounded-lg border border-gray-100 m-5 px-5">
+                {hasActivity && <div className="overflow-hidden rounded-lg m-5">
+                    <Button styleType="primary" customStyles="justify-center p-4 md:p-5 rounded mb-5 max-w-xs ml-auto"
+                            buttonType="button"
+                            onClick={handleDisbursementActionContent}>
+                        <div className="flex items-center font-semibold">
+                            <Svg customClasses="mr-1 flex items-center" fill="#FFF" path={Plus}/>
+                            <span className="uppercase flex text-sm">initiate disbursement</span>
+                        </div>
+                    </Button>
+                    <div className="overflow-hidden rounded-lg border border-gray-100">
                         <Table title="Disbursement Transaction" headers={tableHeading}>
                             {disbursements?.transactions && disbursements?.transactions.map((transaction, key) => (
                                 <tr key={key} className={`text-center `}>
@@ -292,10 +228,7 @@ const DisbursementContent: React.FC<IDisbursementContent> = ({
                     </div>
                 </div>}
 
-                {showDisbursementActionContent &&
-                    <DisbursementActionContent
-                        contentType={contentType}
-                        resetDashboard={setDashboardState}/>}
+                {showDisbursementActionContent && <DisbursementActionContent resetDashboard={setDashboardState}/>}
             </div>
 
             <OverlayDetailContainer open={openTransactionDetail}

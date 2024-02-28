@@ -204,11 +204,11 @@ const DashboardLayout: React.FC<IDashboardLayoutProps> = ({
 
                     <div className={`sm:mt-4 flex gap-5`}>
                         <Button buttonType="button" styleType="tertiary"
-                                customStyles="p-4 md:p-5 rounded-md border border-gray-300 bg-transparent"
+                                customStyles="p-4 md:p-5 rounded-md border border-gray-300 bg-transparent w-full"
                                 onClick={() => handleLogoutAction('no')}>
                             <span className="text-gray-900 font-semibold">No</span>
                         </Button>
-                        <Button buttonType="button" styleType="primary" customStyles="p-4 md:p-5 rounded-md"
+                        <Button buttonType="button" styleType="primary" customStyles="p-4 md:p-5 rounded-md w-full"
                                 onClick={() => handleLogoutAction('yes')}> Yes </Button>
                     </div>
                 </div>
