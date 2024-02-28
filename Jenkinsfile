@@ -110,7 +110,7 @@ node {
                     ns = 'staging'
                     url = "https://neobank-merchant-staging.completefarmer.com" 
                 break
-                case 'master':
+                case 'main':
                     deploy_title = 'Production'
                     ns = 'production'
                     url = "https://neobank-merchant.completefarmer.comm"
