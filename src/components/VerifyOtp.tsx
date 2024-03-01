@@ -88,7 +88,6 @@ const VerifyOtp: React.FC<IVerifyOtpProps> = ({handleSubmit, handleResend, loadi
                                 className="flex flex-row items-center text-purple-900"
                                 href="#"
                                 onClick={handleResendOtp}
-                                disabled={loading}
                             >
                                 Resend
                             </Link>}

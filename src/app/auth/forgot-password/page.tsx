@@ -8,7 +8,7 @@ import ForgotPasswordVerificationContent from "@/components/ForgotPasswordVerifi
 const ForgotPassword: React.FC = () => {
     const [emailSubmitted, setEmailSubmitted] = useState<boolean | null>(false);
     const token = useSearchParams().get('token')
-    const {setIsAuthenticated} = useUserStore()
+    const {setIsAuthenticated,} = useUserStore();
 
     useEffect(() => {
         if (setIsAuthenticated) setIsAuthenticated(false)
