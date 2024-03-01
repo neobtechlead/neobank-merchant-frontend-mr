@@ -35,10 +35,8 @@ export default function Login() {
     }, [])
 
     const handleUserLogout = () => {
-        if (user?.authToken) {
-            if (resetTransactionStore) resetTransactionStore()
-            if (resetUserStore) resetUserStore()
-        }
+        if (resetTransactionStore) resetTransactionStore()
+        if (resetUserStore) resetUserStore()
     }
 
     const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {

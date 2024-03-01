@@ -15,7 +15,7 @@ export async function verifyOtp(accessKey: string | undefined, otp: string) {
     });
 }
 
-export async function verifyPasswordResetOtp(accessKey: string | null, otp: string) {
+export async function verifyPasswordResetOtp(accessKey?: string, otp?: string) {
     return await fetcher('api/v1/auth/reset-password/verify-otp', {
         method: 'POST',
         headers: {
@@ -37,7 +37,7 @@ export async function createPassword(password: string, confirmPassword: string, 
     });
 }
 
-export async function resendOtp(accessKey: string | undefined, channel: string | undefined = 'EMAIL') {
+export async function resendOtp(accessKey?: string, channel: string | undefined = 'EMAIL') {
     return await fetcher(`api/v1/auth/resend-otp?accessKey=${accessKey}&channel=${channel}`, {
         headers: {
             'Content-Type': 'application/json'

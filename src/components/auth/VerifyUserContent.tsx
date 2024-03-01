@@ -7,14 +7,15 @@ import {getError} from "@/utils/lib";
 import VerifyOtp from "@/components/VerifyOtp";
 import CreatePassword from "@/components/CreatePassword";
 import AuthContentWrapper from "@/components/auth/AuthContentWrapper";
+import {IAlert} from "@/utils/interfaces/IAlert";
 
 const VerifyUserContent: React.FC = () => {
     const [title, setTitle] = useState<string>('Enter OTP');
     const [description, setDescription] = useState<string>('We have sent you a One Time Password to your email address.');
-    const [error, setError] = useState<string>('');
-
     const [otpVerified, setOtpVerified] = useState<boolean | null>(false);
     const [verificationComplete, setVerificationComplete] = useState(false);
+    const [alertInfo, setAlertInfo] = useState<IAlert>({alertType: '', description: ''});
+
     const router = useRouter();
     const {
         user,
@@ -46,11 +47,11 @@ const VerifyUserContent: React.FC = () => {
                         accessKey: data.accessKey,
                     })
                 } else
-                    return setError(getError(feedback))
+                    return setAlertInfo({alertType: 'error', description: getError(feedback)})
             })
             .catch((error) => {
                 setVerificationComplete(false);
-                setError(error.message)
+                setAlertInfo({alertType: 'error', description: getError(error)})
             })
     }
 
@@ -61,7 +62,7 @@ const VerifyUserContent: React.FC = () => {
                 const feedback = await response.json()
                 if (setLoading) setLoading(false)
                 if (response.ok) {
-                    setError('')
+                    setAlertInfo({alertType: '', description: ''})
                     setOtpVerified(true)
                     setTitle('Create a Password')
                     setDescription('Create a password to sign in to your account')
@@ -77,54 +78,54 @@ const VerifyUserContent: React.FC = () => {
                     })
                     if (setMerchant) setMerchant(data.merchant)
                 } else
-                    return setError(getError(feedback))
+                    return setAlertInfo({alertType: 'error', description: getError(feedback)})
             })
             .catch((error) => {
-                if (setLoading) setLoading(false);
-                setError(error.message)
+                if (setLoading) setLoading(false)
+                setAlertInfo({alertType: 'error', description: getError(error)})
             })
     };
 
-    const handlePasswordCreate = (password: string, confirmPassword: string) => {
+    const handlePasswordCreate = (password: string,) => {
         if (setLoading) setLoading(true);
-        createPassword(password, confirmPassword, user?.authToken)
+        createPassword(password, password, user?.authToken)
             .then(async (response) => {
                 const feedback = await response.json()
                 if (setLoading) setLoading(false);
 
                 if (response.ok) {
                     if (setIsAuthenticated) setIsAuthenticated(true)
-                    setError('')
+                    setAlertInfo({alertType: '', description: ''})
                     return router.push('/overview')
                 } else
-                    return setError(getError(feedback))
+                    return setAlertInfo({alertType: 'error', description: getError(feedback)})
             })
             .catch((error) => {
                 if (setLoading) setLoading(false);
-                setError(error.message)
+                setAlertInfo({alertType: 'error', description: getError(error)})
             })
     };
     const handleResendOtp = () => {
         resendOtp(user?.accessKey)
             .then(async (response) => {
                 if (response.ok) {
-                    setError('')
+                    setAlertInfo({alertType: '', description: ''})
                     const data = await response.json()
-                    if (setUser) return setUser({accessKey: data.accessKey})
+                    if (setUser) return setUser({accessKey: data.accessKey, ...user})
                 }
             })
             .catch((error) => {
                 if (setLoading) setLoading(false);
-                setError(error.message)
+                setAlertInfo({alertType: 'error', description: getError(error)})
             })
     };
-    const handleError = (error: string) => setError(error)
+    const handleError = (error: string) => setAlertInfo({alertType: 'error', description: error})
 
     return (
-        <AuthContentWrapper title={title} description={description} error={error}>
-            {!otpVerified && <VerifyOtp handleSubmit={handleVerifyOtp} handleResend={handleResendOtp} otpLength={6}
-                                        loading={loading ?? false}/>}
-            {otpVerified && <CreatePassword handleError={handleError} handleSubmit={handlePasswordCreate}/>}
+        <AuthContentWrapper title={title} description={description} alertInfo={alertInfo}>
+            {otpVerified ? <CreatePassword handleError={handleError} handleSubmit={handlePasswordCreate}/>
+                : <VerifyOtp handleSubmit={handleVerifyOtp} handleResend={handleResendOtp} otpLength={6}
+                             loading={loading ?? false}/>}
         </AuthContentWrapper>
     );
 }

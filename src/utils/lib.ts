@@ -96,7 +96,9 @@ const isErrorStringFormat = (message: string = '') => {
 export const getError = (error: ErrorResponse): string => {
     if (error.data) {
         const {violations} = error.data;
-        if (violations) return `${violations[0].field} ${violations[0].message}`;
+        if (violations && ['accessKey'].includes(violations[0].field))
+            return `${capitalizeFirstLetter(camelCaseToWords(violations[0].field))} ${violations[0].message}`
+        if (violations) return `${violations[0].message}`;
     }
 
     if (isErrorStringFormat(error.message)) {
