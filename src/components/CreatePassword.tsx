@@ -26,7 +26,7 @@ const CreatePassword: React.FC<ICreatePasswordProps> = ({handleSubmit, handleErr
             return handleError('Passwords are not identical')
         }
 
-        if (!hasError) return handleSubmit(formData.password, formData.confirmPassword)
+        if (!hasError) return handleSubmit(formData.password)
     }
 
     return (

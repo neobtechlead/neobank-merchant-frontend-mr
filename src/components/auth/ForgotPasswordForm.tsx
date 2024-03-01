@@ -8,11 +8,11 @@ import {getError, isValidEmail} from "@/utils/lib";
 import {IForgotPasswordForm} from "@/utils/interfaces/IForgotPasswordForm";
 import Loader from "@/components/Loader";
 import AuthContentWrapper from "@/components/auth/AuthContentWrapper";
+import {IAlert} from "@/utils/interfaces/IAlert";
 
 const ForgotPasswordForm: React.FC<IForgotPasswordForm> = () => {
     const router = useRouter()
     const [hasError, setHasError] = useState<boolean>(false);
-    const [error, setError] = useState<string>('');
     const [loading, setLoading] = useState<boolean>(false);
     const [title, setTitle] = useState<string>('Forgot Password');
     const [emailSent, setEmailSent] = useState<boolean>(false);
@@ -20,6 +20,7 @@ const ForgotPasswordForm: React.FC<IForgotPasswordForm> = () => {
     const [formData, setFormData] = useState<TransactionType>({
         email: '',
     });
+    const [alertInfo, setAlertInfo] = useState<IAlert>({alertType: '', description: ''});
 
     const isFormValid = () => {
         return ![undefined, null, ''].includes(formData.email?.trim())
@@ -47,7 +48,10 @@ const ForgotPasswordForm: React.FC<IForgotPasswordForm> = () => {
                     }
                 })
                 .catch((error) => {
-                    setError(getError(error))
+                    setAlertInfo({
+                        alertType: 'error',
+                        description: getError(error)
+                    })
                 })
         } else
             return setHasError(true);
@@ -56,7 +60,8 @@ const ForgotPasswordForm: React.FC<IForgotPasswordForm> = () => {
     const handleReturnToLogin = () => router.push("/")
 
     return (
-        <AuthContentWrapper title={title} description={description} error={error} customClasses={emailSent ? 'mt-20' : 'py-10'}>
+        <AuthContentWrapper title={title} description={description} alertInfo={alertInfo}
+                            customClasses={emailSent ? 'mt-20' : 'py-10'}>
             <form method="POST" onSubmit={handleSubmit} className={emailSent ? 'py-10' : ''}>
                 {!emailSent && <div className="flex">
                     <TextInput

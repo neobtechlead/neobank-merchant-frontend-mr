@@ -1,4 +1,4 @@
-import React, { useRef, useState} from 'react';
+import React, {useRef, useState} from 'react';
 import Link from "next/link";
 import Button from "@/components/forms/Button";
 import {IVerifyOtpProps} from "@/utils/interfaces/IVerifyOtpProps";
@@ -84,13 +84,13 @@ const VerifyOtp: React.FC<IVerifyOtpProps> = ({handleSubmit, handleResend, loadi
                         <div
                             className="flex flex-row items-center justify-center text-center text-sm font-medium space-x-1 text-gray-500 mb-[60px]">
                             <p>Didn't receive OTP?</p>
-                            <Link
+                            {!loading && <Link
                                 className="flex flex-row items-center text-purple-900"
                                 href="#"
                                 onClick={handleResendOtp}
                             >
                                 Resend
-                            </Link>
+                            </Link>}
                         </div>
 
                         <Button buttonType="submit" styleType="primary" disabled={otp.some(value => value === '') || loading}
