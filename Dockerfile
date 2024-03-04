@@ -15,8 +15,11 @@ ENV PATH /home/node/app/node_modules/.bin:$PATH
 # copy package json into project (and create a directory at root for node_modules)
 COPY package.json *yarn* ./
 
+# Copy the application code without assigning write permissions to the executable
 COPY --chown=node:node . .
-RUN chown -R node:node /home/node/app
+
+# Ensure the node user has write permissions for the necessary directories during the build
+RUN chmod -R 755 /home/node/app
 
 # Installs all node packages
 RUN yarn --silent
@@ -42,6 +45,11 @@ RUN rm -rf /usr/share/nginx/html/*
 # copy build files to nginx delivery directory
 COPY --from=builder /home/node/app/build /usr/share/nginx/html
 COPY --from=builder /home/node/app/public/assets /usr/share/nginx/html/assets
+
+# Ensure the node user has read-only permissions
+RUN chown -R nginx:nginx /usr/share/nginx/html
+RUN chmod -R 755 /usr/share/nginx/html
+
 EXPOSE 3000 80
 
 CMD ["nginx", "-g", "daemon off;"]
