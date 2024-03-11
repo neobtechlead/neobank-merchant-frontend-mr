@@ -34,12 +34,14 @@ node {
         }
         stage('SonarQube Analysis'){
                 withSonarQubeEnv('Sonarqube'){
+                    withCredentials([string(credentialsId: 'transact-merchant-dashboard-sonar-token', variable: 'SONAR_TOKEN')]) {
                     sh "sonar-scanner \
                         -Dsonar.projectKey=cf-neobank-merchant-frontend \
                         -Dsonar.sources=. \
                         -Dsonar.host.url=${env.SONARQUBE_URL} \
-                        -Dsonar.login=${env.NEOBANK_MERCHANT_FRONTNED_SONARQUBE_TOKEN}"
+                        -Dsonar.login=\"\$SONAR_TOKEN\""
                     }
+                }
             }
         stage('Quality Gateway'){
                 timeout(time: 1, unit: 'HOURS'){
